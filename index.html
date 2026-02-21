@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jornada PRO NAVANTIA Ferrol</title>
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">  
+
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script type="module" src="app.js"></script>
+</head>
+
+<body>
+
+<header class="header">
+  <h1>Jornada Pro</h1>
+</header>
+
+<!-- REGISTRO DIARIO -->
+<section class="card registro">
+
+  <!-- FORMULARIO REGISTRO -->
+  <div class="form-card registro-card">
+
+    <h3 style="margin-top:0;">Registro Diario</h3>
+
+    <!-- FECHA + ENTRADA -->
+    <div class="grid-2">
+
+      <div class="floating-group">
+        <input type="date" id="fecha" required>
+        <label for="fecha">Fecha</label>
+      </div>
+
+      <div class="floating-group">
+        <input type="time" id="entrada" required>
+        <label for="entrada">Hora de entrada</label>
+      </div>
+
+    </div>
+
+    <!-- BOTONES INICIAR / FINALIZAR JORNADA -->
+    <div class="jornada-acciones">
+      <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar">
+        Iniciar jornada
+      </button>
+      <button type="button" id="finalizarJornada" class="btn-jornada btn-finalizar">
+        Finalizar jornada
+      </button>
+    </div>
+
+    <!-- SALIDA + AJUSTE -->
+    <div class="grid-2">
+
+      <div class="floating-group">
+        <input type="time" id="salida">
+        <label for="salida">Hora de salida real</label>
+      </div>
+
+      <div class="floating-group">
+        <input type="number" id="minAntes" min="0">
+        <label for="minAntes">Salir antes (minutos)</label>
+      </div>
+
+    </div>
+
+    <!-- DISFRUTADAS -->
+    <div class="floating-group">
+      <input type="number" id="disfrutadas" min="0">
+      <label for="disfrutadas">Horas disfrutadas (min)</label>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="acciones-row">
+
+      <button type="button" id="guardar">
+        Guardar
+      </button>
+
+      <button type="button" id="vacaciones">
+        Vacaciones
+      </button>
+
+      <button type="button" id="eliminar" class="btn-danger">
+        Eliminar
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- SALIDAS VISUALES -->
+  <div class="salidas-card">
+    <div class="salida-box">
+      <span class="salida-label">Salida teórica</span>
+      <strong id="salidaTeorica">--:--</strong>
+    </div>
+
+    <div class="salida-box">
+      <span class="salida-label">Salida ajustada</span>
+      <strong id="salidaAjustada">--:--</strong>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <div class="progress-wrapper">
+  <div id="barra"></div>
+  <div id="progresoInside" class="progress-text-inside"></div>
+</div>
+
+<div id="resumenDia" class="resumen-dia">
+  <div class="resumen-line">
+    <span>Trabajado</span>
+    <strong id="rTrabajado">--</strong>
+  </div>
+
+  <div class="resumen-line">
+    <span>Extra</span>
+    <strong id="rExtra">--</strong>
+  </div>
+
+  <div class="resumen-line">
+    <span>Negativa</span>
+    <strong id="rNegativa">--</strong>
+  </div>
+</div>
+  
+</section>
+  
+<!-- GRID PRINCIPAL -->
+<section class="main-grid">
+
+  <!-- CALENDARIO -->
+  <div class="card calendar-card">
+
+    <div class="cal-nav">
+      <button id="prevMes">◀</button>
+      <span id="mesAnioLabel"></span>
+      <button id="nextMes">▶</button>
+    </div>
+
+    <div id="calendarGrid" class="calendar-grid"></div>
+
+  </div>
+
+  <!-- GRÁFICO LATERAL -->
+  <div class="card chart-card">
+    <canvas id="chart"></canvas>
+  </div>
+
+</section>
+
+<!-- MÉTRICAS BANCO -->
+<section class="card metrics">
+
+  <div class="metric">
+    <span>Generadas (Anual)</span>
+    <strong id="bGeneradas"></strong>
+  </div>
+
+  <div class="metric">
+    <span>Negativas (Anual)</span>
+    <strong id="bNegativas"></strong>
+  </div>
+
+  <div class="metric">
+    <span>Disfrutadas (Anual)</span>
+    <strong id="bDisfrutadas"></strong>
+  </div>
+
+  <div class="metric saldo">
+    <span>Saldo Anual</span>
+    <strong id="bSaldoAnual"></strong>
+  </div>
+
+  <div class="metric saldo">
+    <span>Saldo Mensual</span>
+    <strong id="bSaldo"></strong>
+  </div>
+
+
+</section>
+
+<!-- CONFIGURACIÓN + EXPORT -->
+<section class="card config-card">
+
+  <h3>Configuración</h3>
+
+  <label>
+    Jornada (min):
+    <input type="number" id="cfgJornada">
+  </label>
+
+  <label>
+    Aviso antes terminar (min):
+    <input type="number" id="cfgAviso">
+  </label>
+
+  <label>
+    Tema:
+    <select id="cfgTheme">
+      <option value="light">Claro</option>
+      <option value="dark">Oscuro</option>
+    </select>
+  </label>
+
+  <button id="guardarConfig">Guardar Configuración</button>
+
+  <hr>
+
+  <button id="excel">Exportar Excel</button>
+  <button id="backup">Backup</button>
+  <input type="file" id="restore">
+  
+</section>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js');
+}
+</script>  
+
+</body>
+</html>
