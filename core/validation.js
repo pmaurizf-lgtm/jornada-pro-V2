@@ -24,4 +24,11 @@ export function validateState(state) {
   if (typeof state.config.notificationsEnabled !== "boolean") {
     state.config.notificationsEnabled = true;
   }
+
+  if (typeof state.config.trabajoATurnos !== "boolean") {
+    state.config.trabajoATurnos = false;
+  }
+  if (!["06-14", "14-22", "22-06"].includes(state.config.turno)) {
+    state.config.turno = "06-14";
+  }
 }

@@ -34,33 +34,67 @@
 <div id="configPanel" class="config-panel">
   <div class="config-panel-inner">
     <h2 class="config-panel-title">Configuración</h2>
-    <label>
-      Jornada (min):
-      <input type="number" id="cfgJornada">
-    </label>
-    <label>
-      Aviso antes terminar (min):
-      <input type="number" id="cfgAviso">
-    </label>
-    <label>
-      Tema:
-      <select id="cfgTheme">
-        <option value="light">Claro</option>
-        <option value="dark">Oscuro</option>
-      </select>
-    </label>
-    <div class="config-notificaciones">
-      <label class="toggle-row">
-        <input type="checkbox" id="cfgNotificaciones" checked>
-        <span class="toggle-label">Notificaciones (aviso previo y fin de jornada)</span>
+
+    <div class="config-block">
+      <label class="config-row">
+        <span class="config-label">Jornada (min)</span>
+        <input type="number" id="cfgJornada" class="config-input" min="1">
       </label>
-      <p class="config-hint">Incluye avisos con la app en segundo plano o cerrada.</p>
+      <label class="config-row">
+        <span class="config-label">Aviso antes terminar (min)</span>
+        <input type="number" id="cfgAviso" class="config-input" min="0">
+      </label>
     </div>
-    <button id="guardarConfig">Guardar Configuración</button>
-    <hr>
-    <button id="excel">Exportar Excel</button>
-    <button id="backup">Backup</button>
-    <input type="file" id="restore">
+
+    <div class="config-block">
+      <label class="config-row">
+        <span class="config-label">Tema</span>
+        <select id="cfgTheme" class="config-input config-select">
+          <option value="light">Claro</option>
+          <option value="dark">Oscuro</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="config-block config-block-turnos">
+      <label class="config-row config-toggle-row">
+        <input type="checkbox" id="cfgTrabajoTurnos" class="config-checkbox">
+        <span class="config-label">Trabajo a turnos</span>
+      </label>
+      <div id="configTurnoWrap" class="config-turno-wrap" hidden>
+        <label class="config-row">
+          <span class="config-label">Turno</span>
+          <select id="cfgTurno" class="config-input config-select">
+            <option value="06-14">Mañana (06:00 – 14:00)</option>
+            <option value="14-22">Tarde (14:00 – 22:00)</option>
+            <option value="22-06">Noche (22:00 – 06:00)</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="config-block config-notificaciones">
+      <label class="config-row config-toggle-row">
+        <input type="checkbox" id="cfgNotificaciones" class="config-checkbox" checked>
+        <span class="config-label">Notificaciones</span>
+      </label>
+      <p class="config-hint">Aviso previo y fin de jornada (incl. app en segundo plano).</p>
+    </div>
+
+    <div class="config-actions">
+      <button type="button" id="guardarConfig" class="config-btn config-btn-primary">Guardar configuración</button>
+    </div>
+
+    <hr class="config-divider">
+
+    <div class="config-actions">
+      <button type="button" id="excel" class="config-btn">Exportar Excel</button>
+      <button type="button" id="backup" class="config-btn">Backup</button>
+      <label class="config-btn config-btn-file">
+        Restaurar
+        <input type="file" id="restore" class="config-file-input">
+      </label>
+    </div>
   </div>
   <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
 </div>
@@ -168,6 +202,11 @@
     <strong id="rExtra">--</strong>
   </div>
 
+  <div class="resumen-line" id="resumenExcesoWrap">
+    <span>Exceso jornada</span>
+    <strong id="rExceso">--</strong>
+  </div>
+
   <div class="resumen-line">
     <span>Negativa</span>
     <strong id="rNegativa">--</strong>
@@ -203,8 +242,13 @@
 <section class="card metrics">
 
   <div class="metric">
-    <span>Generadas (Anual)</span>
+    <span>Extra (Anual)</span>
     <strong id="bGeneradas"></strong>
+  </div>
+
+  <div class="metric">
+    <span>Exceso jornada (Anual)</span>
+    <strong id="bExceso"></strong>
   </div>
 
   <div class="metric">

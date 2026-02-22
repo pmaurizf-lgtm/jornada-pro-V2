@@ -58,11 +58,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const { getFunctions, httpsCallable } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js");
       const functions = getFunctions(firebaseApp);
       const register = httpsCallable(functions, "registerNotificationSchedule");
+      const jornadaNotif = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
       await register({
         token: currentFcmToken,
         fecha: hoy,
         entrada: entradaHoy,
-        jornadaMin: state.config.jornadaMin,
+        jornadaMin: jornadaNotif,
         avisoMin: state.config.avisoMin,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Madrid"
       });
@@ -138,6 +139,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const resumenDia = document.getElementById("resumenDia");
   const rTrabajado = document.getElementById("rTrabajado");
   const rExtra = document.getElementById("rExtra");
+  const rExceso = document.getElementById("rExceso");
+  const resumenExcesoWrap = document.getElementById("resumenExcesoWrap");
   const rNegativa = document.getElementById("rNegativa");
 
   const calendarGrid = document.getElementById("calendarGrid");
@@ -146,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextMes = document.getElementById("nextMes");
 
   const bGeneradas = document.getElementById("bGeneradas");
+  const bExceso = document.getElementById("bExceso");
   const bNegativas = document.getElementById("bNegativas");
   const bDisfrutadas = document.getElementById("bDisfrutadas");
   const bSaldoAnual = document.getElementById("bSaldoAnual");
@@ -164,6 +168,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgAviso = document.getElementById("cfgAviso");
   const cfgTheme = document.getElementById("cfgTheme");
   const cfgNotificaciones = document.getElementById("cfgNotificaciones");
+  const cfgTrabajoTurnos = document.getElementById("cfgTrabajoTurnos");
+  const cfgTurno = document.getElementById("cfgTurno");
+  const configTurnoWrap = document.getElementById("configTurnoWrap");
   const guardarConfig = document.getElementById("guardarConfig");
 
   const chartCanvas = document.getElementById("chart");
@@ -177,6 +184,16 @@ if (cfgJornada) cfgJornada.value = state.config.jornadaMin;
 if (cfgAviso) cfgAviso.value = state.config.avisoMin;
 if (cfgTheme) cfgTheme.value = state.config.theme;
 if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
+if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = state.config.trabajoATurnos === true;
+if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
+if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
+
+// Toggle visibilidad selector turno
+if (cfgTrabajoTurnos && configTurnoWrap) {
+  cfgTrabajoTurnos.addEventListener("change", () => {
+    configTurnoWrap.hidden = !cfgTrabajoTurnos.checked;
+  });
+}
 
 // Aplicar tema al iniciar
 aplicarTheme(state.config.theme);
@@ -189,6 +206,8 @@ if (guardarConfig) {
     state.config.avisoMin = Number(cfgAviso.value);
     state.config.theme = cfgTheme.value;
     state.config.notificationsEnabled = cfgNotificaciones ? cfgNotificaciones.checked : true;
+    state.config.trabajoATurnos = cfgTrabajoTurnos ? cfgTrabajoTurnos.checked : false;
+    state.config.turno = cfgTurno ? cfgTurno.value : "06-14";
 
     saveState(state);
 
@@ -248,6 +267,10 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     rExtra.classList.toggle("positive", registro.extraGeneradaMin > 0);
     rExtra.classList.remove("negative");
 
+    const excesoMin = registro.excesoJornadaMin || 0;
+    if (rExceso) rExceso.innerText = (excesoMin / 60).toFixed(2) + "h";
+    if (resumenExcesoWrap) resumenExcesoWrap.style.display = excesoMin > 0 ? "" : "none";
+
     rNegativa.innerText = (registro.negativaMin / 60).toFixed(2) + "h";
     rNegativa.classList.toggle("negative", registro.negativaMin > 0);
     rNegativa.classList.remove("positive");
@@ -271,6 +294,7 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     const mensual = calcularResumenMensual(state.registros, currentMonth, currentYear);
 
     if (bGeneradas) bGeneradas.innerText = minutosAHorasMinutos(anual.generadas);
+    if (bExceso) bExceso.innerText = minutosAHorasMinutos(anual.exceso || 0);
     if (bNegativas) bNegativas.innerText = minutosAHorasMinutos(anual.negativas);
     if (bDisfrutadas) bDisfrutadas.innerText = minutosAHorasMinutos(anual.disfrutadas);
     if (bSaldoAnual) {
@@ -307,7 +331,8 @@ function recalcularEnVivo() {
       entrada: entrada.value,
       salidaReal: salida.value || null,
       jornadaMin: state.config.jornadaMin,
-      minAntes: Number(minAntes.value) || 0
+      minAntes: Number(minAntes.value) || 0,
+      trabajoATurnos: state.config.trabajoATurnos === true
     });
 
     if (salidaTeorica) salidaTeorica.innerText = minutesToTime(resultado.salidaTeoricaMin);
@@ -339,8 +364,9 @@ function actualizarProgreso() {
   }
 
   const trabajado = ahoraMin - entradaMin;
+  const jornadaRef = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
   const porcentaje = Math.min(
-    (trabajado/state.config.jornadaMin)*100,
+    (trabajado / jornadaRef) * 100,
     100
   );
 
@@ -447,9 +473,14 @@ function controlarNotificaciones() {
   if (entrada) entrada.addEventListener("input", () => {
     recalcularEnVivo();
     actualizarProgreso();
+    if (fecha && fecha.value === getHoyISO() && entrada.value) guardarBorradorSesion();
   });
   if (salida) salida.addEventListener("input", recalcularEnVivo);
   if (minAntes) minAntes.addEventListener("input", recalcularEnVivo);
+  if (fecha) fecha.addEventListener("change", () => {
+    if (fecha.value === getHoyISO() && entrada && entrada.value) guardarBorradorSesion();
+    else if (fecha.value !== getHoyISO()) limpiarBorradorSesion();
+  });
 
   // ===============================
   // INICIAR / FINALIZAR JORNADA
@@ -465,14 +496,40 @@ function controlarNotificaciones() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
 
+  const SESSION_DRAFT_KEY = "jornadaPro_sessionDraft";
+
+  function guardarBorradorSesion() {
+    const hoy = hoyISO();
+    const ent = entrada && entrada.value ? entrada.value : null;
+    if (hoy && ent) {
+      try {
+        localStorage.setItem(SESSION_DRAFT_KEY, JSON.stringify({ fecha: hoy, entrada: ent }));
+      } catch (e) {}
+    }
+  }
+
+  function limpiarBorradorSesion() {
+    try {
+      localStorage.removeItem(SESSION_DRAFT_KEY);
+    } catch (e) {}
+  }
+
   if (btnIniciarJornada) {
     btnIniciarJornada.onclick = () => {
       const hoy = hoyISO();
       if (fecha) fecha.value = hoy;
-      if (entrada) entrada.value = ahoraHoraISO();
+      if (entrada) {
+        if (state.config.trabajoATurnos && state.config.turno) {
+          const horaInicio = state.config.turno === "22-06" ? "22:00" : state.config.turno === "14-22" ? "14:00" : "06:00";
+          entrada.value = horaInicio;
+        } else {
+          entrada.value = ahoraHoraISO();
+        }
+      }
       if (salida) salida.value = "";
       if (minAntes) minAntes.value = "0";
       if (disfrutadas) disfrutadas.value = "0";
+      guardarBorradorSesion();
       recalcularEnVivo();
       actualizarProgreso();
       actualizarResumenDia();
@@ -480,7 +537,6 @@ function controlarNotificaciones() {
         renderCalendario();
         actualizarEstadoEliminar();
       }
-      // iOS: el permiso de notificaciones debe pedirse en un gesto del usuario
       if ("Notification" in window && Notification.permission === "default") {
         Notification.requestPermission().then(() => {});
       }
@@ -504,7 +560,8 @@ function controlarNotificaciones() {
         entrada: entrada.value,
         salidaReal: salida.value || null,
         jornadaMin: state.config.jornadaMin,
-        minAntes: Number(minAntes.value) || 0
+        minAntes: Number(minAntes.value) || 0,
+        trabajoATurnos: state.config.trabajoATurnos === true
       });
 
       state.registros[fecha.value] = {
@@ -515,14 +572,15 @@ function controlarNotificaciones() {
         vacaciones: false
       };
 
-      saveState(state);
-      renderCalendario();
-      actualizarBanco();
-      actualizarGrafico();
-      actualizarEstadoEliminar();
-      actualizarResumenDia();
-    };
-  }
+    saveState(state);
+    limpiarBorradorSesion();
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarResumenDia();
+  };
+}
 
   // ===============================
   // BOTONES
@@ -536,7 +594,8 @@ function controlarNotificaciones() {
       entrada: entrada.value,
       salidaReal: salida.value || null,
       jornadaMin: state.config.jornadaMin,
-      minAntes: Number(minAntes.value) || 0
+      minAntes: Number(minAntes.value) || 0,
+      trabajoATurnos: state.config.trabajoATurnos === true
     });
 
     state.registros[fecha.value] = {
@@ -548,6 +607,7 @@ function controlarNotificaciones() {
     };
 
     saveState(state);
+    if (fecha.value === getHoyISO()) limpiarBorradorSesion();
     renderCalendario();
     actualizarBanco();
     actualizarGrafico();
@@ -568,6 +628,7 @@ function controlarNotificaciones() {
       salidaAjustadaMin:0,
       extraGeneradaMin:0,
       negativaMin:0,
+      excesoJornadaMin:0,
       disfrutadasManualMin:0,
       vacaciones:true
     };
@@ -586,6 +647,7 @@ function controlarNotificaciones() {
       if (!fecha.value || !state.registros[fecha.value]) return;
 
       delete state.registros[fecha.value];
+      if (fecha.value === getHoyISO()) limpiarBorradorSesion();
 
       saveState(state);
 
@@ -641,6 +703,7 @@ if (btnExcel) {
       .map(([f, r]) => ({
         Fecha: f,
         Generadas: (r.extraGeneradaMin || 0) / 60,
+        "Exceso jornada": (r.excesoJornadaMin || 0) / 60,
         Negativas: (r.negativaMin || 0) / 60,
         Disfrutadas: (r.disfrutadasManualMin || 0) / 60,
         Vacaciones: r.vacaciones ? "Sí" : "No"
@@ -816,6 +879,10 @@ if(festivos && festivos[fechaISO]){
           div.innerHTML +=
             `<small style="color:var(--positive)">+${(registro.extraGeneradaMin/60).toFixed(1)}h</small>`;
         }
+        if(registro.excesoJornadaMin > 0){
+          div.innerHTML +=
+            `<small class="cal-exceso" title="Exceso de jornada">+${(registro.excesoJornadaMin/60).toFixed(1)}h exc.</small>`;
+        }
 
         if(registro.negativaMin > 0){
           div.innerHTML +=
@@ -881,8 +948,27 @@ if(festivos && festivos[fechaISO]){
   };
 
   // ===============================
-  // INIT
+  // INIT – restaurar sesión en curso (PWA: al reabrir tras cerrar)
   // ===============================
+
+  try {
+    const raw = localStorage.getItem(SESSION_DRAFT_KEY);
+    if (raw) {
+      const draft = JSON.parse(raw);
+      const hoy = getHoyISO();
+      if (draft && draft.fecha === hoy && draft.entrada) {
+        if (fecha) fecha.value = draft.fecha;
+        if (entrada) entrada.value = draft.entrada;
+        recalcularEnVivo();
+        actualizarProgreso();
+        actualizarResumenDia();
+      } else {
+        limpiarBorradorSesion();
+      }
+    }
+  } catch (e) {
+    limpiarBorradorSesion();
+  }
 
   renderCalendario();
   actualizarBanco();

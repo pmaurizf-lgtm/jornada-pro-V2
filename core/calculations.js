@@ -27,32 +27,52 @@ export function minutesToTime(min) {
   return resultado;
 }
 
+const JORNADA_TURNOS_MIN = 8 * 60; // 480
+const EXCESO_JORNADA_TURNOS_MIN = 21;
+
 export function calcularJornada({
   entrada,
   salidaReal,
   jornadaMin,
-  minAntes = 0
+  minAntes = 0,
+  trabajoATurnos = false
 }) {
 
   const entradaMin = timeToMinutes(entrada);
+  const jornadaEfectiva = trabajoATurnos ? JORNADA_TURNOS_MIN : jornadaMin;
 
   let salidaMin;
 
   if (salidaReal) {
     salidaMin = timeToMinutes(salidaReal);
 
-    // 🔥 Si cruza medianoche
     if (salidaMin < entradaMin) {
       salidaMin += 24 * 60;
     }
 
   } else {
-    salidaMin = entradaMin + jornadaMin;
+    salidaMin = entradaMin + jornadaEfectiva;
   }
 
   salidaMin -= minAntes;
 
   const trabajados = salidaMin - entradaMin;
+
+  if (trabajoATurnos) {
+    const negativaMin = trabajados < jornadaEfectiva ? jornadaEfectiva - trabajados : 0;
+    const excesoJornadaMin = trabajados >= jornadaEfectiva ? EXCESO_JORNADA_TURNOS_MIN : 0;
+    const extraGeneradaMin = trabajados > jornadaEfectiva ? trabajados - jornadaEfectiva : 0;
+
+    return {
+      trabajadosMin: trabajados,
+      salidaTeoricaMin: entradaMin + jornadaEfectiva,
+      salidaAjustadaMin: salidaMin,
+      extraGeneradaMin,
+      negativaMin,
+      excesoJornadaMin
+    };
+  }
+
   const diferencia = trabajados - jornadaMin;
 
   return {
@@ -60,6 +80,7 @@ export function calcularJornada({
     salidaTeoricaMin: entradaMin + jornadaMin,
     salidaAjustadaMin: salidaMin,
     extraGeneradaMin: diferencia > 0 ? diferencia : 0,
-    negativaMin: diferencia < 0 ? Math.abs(diferencia) : 0
+    negativaMin: diferencia < 0 ? Math.abs(diferencia) : 0,
+    excesoJornadaMin: 0
   };
 }

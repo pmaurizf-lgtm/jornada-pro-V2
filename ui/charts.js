@@ -7,6 +7,7 @@ function getChartThemeColors() {
     text: getVar("--text") || (document.body.classList.contains("dark") ? "#e5e7eb" : "#374151"),
     grid: getVar("--border") || "rgba(0,0,0,0.1)",
     barPositive: getVar("--positive") || "#16a34a",
+    barExceso: getVar("--positive-exceso") || "rgba(34, 197, 94, 0.85)",
     barNegative: getVar("--negative") || "#dc2626",
     barDisfrutadas: getVar("--primary") || "#2563eb"
   };
@@ -16,8 +17,9 @@ export function renderGrafico(canvas, resumen) {
 
   if (!canvas || typeof Chart === "undefined") return;
 
-  const r = resumen || { generadas: 0, negativas: 0, disfrutadas: 0 };
+  const r = resumen || { generadas: 0, exceso: 0, negativas: 0, disfrutadas: 0 };
   const generadas = (r.generadas || 0) / 60;
+  const exceso = (r.exceso || 0) / 60;
   const negativas = (r.negativas || 0) / 60;
   const disfrutadas = (r.disfrutadas || 0) / 60;
 
@@ -34,11 +36,16 @@ export function renderGrafico(canvas, resumen) {
   chartInstance = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: ["Generadas", "Negativas", "Disfrutadas"],
+      labels: ["Extra", "Exceso jornada", "Negativas", "Disfrutadas"],
       datasets: [{
         label: "Horas",
-        data: [generadas, negativas, disfrutadas],
-        backgroundColor: [theme.barPositive, theme.barNegative, theme.barDisfrutadas]
+        data: [generadas, exceso, negativas, disfrutadas],
+        backgroundColor: [
+          theme.barPositive,
+          theme.barExceso,
+          theme.barNegative,
+          theme.barDisfrutadas
+        ]
       }]
     },
     options: {

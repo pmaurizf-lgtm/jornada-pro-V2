@@ -13,14 +13,16 @@ export function calcularSaldoDia(registro) {
   }
 
   const generadas = registro.extraGeneradaMin || 0;
+  const exceso = registro.excesoJornadaMin || 0;
   const negativas = registro.negativaMin || 0;
   const disfrutadas = registro.disfrutadasManualMin || 0;
 
-  return generadas - negativas - disfrutadas;
+  return generadas + exceso - negativas - disfrutadas;
 }
 
 export function calcularResumenPeriodo(registros, filtroFn) {
   let generadas = 0;
+  let exceso = 0;
   let negativas = 0;
   let disfrutadas = 0;
   let saldo = 0;
@@ -31,17 +33,20 @@ export function calcularResumenPeriodo(registros, filtroFn) {
       if (r.vacaciones) return;
 
       const g = r.extraGeneradaMin || 0;
+      const e = r.excesoJornadaMin || 0;
       const n = r.negativaMin || 0;
       const d = r.disfrutadasManualMin || 0;
 
       generadas += g;
+      exceso += e;
       negativas += n;
       disfrutadas += d;
-      saldo += g - n - d;
+      saldo += g + e - n - d;
     });
 
   return {
     generadas,
+    exceso,
     negativas,
     disfrutadas,
     saldo

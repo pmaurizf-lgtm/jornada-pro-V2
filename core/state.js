@@ -7,7 +7,9 @@ export function createInitialState() {
       jornadaMin: 459,
       avisoMin: 10,
       theme: "light",
-      notificationsEnabled: true
+      notificationsEnabled: true,
+      trabajoATurnos: false,
+      turno: "06-14"
     }
   };
 }
