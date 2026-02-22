@@ -73,6 +73,19 @@
       </div>
     </div>
 
+    <div class="config-block config-iniciales">
+      <span class="config-block-label">Saldo previo (antes de usar la app)</span>
+      <label class="config-row">
+        <span class="config-label">Horas extra previas (h)</span>
+        <input type="number" id="cfgHorasExtraPrevias" class="config-input" min="0" step="0.25" placeholder="0">
+      </label>
+      <label class="config-row">
+        <span class="config-label">Exceso jornada previo (h)</span>
+        <input type="number" id="cfgExcesoJornadaPrevias" class="config-input" min="0" step="0.25" placeholder="0">
+      </label>
+      <p class="config-hint">Se suman al total disponible del banco (independiente del año).</p>
+    </div>
+
     <div class="config-block config-notificaciones">
       <label class="config-row config-toggle-row">
         <input type="checkbox" id="cfgNotificaciones" class="config-checkbox" checked>

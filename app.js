@@ -173,6 +173,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgNotificaciones = document.getElementById("cfgNotificaciones");
   const cfgTrabajoTurnos = document.getElementById("cfgTrabajoTurnos");
   const cfgTurno = document.getElementById("cfgTurno");
+  const cfgHorasExtraPrevias = document.getElementById("cfgHorasExtraPrevias");
+  const cfgExcesoJornadaPrevias = document.getElementById("cfgExcesoJornadaPrevias");
   const configTurnoWrap = document.getElementById("configTurnoWrap");
   const guardarConfig = document.getElementById("guardarConfig");
 
@@ -189,6 +191,8 @@ if (cfgTheme) cfgTheme.value = state.config.theme;
 if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
 if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = state.config.trabajoATurnos === true;
 if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
+if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
+if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
 if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
 
 // Toggle visibilidad selector turno
@@ -211,6 +215,8 @@ if (guardarConfig) {
     state.config.notificationsEnabled = cfgNotificaciones ? cfgNotificaciones.checked : true;
     state.config.trabajoATurnos = cfgTrabajoTurnos ? cfgTrabajoTurnos.checked : false;
     state.config.turno = cfgTurno ? cfgTurno.value : "06-14";
+    state.config.horasExtraInicialMin = Math.round((parseFloat(cfgHorasExtraPrevias?.value) || 0) * 60);
+    state.config.excesoJornadaInicialMin = Math.round((parseFloat(cfgExcesoJornadaPrevias?.value) || 0) * 60);
 
     saveState(state);
 
@@ -224,6 +230,7 @@ if (guardarConfig) {
 
     recalcularEnVivo();
     actualizarProgreso();
+    actualizarBanco();
     actualizarGrafico();
     closeConfigPanel();
   });
@@ -312,12 +319,15 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     }
 
     const total = calcularResumenTotal(state.registros);
+    const inicialExtra = state.config.horasExtraInicialMin || 0;
+    const inicialExceso = state.config.excesoJornadaInicialMin || 0;
+    const saldoTotalConInicial = total.saldo + inicialExtra + inicialExceso;
     const anual = calcularResumenAnual(state.registros, bankYear);
     const mensual = calcularResumenMensual(state.registros, currentMonth, bankYear);
 
     if (bTotalDisponible) {
-      bTotalDisponible.innerText = minutosAHorasMinutos(total.saldo);
-      bTotalDisponible.style.color = total.saldo >= 0 ? "var(--positive)" : "var(--negative)";
+      bTotalDisponible.innerText = minutosAHorasMinutos(saldoTotalConInicial);
+      bTotalDisponible.style.color = saldoTotalConInicial >= 0 ? "var(--positive)" : "var(--negative)";
     }
     if (bGeneradas) bGeneradas.innerText = minutosAHorasMinutos(anual.generadas);
     if (bExceso) bExceso.innerText = minutosAHorasMinutos(anual.exceso || 0);

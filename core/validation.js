@@ -31,4 +31,11 @@ export function validateState(state) {
   if (!["06-14", "14-22", "22-06"].includes(state.config.turno)) {
     state.config.turno = "06-14";
   }
+
+  if (typeof state.config.horasExtraInicialMin !== "number" || state.config.horasExtraInicialMin < 0) {
+    state.config.horasExtraInicialMin = 0;
+  }
+  if (typeof state.config.excesoJornadaInicialMin !== "number" || state.config.excesoJornadaInicialMin < 0) {
+    state.config.excesoJornadaInicialMin = 0;
+  }
 }

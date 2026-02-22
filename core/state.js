@@ -9,7 +9,9 @@ export function createInitialState() {
       theme: "light",
       notificationsEnabled: true,
       trabajoATurnos: false,
-      turno: "06-14"
+      turno: "06-14",
+      horasExtraInicialMin: 0,
+      excesoJornadaInicialMin: 0
     }
   };
 }
