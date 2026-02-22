@@ -237,19 +237,28 @@ if (guardarConfig) {
   // BANCO
   // ===============================
 
+  function minutosAHorasMinutos(totalMin) {
+    const h = Math.floor(Math.abs(totalMin) / 60);
+    const m = Math.round(Math.abs(totalMin) % 60);
+    const sign = totalMin < 0 ? "−" : "";
+    if (h === 0) return sign + m + "m";
+    if (m === 0) return sign + h + "h";
+    return sign + h + "h " + m + "m";
+  }
+
   function actualizarBanco() {
     const anual = calcularResumenAnual(state.registros, currentYear);
     const mensual = calcularResumenMensual(state.registros, currentMonth, currentYear);
 
-    if (bGeneradas) bGeneradas.innerText = (anual.generadas/60).toFixed(2)+"h";
-    if (bNegativas) bNegativas.innerText = (anual.negativas/60).toFixed(2)+"h";
-    if (bDisfrutadas) bDisfrutadas.innerText = (anual.disfrutadas/60).toFixed(2)+"h";
+    if (bGeneradas) bGeneradas.innerText = minutosAHorasMinutos(anual.generadas);
+    if (bNegativas) bNegativas.innerText = minutosAHorasMinutos(anual.negativas);
+    if (bDisfrutadas) bDisfrutadas.innerText = minutosAHorasMinutos(anual.disfrutadas);
     if (bSaldoAnual) {
-      bSaldoAnual.innerText = (anual.saldo/60).toFixed(2)+"h";
+      bSaldoAnual.innerText = minutosAHorasMinutos(anual.saldo);
       bSaldoAnual.style.color = anual.saldo >= 0 ? "var(--positive)" : "var(--negative)";
     }
     if (bSaldo) {
-      bSaldo.innerText = (mensual.saldo/60).toFixed(2)+"h";
+      bSaldo.innerText = minutosAHorasMinutos(mensual.saldo);
       bSaldo.style.color = mensual.saldo >= 0 ? "var(--positive)" : "var(--negative)";
     }
   }
