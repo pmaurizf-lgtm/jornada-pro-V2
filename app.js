@@ -4,7 +4,7 @@
 
 import { loadState, saveState, exportBackup, importBackup } from "./core/storage.js";
 import { calcularJornada, minutesToTime, timeToMinutes } from "./core/calculations.js";
-import { calcularResumenAnual, calcularResumenMensual } from "./core/bank.js";
+import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
+  let bankYear = currentYear;
 
   // ===============================
   // FIREBASE INIT
@@ -148,6 +149,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevMes = document.getElementById("prevMes");
   const nextMes = document.getElementById("nextMes");
 
+  const selectBankYear = document.getElementById("selectBankYear");
+  const bTotalDisponible = document.getElementById("bTotalDisponible");
   const bGeneradas = document.getElementById("bGeneradas");
   const bExceso = document.getElementById("bExceso");
   const bNegativas = document.getElementById("bNegativas");
@@ -289,10 +292,33 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     return sign + h + "h " + m + "m";
   }
 
-  function actualizarBanco() {
-    const anual = calcularResumenAnual(state.registros, currentYear);
-    const mensual = calcularResumenMensual(state.registros, currentMonth, currentYear);
+  function obtenerAniosBanco() {
+    const anios = new Set();
+    Object.keys(state.registros || {}).forEach((f) => {
+      const y = parseInt(f.slice(0, 4), 10);
+      if (!Number.isNaN(y)) anios.add(y);
+    });
+    anios.add(currentYear);
+    return Array.from(anios).sort((a, b) => a - b);
+  }
 
+  function actualizarBanco() {
+    const anios = obtenerAniosBanco();
+    if (selectBankYear) {
+      const value = selectBankYear.value;
+      const options = anios.map((y) => `<option value="${y}"${y === bankYear ? " selected" : ""}>${y}</option>`).join("");
+      selectBankYear.innerHTML = options;
+      bankYear = parseInt(selectBankYear.value, 10) || currentYear;
+    }
+
+    const total = calcularResumenTotal(state.registros);
+    const anual = calcularResumenAnual(state.registros, bankYear);
+    const mensual = calcularResumenMensual(state.registros, currentMonth, bankYear);
+
+    if (bTotalDisponible) {
+      bTotalDisponible.innerText = minutosAHorasMinutos(total.saldo);
+      bTotalDisponible.style.color = total.saldo >= 0 ? "var(--positive)" : "var(--negative)";
+    }
     if (bGeneradas) bGeneradas.innerText = minutosAHorasMinutos(anual.generadas);
     if (bExceso) bExceso.innerText = minutosAHorasMinutos(anual.exceso || 0);
     if (bNegativas) bNegativas.innerText = minutosAHorasMinutos(anual.negativas);
@@ -307,9 +333,17 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     }
   }
 
+  if (selectBankYear) {
+    selectBankYear.addEventListener("change", () => {
+      bankYear = parseInt(selectBankYear.value, 10) || currentYear;
+      actualizarBanco();
+      actualizarGrafico();
+    });
+  }
+
   function actualizarGrafico() {
     if (!chartCanvas) return;
-    const anual = calcularResumenAnual(state.registros, currentYear);
+    const anual = calcularResumenAnual(state.registros, bankYear);
     renderGrafico(chartCanvas, anual);
   }
 

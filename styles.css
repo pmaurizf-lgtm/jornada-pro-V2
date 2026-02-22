@@ -352,6 +352,44 @@ body.dark .header-menu-btn:hover {
   gap: 8px;
 }
 
+.metrics-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.metrics-year-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.metrics-year-select {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  color: var(--text);
+  min-width: 100px;
+}
+
+.metric-total {
+  grid-column: 1 / -1;
+  background: rgba(22, 163, 74, 0.12);
+  border-color: var(--positive);
+}
+
+body.dark .metric-total {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.metric-total strong {
+  font-size: 1.15rem;
+}
+
 .metric {
   display: flex;
   flex-direction: column;

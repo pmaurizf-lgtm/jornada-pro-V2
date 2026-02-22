@@ -240,6 +240,15 @@
 
 <!-- MÉTRICAS BANCO -->
 <section class="card metrics">
+  <div class="metrics-header">
+    <label class="metrics-year-label" for="selectBankYear">Año</label>
+    <select id="selectBankYear" class="metrics-year-select" aria-label="Año del banco de horas"></select>
+  </div>
+
+  <div class="metric metric-total">
+    <span>Total disponible (acumulado)</span>
+    <strong id="bTotalDisponible"></strong>
+  </div>
 
   <div class="metric">
     <span>Extra (Anual)</span>

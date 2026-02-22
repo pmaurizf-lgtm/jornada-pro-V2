@@ -66,3 +66,8 @@ export function calcularResumenMensual(registros, mes, año) {
     d => d.getFullYear() === año && d.getMonth() === mes
   );
 }
+
+/** Resumen de todo el histórico (extra + exceso - negativas - disfrutadas). */
+export function calcularResumenTotal(registros) {
+  return calcularResumenPeriodo(registros, () => true);
+}
