@@ -83,6 +83,9 @@
         <span class="config-label">Exceso jornada previo (h)</span>
         <input type="number" id="cfgExcesoJornadaPrevias" class="config-input" min="0" step="0.25" placeholder="0">
       </label>
+      <div class="config-row config-row-reset">
+        <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
+      </div>
       <p class="config-hint">Se suman al total disponible del banco (independiente del año).</p>
     </div>
 
@@ -125,9 +128,12 @@
       <button type="button" id="iniciarJornada" class="btn-jornada btn-iniciar">
         Iniciar jornada
       </button>
-      <button type="button" id="finalizarJornada" class="btn-jornada btn-finalizar">
-        Finalizar jornada
-      </button>
+      <div id="finalizarJornadaWrap" class="finalizar-slider-wrap">
+        <div id="finalizarSliderTrack" class="finalizar-slider-track">
+          <span class="finalizar-slider-text">Desliza para finalizar →</span>
+          <div id="finalizarSliderThumb" class="finalizar-slider-thumb" role="button" tabindex="0" aria-label="Deslizar para finalizar jornada"></div>
+        </div>
+      </div>
     </div>
 
     <!-- FECHA + ENTRADA -->

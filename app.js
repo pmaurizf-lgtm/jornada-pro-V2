@@ -162,7 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnGuardar = document.getElementById("guardar");
   const btnVacaciones = document.getElementById("vacaciones");
   const btnIniciarJornada = document.getElementById("iniciarJornada");
-  const btnFinalizarJornada = document.getElementById("finalizarJornada");
   const btnExcel = document.getElementById("excel");
   const btnBackup = document.getElementById("backup");
   const btnRestore = document.getElementById("restore");
@@ -175,8 +174,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgTurno = document.getElementById("cfgTurno");
   const cfgHorasExtraPrevias = document.getElementById("cfgHorasExtraPrevias");
   const cfgExcesoJornadaPrevias = document.getElementById("cfgExcesoJornadaPrevias");
+  const btnResetSaldoPrevio = document.getElementById("resetSaldoPrevio");
   const configTurnoWrap = document.getElementById("configTurnoWrap");
   const guardarConfig = document.getElementById("guardarConfig");
+  const finalizarSliderTrack = document.getElementById("finalizarSliderTrack");
+  const finalizarSliderThumb = document.getElementById("finalizarSliderThumb");
 
   const chartCanvas = document.getElementById("chart");
 
@@ -235,6 +237,17 @@ if (guardarConfig) {
     closeConfigPanel();
   });
 }
+
+  if (btnResetSaldoPrevio) {
+    btnResetSaldoPrevio.addEventListener("click", () => {
+      state.config.horasExtraInicialMin = 0;
+      state.config.excesoJornadaInicialMin = 0;
+      saveState(state);
+      if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = "0";
+      if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = "0";
+      actualizarBanco();
+    });
+  }
 
 // Menú hamburguesa: abrir/cerrar panel de configuración
 const btnMenuConfig = document.getElementById("btnMenuConfig");
@@ -518,12 +531,14 @@ function controlarNotificaciones() {
     recalcularEnVivo();
     actualizarProgreso();
     if (fecha && fecha.value === getHoyISO() && entrada.value) guardarBorradorSesion();
+    actualizarEstadoIniciarJornada();
   });
   if (salida) salida.addEventListener("input", recalcularEnVivo);
   if (minAntes) minAntes.addEventListener("input", recalcularEnVivo);
   if (fecha) fecha.addEventListener("change", () => {
     if (fecha.value === getHoyISO() && entrada && entrada.value) guardarBorradorSesion();
     else if (fecha.value !== getHoyISO()) limpiarBorradorSesion();
+    actualizarEstadoIniciarJornada();
   });
 
   // ===============================
@@ -558,22 +573,63 @@ function controlarNotificaciones() {
     } catch (e) {}
   }
 
+  function horaInicioJornada() {
+    const d = new Date();
+    const ahoraMin = d.getHours() * 60 + d.getMinutes();
+    if (state.config.trabajoATurnos && state.config.turno) {
+      return state.config.turno === "22-06" ? "22:00" : state.config.turno === "14-22" ? "14:00" : "06:00";
+    }
+    if (ahoraMin < 6 * 60) return "06:00";
+    return ahoraHoraISO();
+  }
+
+  function ejecutarFinalizarJornada() {
+    const hoy = hoyISO();
+    if (!fecha || !fecha.value) {
+      if (fecha) fecha.value = hoy;
+    }
+    if (!entrada || !entrada.value) {
+      alert("Indica la hora de entrada o pulsa primero «Iniciar jornada».");
+      return;
+    }
+    if (salida) salida.value = ahoraHoraISO();
+
+    const resultado = calcularJornada({
+      entrada: entrada.value,
+      salidaReal: salida.value || null,
+      jornadaMin: state.config.jornadaMin,
+      minAntes: Number(minAntes.value) || 0,
+      trabajoATurnos: state.config.trabajoATurnos === true
+    });
+
+    state.registros[fecha.value] = {
+      ...resultado,
+      entrada: entrada.value,
+      salidaReal: salida.value || null,
+      disfrutadasManualMin: Number(disfrutadas.value) || 0,
+      vacaciones: false
+    };
+
+    saveState(state);
+    limpiarBorradorSesion();
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+  }
+
   if (btnIniciarJornada) {
     btnIniciarJornada.onclick = () => {
       const hoy = hoyISO();
       if (fecha) fecha.value = hoy;
-      if (entrada) {
-        if (state.config.trabajoATurnos && state.config.turno) {
-          const horaInicio = state.config.turno === "22-06" ? "22:00" : state.config.turno === "14-22" ? "14:00" : "06:00";
-          entrada.value = horaInicio;
-        } else {
-          entrada.value = ahoraHoraISO();
-        }
-      }
+      if (entrada) entrada.value = horaInicioJornada();
       if (salida) salida.value = "";
       if (minAntes) minAntes.value = "0";
       if (disfrutadas) disfrutadas.value = "0";
       guardarBorradorSesion();
+      actualizarEstadoIniciarJornada();
       recalcularEnVivo();
       actualizarProgreso();
       actualizarResumenDia();
@@ -588,43 +644,68 @@ function controlarNotificaciones() {
     };
   }
 
-  if (btnFinalizarJornada) {
-    btnFinalizarJornada.onclick = () => {
-      const hoy = hoyISO();
-      if (!fecha || !fecha.value) {
-        if (fecha) fecha.value = hoy;
+  (function setupFinalizarSlider() {
+    if (!finalizarSliderTrack || !finalizarSliderThumb) return;
+    const threshold = 0.85;
+    let dragging = false;
+
+    function getProgress( clientX ) {
+      const rect = finalizarSliderTrack.getBoundingClientRect();
+      const w = rect.width;
+      const x = Math.max(0, Math.min(clientX - rect.left, w));
+      return x / w;
+    }
+
+    let lastProgress = 0;
+
+    function setThumbPosition( p ) {
+      lastProgress = Math.max(0, Math.min(1, p));
+      const pct = lastProgress * 100;
+      finalizarSliderThumb.style.left = pct + "%";
+      if (pct >= threshold * 100) {
+        finalizarSliderThumb.classList.add("finalizar-slider-done");
+      } else {
+        finalizarSliderThumb.classList.remove("finalizar-slider-done");
       }
-      if (!entrada || !entrada.value) {
-        alert("Indica la hora de entrada o pulsa primero «Iniciar jornada».");
-        return;
+    }
+
+    function onEnd( clientX ) {
+      dragging = false;
+      const p = (clientX != null && finalizarSliderTrack) ? getProgress(clientX) : lastProgress;
+      if (p >= threshold) {
+        ejecutarFinalizarJornada();
+        setThumbPosition(0);
+      } else {
+        setThumbPosition(0);
       }
-      if (salida) salida.value = ahoraHoraISO();
+    }
 
-      const resultado = calcularJornada({
-        entrada: entrada.value,
-        salidaReal: salida.value || null,
-        jornadaMin: state.config.jornadaMin,
-        minAntes: Number(minAntes.value) || 0,
-        trabajoATurnos: state.config.trabajoATurnos === true
-      });
+    finalizarSliderThumb.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      dragging = true;
+    });
+    finalizarSliderThumb.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      dragging = true;
+    }, { passive: false });
 
-      state.registros[fecha.value] = {
-        ...resultado,
-        entrada: entrada.value,
-        salidaReal: salida.value || null,
-        disfrutadasManualMin: Number(disfrutadas.value) || 0,
-        vacaciones: false
-      };
+    window.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      setThumbPosition(getProgress(e.clientX));
+    });
+    window.addEventListener("mouseup", (e) => {
+      if (dragging) onEnd(e.clientX);
+    });
 
-    saveState(state);
-    limpiarBorradorSesion();
-    renderCalendario();
-    actualizarBanco();
-    actualizarGrafico();
-    actualizarEstadoEliminar();
-    actualizarResumenDia();
-  };
-}
+    window.addEventListener("touchmove", (e) => {
+      if (!dragging || !e.touches.length) return;
+      setThumbPosition(getProgress(e.touches[0].clientX));
+    }, { passive: true });
+    window.addEventListener("touchend", (e) => {
+      if (!dragging) return;
+      onEnd(e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : 0);
+    });
+  })();
 
   // ===============================
   // BOTONES
@@ -656,6 +737,7 @@ function controlarNotificaciones() {
     actualizarBanco();
     actualizarGrafico();
     actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
     actualizarResumenDia();
     if (fecha.value === getHoyISO() && state.config.notificationsEnabled) registerBackendNotificationsIfReady();
   };
@@ -682,6 +764,7 @@ function controlarNotificaciones() {
     actualizarBanco();
     actualizarGrafico();
     actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
     actualizarResumenDia();
   };
 
@@ -704,6 +787,7 @@ function controlarNotificaciones() {
       actualizarBanco();
       actualizarGrafico();
       actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
       actualizarResumenDia();
     });
   }
@@ -711,6 +795,15 @@ function controlarNotificaciones() {
   function actualizarEstadoEliminar() {
     if (!btnEliminar) return;
     btnEliminar.disabled = !state.registros[fecha.value];
+  }
+
+  function actualizarEstadoIniciarJornada() {
+    if (!btnIniciarJornada) return;
+    const hoy = getHoyISO();
+    const esHoy = fecha && fecha.value === hoy;
+    const tieneEntrada = entrada && entrada.value;
+    const yaFinalizado = state.registros[hoy] && state.registros[hoy].salidaReal != null;
+    btnIniciarJornada.disabled = !!(esHoy && tieneEntrada && !yaFinalizado);
   }
   
 function mostrarPopupFestivo(texto){
@@ -977,6 +1070,7 @@ if(festivos && festivos[fechaISO]){
     cargarFormularioDesdeRegistro(fechaISO);
     renderCalendario();
     actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
     actualizarResumenDia();
   }
 
@@ -1018,6 +1112,7 @@ if(festivos && festivos[fechaISO]){
   actualizarBanco();
   actualizarGrafico();
   actualizarEstadoEliminar();
+  actualizarEstadoIniciarJornada();
   actualizarResumenDia();
   solicitarPermisoNotificaciones();
 
