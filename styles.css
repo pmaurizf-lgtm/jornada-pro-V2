@@ -170,10 +170,14 @@ body.dark .metric {
 /* CALENDARIO                    */
 /* ============================= */
 
+.calendar-card {
+  min-height: 280px;
+}
+
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
+  gap: 8px;
   margin-top: 15px;
 }
 
@@ -184,9 +188,22 @@ body.dark .metric {
 }
 
 .cal-header {
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.8rem;
   text-align: center;
-  padding: 5px 0;
+  padding: 8px 0;
+  color: var(--text);
+  opacity: 0.9;
+}
+
+.cal-empty {
+  min-height: 50px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+body.dark .cal-empty {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .cal-day {
@@ -196,30 +213,40 @@ body.dark .metric {
   font-size: 14px;
   border: 1px solid var(--border);
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.4);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.9);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  transition: background 0.2s, transform 0.15s;
+  transition: background 0.2s;
 }
 
 body.dark .cal-day {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .cal-day:hover {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 1);
 }
 
 body.dark .cal-day:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .sabado {
-  background: rgba(37,99,235,0.05);
+  background: rgba(37, 99, 235, 0.12);
+}
+
+body.dark .sabado {
+  background: rgba(37, 99, 235, 0.15);
 }
 
 .domingo {
-  background: rgba(220,38,38,0.05);
+  background: rgba(220, 38, 38, 0.08);
+}
+
+body.dark .domingo {
+  background: rgba(220, 38, 38, 0.12);
 }
 
 .festivo {
@@ -228,6 +255,7 @@ body.dark .cal-day:hover {
 
 .cal-day small {
   display: block;
+  color: var(--text);
 }
 
 .cal-day small.cal-disfrutadas {
@@ -239,7 +267,11 @@ body.dark .cal-day:hover {
 
 .cal-day.seleccionado {
   outline: 2px solid var(--primary);
-  background: rgba(37,99,235,0.15);
+  background: rgba(0, 122, 255, 0.2);
+}
+
+body.dark .cal-day.seleccionado {
+  background: rgba(10, 132, 255, 0.25);
 }
 
 .cal-day.hoy {

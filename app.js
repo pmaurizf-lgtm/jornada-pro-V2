@@ -9,7 +9,6 @@ import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
 // ===============================
 // IMPORTS UI
@@ -56,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
       (fecha && fecha.value === hoy && entrada?.value ? entrada.value : null);
     if (!entradaHoy) return;
     try {
+      const { getFunctions, httpsCallable } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js");
       const functions = getFunctions(firebaseApp);
       const register = httpsCallable(functions, "registerNotificationSchedule");
       await register({
@@ -67,13 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Madrid"
       });
     } catch (e) {
-      console.warn("No se pudo registrar notificaciones en el servidor:", e.message);
+      console.warn("Notificaciones en segundo plano no disponibles:", e.message);
     }
   }
 
   async function unregisterBackendNotifications() {
     if (!currentFcmToken) return;
     try {
+      const { getFunctions, httpsCallable } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js");
       const functions = getFunctions(firebaseApp);
       const unregister = httpsCallable(functions, "unregisterNotificationSchedule");
       await unregister({ token: currentFcmToken });
@@ -722,8 +723,11 @@ function renderCalendario() {
     calendarGrid.appendChild(el);
   });
 
-  for(let i=0;i<offset;i++)
-    calendarGrid.appendChild(document.createElement("div"));
+  for (let i = 0; i < offset; i++) {
+    const empty = document.createElement("div");
+    empty.className = "cal-empty";
+    calendarGrid.appendChild(empty);
+  }
 
   for(let d=1; d<=totalDias; d++){
 
