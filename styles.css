@@ -105,25 +105,26 @@ header.header {
 }
 
 /* ============================= */
-/* MÉTRICAS – BANCO HORAS        */
+/* MÉTRICAS – BANCO HORAS (una fila, compactas) */
 /* ============================= */
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
 }
 
 .metric {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px;
+  gap: 2px;
+  padding: 8px 10px;
   background: rgba(255, 255, 255, 0.5);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
+  min-width: 0;
 }
 
 body.dark .metric {
@@ -131,26 +132,36 @@ body.dark .metric {
 }
 
 .metric span {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.65rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  opacity: 0.8;
+  letter-spacing: 0.03em;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .metric strong {
-  font-size: 1.15rem;
+  font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
 
-.metric.saldo {
-  grid-column: span 2;
-  padding: 16px;
+.metric.saldo strong {
+  font-size: 1.1rem;
 }
 
-.metric.saldo strong {
-  font-size: 1.5rem;
+@media (max-width: 640px) {
+  .metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 400px) {
+  .metrics {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 /* ============================= */
@@ -480,8 +491,44 @@ body.dark .progress-wrapper {
 }
 
 /* ============================= */
-/* CONFIGURACIÓN                 */
+/* CONFIGURACIÓN (desplegable)   */
 /* ============================= */
+
+.config-details {
+  width: 100%;
+}
+
+.config-summary {
+  list-style: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.config-summary::-webkit-details-marker {
+  display: none;
+}
+
+.config-summary::before {
+  content: "▶";
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+  opacity: 0.7;
+}
+
+.config-details[open] .config-summary::before {
+  transform: rotate(90deg);
+}
+
+.config-body {
+  padding-top: 16px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+}
 
 .config-card label {
   display: block;
@@ -532,14 +579,6 @@ body.dark .progress-wrapper {
   }
 }
 
-@media (max-width: 380px) {
-  .metrics {
-    grid-template-columns: 1fr;
-  }
-  .metric.saldo {
-    grid-column: 1;
-  }
-}
 
 /* ============================= */
 /* FORMULARIO PREMIUM            */
