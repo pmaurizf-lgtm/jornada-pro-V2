@@ -755,16 +755,19 @@ if(festivos && festivos[fechaISO]){
 
   div.classList.add("festivo");
 
-  if(festivo.tipo === "ferrol"){
+  if (festivo.tipo === "ferrol") {
     div.classList.add("festivo-ferrol");
     div.innerHTML += "<small>🎉</small>";
-  }
-
-  if(festivo.tipo === "galicia"){
+  } else if (festivo.tipo === "galicia") {
     div.classList.add("festivo-galicia");
+  } else {
+    div.classList.add("festivo-nacional");
   }
 
-  div.onclick = () => mostrarPopupFestivo(festivo.nombre);
+  div.onclick = (e) => {
+    e.stopPropagation();
+    mostrarPopupFestivo(festivo.nombre);
+  };
 
 } else {
 
