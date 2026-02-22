@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function registerBackendNotificationsIfReady() {
-    if (!currentFcmToken) return;
+    if (!currentFcmToken || !state.config.notificationsEnabled) return;
     const hoy = getHoyISO();
     const entradaHoy =
       state.registros[hoy]?.entrada ||
@@ -71,6 +71,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  async function unregisterBackendNotifications() {
+    if (!currentFcmToken) return;
+    try {
+      const functions = getFunctions(firebaseApp);
+      const unregister = httpsCallable(functions, "unregisterNotificationSchedule");
+      await unregister({ token: currentFcmToken });
+    } catch (e) {
+      console.warn("No se pudo desactivar notificaciones en el servidor:", e.message);
+    }
+  }
+
   const swPath = "firebase-messaging-sw.js";
 
   if ("serviceWorker" in navigator) {
@@ -83,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }).then(async (currentToken) => {
           if (currentToken) {
             currentFcmToken = currentToken;
-            await registerBackendNotificationsIfReady();
+            if (state.config.notificationsEnabled) await registerBackendNotificationsIfReady();
           }
         }).catch((err) => {
           console.error("Error obteniendo token:", err);
@@ -151,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgJornada = document.getElementById("cfgJornada");
   const cfgAviso = document.getElementById("cfgAviso");
   const cfgTheme = document.getElementById("cfgTheme");
+  const cfgNotificaciones = document.getElementById("cfgNotificaciones");
   const guardarConfig = document.getElementById("guardarConfig");
 
   const chartCanvas = document.getElementById("chart");
@@ -163,21 +175,29 @@ document.addEventListener("DOMContentLoaded", () => {
 if (cfgJornada) cfgJornada.value = state.config.jornadaMin;
 if (cfgAviso) cfgAviso.value = state.config.avisoMin;
 if (cfgTheme) cfgTheme.value = state.config.theme;
+if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
 
 // Aplicar tema al iniciar
 aplicarTheme(state.config.theme);
 
 // Guardar configuración
 if (guardarConfig) {
-  guardarConfig.addEventListener("click", () => {
+  guardarConfig.addEventListener("click", async () => {
 
     state.config.jornadaMin = Number(cfgJornada.value);
     state.config.avisoMin = Number(cfgAviso.value);
     state.config.theme = cfgTheme.value;
+    state.config.notificationsEnabled = cfgNotificaciones ? cfgNotificaciones.checked : true;
 
     saveState(state);
 
     aplicarTheme(state.config.theme);
+
+    if (state.config.notificationsEnabled) {
+      await registerBackendNotificationsIfReady();
+    } else {
+      await unregisterBackendNotifications();
+    }
 
     recalcularEnVivo();
     actualizarProgreso();
@@ -340,6 +360,8 @@ function actualizarProgreso() {
 
 function controlarNotificaciones() {
 
+  if (!state.config.notificationsEnabled) return;
+
   const ahora = new Date();
   const fechaHoy =
     `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,"0")}-${String(ahora.getDate()).padStart(2,"0")}`;
@@ -433,8 +455,7 @@ function controlarNotificaciones() {
       if ("Notification" in window && Notification.permission === "default") {
         Notification.requestPermission().then(() => {});
       }
-      // Registrar horario en el backend para notificaciones en segundo plano
-      registerBackendNotificationsIfReady();
+      if (state.config.notificationsEnabled) registerBackendNotificationsIfReady();
     };
   }
 
@@ -503,7 +524,7 @@ function controlarNotificaciones() {
     actualizarGrafico();
     actualizarEstadoEliminar();
     actualizarResumenDia();
-    if (fecha.value === getHoyISO()) registerBackendNotificationsIfReady();
+    if (fecha.value === getHoyISO() && state.config.notificationsEnabled) registerBackendNotificationsIfReady();
   };
 
   if (btnVacaciones) btnVacaciones.onclick = () => {

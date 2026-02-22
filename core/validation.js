@@ -20,4 +20,8 @@ export function validateState(state) {
   if (!["light", "dark"].includes(state.config.theme)) {
     throw new Error("Theme inválido");
   }
+
+  if (typeof state.config.notificationsEnabled !== "boolean") {
+    state.config.notificationsEnabled = true;
+  }
 }

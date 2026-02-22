@@ -369,6 +369,34 @@ body.dark .progress-wrapper {
   margin-left: 10px;
 }
 
+.config-notificaciones {
+  margin: 16px 0;
+}
+
+.config-notificaciones .toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.config-notificaciones .toggle-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.config-notificaciones .toggle-label {
+  font-weight: 500;
+}
+
+.config-notificaciones .config-hint {
+  margin: 8px 0 0 30px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
 /* ============================= */
 /* RESPONSIVE                    */
 /* ============================= */

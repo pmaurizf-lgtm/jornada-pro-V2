@@ -6,7 +6,8 @@ export function createInitialState() {
     config: {
       jornadaMin: 459,
       avisoMin: 10,
-      theme: "light"
+      theme: "light",
+      notificationsEnabled: true
     }
   };
 }

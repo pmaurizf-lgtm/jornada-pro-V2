@@ -87,6 +87,23 @@ exports.registerNotificationSchedule = functions.https.onCall(async (data, conte
 });
 
 /**
+ * Callable: desactiva las notificaciones en segundo plano para este token.
+ * Body: { token }
+ */
+exports.unregisterNotificationSchedule = functions.https.onCall(async (data, context) => {
+  const { token } = data || {};
+
+  if (!token || typeof token !== "string" || token.length < 10) {
+    throw new functions.https.HttpsError("invalid-argument", "token inválido");
+  }
+
+  const docId = crypto.createHash("sha256").update(token).digest("hex");
+  await db.collection(COLLECTION).doc(docId).delete();
+
+  return { ok: true, message: "Notificaciones desactivadas para este dispositivo" };
+});
+
+/**
  * Programada cada minuto: revisa suscripciones y envía aviso previo / aviso final por FCM.
  */
 exports.checkAndSendJornadaNotifications = functions.pubsub
