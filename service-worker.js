@@ -1,15 +1,27 @@
 // ===============================
-// CACHE CONFIG
+// CACHE CONFIG (offline-first en móvil)
 // ===============================
 
-const CACHE_NAME = "jornada-pro-v1";
+const CACHE_NAME = "jornada-pro-v2";
 
 const urlsToCache = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
-  "./manifest.json"
+  "./manifest.json",
+  "./core/storage.js",
+  "./core/state.js",
+  "./core/calculations.js",
+  "./core/bank.js",
+  "./core/holidays.js",
+  "./core/validation.js",
+  "./core/notifications.js",
+  "./ui/theme.js",
+  "./ui/charts.js",
+  "./icons/logo-navantia.png",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
 ];
 
 // ===============================
@@ -20,6 +32,7 @@ self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
+      .catch(() => { /* fallback si algún recurso falla en install */ })
   );
   self.skipWaiting();
 });
@@ -45,9 +58,26 @@ self.addEventListener("activate", event => {
 // ===============================
 
 self.addEventListener("fetch", event => {
+  const url = new URL(event.request.url);
+  const sameOrigin = url.origin === self.location.origin;
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request).then(response => {
+        if (!response || response.status !== 200 || response.type === "opaque") return response;
+        if (sameOrigin || url.hostname === "cdn.jsdelivr.net") {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => {
+        if (event.request.mode === "navigate") {
+          return caches.match("./index.html").then(r => r || new Response("Sin conexión", { status: 503 }));
+        }
+        return new Response("", { status: 503 });
+      });
+    })
   );
 });
 
