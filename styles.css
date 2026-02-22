@@ -29,8 +29,8 @@
   --safe-bottom: env(safe-area-inset-bottom, 0);
   --safe-left: env(safe-area-inset-left, 0);
   --safe-right: env(safe-area-inset-right, 0);
-  --btn-iniciar-bg: #ffffff;
-  --btn-iniciar-color: #005dba;
+  --btn-iniciar-bg: #5df56b;
+  --btn-iniciar-color: #ffffff;
   --btn-bg: #007aff;
   --btn-text: #ffffff;
 }
@@ -571,34 +571,42 @@ body.dark .cal-day:hover {
 }
 
 .sabado {
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(37, 99, 235, 0.25);
+  border: 1px solid rgba(37, 99, 235, 0.5);
+  font-weight: 600;
 }
 
 body.dark .sabado {
-  background: rgba(37, 99, 235, 0.15);
+  background: rgba(37, 99, 235, 0.28);
+  border-color: rgba(99, 102, 241, 0.6);
 }
 
 .domingo {
-  background: rgba(220, 38, 38, 0.08);
+  background: rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(220, 38, 38, 0.45);
+  font-weight: 600;
 }
 
 body.dark .domingo {
-  background: rgba(220, 38, 38, 0.12);
+  background: rgba(220, 38, 38, 0.25);
+  border-color: rgba(248, 113, 113, 0.55);
 }
 
 .cal-day.festivo {
   border-width: 2px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cal-day.festivo-nacional {
-  border-color: #eab308;
-  background: rgba(234, 179, 8, 0.2);
+  border: 2px solid #ca8a04;
+  background: rgba(234, 179, 8, 0.45);
+  box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.3);
 }
 
 body.dark .cal-day.festivo-nacional {
-  background: rgba(234, 179, 8, 0.25);
+  background: rgba(234, 179, 8, 0.4);
   border-color: #facc15;
+  box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.25);
 }
 
 .cal-day small {
@@ -670,11 +678,23 @@ body:not(.dark) .cal-empty {
 }
 
 body:not(.dark) .sabado {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(59, 130, 246, 0.35);
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  color: #1e40af;
+}
+
+body:not(.dark) .sabado small {
+  color: #1e40af;
 }
 
 body:not(.dark) .domingo {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(239, 68, 68, 0.28);
+  border: 1px solid rgba(239, 68, 68, 0.55);
+  color: #b91c1c;
+}
+
+body:not(.dark) .domingo small {
+  color: #b91c1c;
 }
 
 /* ============================= */
@@ -753,9 +773,13 @@ button:disabled {
 }
 
 .btn-iniciar {
-  background: var(--btn-iniciar-bg);
-  color: var(--btn-iniciar-color);
-  border: 1px solid var(--border-accent);
+  background: var(--accent, var(--btn-iniciar-bg));
+  color: #fff;
+  border: 1px solid var(--accent, var(--btn-iniciar-bg));
+}
+
+.btn-iniciar:hover {
+  opacity: 0.9;
 }
 
 /* Slider "Desliza para finalizar jornada" (misma altura que Iniciar jornada) */
@@ -1250,33 +1274,69 @@ body.dark select {
 /* ===================================== */
 
 .cal-day.festivo-nacional {
-  border-color: #eab308;
-  background: rgba(234, 179, 8, 0.22);
+  border: 2px solid #ca8a04;
+  background: rgba(234, 179, 8, 0.45);
+  box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.3);
 }
 
 body.dark .cal-day.festivo-nacional {
-  background: rgba(234, 179, 8, 0.28);
+  background: rgba(234, 179, 8, 0.4);
   border-color: #facc15;
+  box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.25);
+}
+
+body:not(.dark) .cal-day.festivo-nacional {
+  background: rgba(250, 204, 21, 0.5);
+  border-color: #eab308;
+  color: #713f12;
+}
+
+body:not(.dark) .cal-day.festivo-nacional small {
+  color: #713f12;
 }
 
 .cal-day.festivo-galicia {
-  border: 2px solid #059669;
-  background: rgba(5, 150, 105, 0.2);
+  border: 2px solid #047857;
+  background: rgba(5, 150, 105, 0.4);
+  box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.25);
 }
 
 body.dark .cal-day.festivo-galicia {
-  background: rgba(16, 185, 129, 0.28);
+  background: rgba(16, 185, 129, 0.38);
   border-color: #10b981;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2);
+}
+
+body:not(.dark) .cal-day.festivo-galicia {
+  background: rgba(20, 184, 166, 0.45);
+  border-color: #0d9488;
+  color: #134e4a;
+}
+
+body:not(.dark) .cal-day.festivo-galicia small {
+  color: #134e4a;
 }
 
 .cal-day.festivo-ferrol {
-  border: 2px solid #d97706;
-  background: rgba(217, 119, 6, 0.22);
+  border: 2px solid #b45309;
+  background: rgba(217, 119, 6, 0.42);
+  box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.28);
 }
 
 body.dark .cal-day.festivo-ferrol {
-  background: rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.38);
   border-color: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2);
+}
+
+body:not(.dark) .cal-day.festivo-ferrol {
+  background: rgba(251, 146, 60, 0.5);
+  border-color: #ea580c;
+  color: #7c2d12;
+}
+
+body:not(.dark) .cal-day.festivo-ferrol small {
+  color: #7c2d12;
 }
 
 /* Popup al pulsar en un festivo */
