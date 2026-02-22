@@ -1365,3 +1365,78 @@ body:not(.dark) .cal-day.festivo-ferrol small {
   opacity: 1;
   transform: translateX(-50%) scale(1);
 }
+
+/* Modal ¿Extender jornada? */
+.modal-extender {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding-left: max(20px, var(--safe-left));
+  padding-right: max(20px, var(--safe-right));
+}
+
+.modal-extender[hidden] {
+  display: none;
+}
+
+.modal-extender-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-extender-box {
+  position: relative;
+  background: var(--card-bg);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+}
+
+.modal-extender-titulo {
+  margin: 0 0 12px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modal-extender-texto {
+  margin: 0 0 20px 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  opacity: 0.95;
+}
+
+.modal-extender-botones {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.modal-extender-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.modal-extender-no {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.modal-extender-si {
+  background: var(--accent, #5df56b);
+  color: #fff;
+}

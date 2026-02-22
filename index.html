@@ -30,6 +30,19 @@
   </button>
 </header>
 
+<!-- Modal: ¿Extender jornada? -->
+<div id="modalExtenderJornada" class="modal-extender" role="dialog" aria-labelledby="modalExtenderTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalExtenderTitulo" class="modal-extender-titulo">¿Vas a extender la jornada?</h3>
+    <p class="modal-extender-texto">La jornada estipulada ha terminado. Si continúas, el tiempo se contará como horas extra hasta que finalices (botón o hora de salida real).</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalExtenderNo" class="modal-extender-btn modal-extender-no">No</button>
+      <button type="button" id="modalExtenderSi" class="modal-extender-btn modal-extender-si">Sí</button>
+    </div>
+  </div>
+</div>
+
 <!-- Panel configuración (desplegable desde el menú) -->
 <div id="configPanel" class="config-panel">
   <div class="config-panel-inner">

@@ -80,6 +80,7 @@ exports.registerNotificationSchedule = functions.https.onCall(async (data, conte
     timezone: tz,
     previoSent: false,
     finalSent: false,
+    extendPromptSent: false,
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
@@ -124,6 +125,7 @@ exports.checkAndSendJornadaNotifications = functions.pubsub
         timezone,
         previoSent,
         finalSent,
+        extendPromptSent,
       } = d;
 
       const now = getNowInTimezone(timezone);
@@ -153,17 +155,22 @@ exports.checkAndSendJornadaNotifications = functions.pubsub
             previoSent: true,
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
-        } else if (!finalSent && nowMin >= salidaTeoricaMin) {
+        } else if (!extendPromptSent && nowMin >= salidaTeoricaMin) {
           await messaging.send({
             token,
             notification: {
-              title: "Jornada Pro",
-              body: "Has finalizado tu jornada",
+              title: "¿Vas a extender la jornada?",
+              body: "Toca para abrir la app e indicar si continúas o finalizas.",
+            },
+            data: {
+              type: "extend_prompt",
+              fecha: String(fecha),
             },
             android: { priority: "high" },
             apns: { payload: { aps: { sound: "default" } } },
           });
           await doc.ref.update({
+            extendPromptSent: true,
             finalSent: true,
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });

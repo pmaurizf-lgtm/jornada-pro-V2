@@ -109,8 +109,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   onMessage(messaging, (payload) => {
-    console.log("Mensaje en primer plano:", payload);
-
+    if (payload.data && payload.data.type === "extend_prompt") {
+      const hoy = payload.data.fecha || getHoyISO();
+      try { localStorage.setItem(EXTEND_PROMPT_KEY + "_" + hoy, "1"); } catch (e) {}
+      const modal = document.getElementById("modalExtenderJornada");
+      if (modal) modal.hidden = false;
+      return;
+    }
     new Notification(
       payload.notification?.title || "Jornada Pro",
       {
@@ -179,6 +184,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const guardarConfig = document.getElementById("guardarConfig");
   const finalizarSliderTrack = document.getElementById("finalizarSliderTrack");
   const finalizarSliderThumb = document.getElementById("finalizarSliderThumb");
+  const modalExtenderJornada = document.getElementById("modalExtenderJornada");
+  const modalExtenderNo = document.getElementById("modalExtenderNo");
+  const modalExtenderSi = document.getElementById("modalExtenderSi");
 
   const chartCanvas = document.getElementById("chart");
 
@@ -492,7 +500,8 @@ function controlarNotificaciones() {
   const entradaMin = timeToMinutes(entradaHoy);
   if (ahoraMin < entradaMin) ahoraMin += 24 * 60;
 
-  const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
+  const jornadaRefNotif = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
+  const salidaTeoricaMin = entradaMin + jornadaRefNotif;
   const avisoMin = Math.max(0, state.config.avisoMin || 0);
 
   // Aviso previo: "Quedan X minutos para finalizar tu jornada"
@@ -508,9 +517,11 @@ function controlarNotificaciones() {
     );
   }
 
-  // Aviso final: "Has finalizado tu jornada"
+  // Aviso final: "Has finalizado tu jornada" (no mostrar si sigue en curso y podría extender)
+  const enVivoSinSalida = fecha.value === fechaHoy && entrada && entrada.value && !(state.registros[fechaHoy] && state.registros[fechaHoy].salidaReal);
   if (
     ahoraMin >= salidaTeoricaMin &&
+    !enVivoSinSalida &&
     !localStorage.getItem(`notif_${fechaHoy}_final`)
   ) {
     notificarUnaVez(
@@ -521,11 +532,50 @@ function controlarNotificaciones() {
   }
 }
 
-  
+  const EXTEND_PROMPT_KEY = "jornadaPro_extendPrompt";
+
+  function comprobarExtenderJornada() {
+    if (!fecha || !entrada || !fecha.value || !entrada.value) return;
+    const hoy = getHoyISO();
+    if (fecha.value !== hoy) return;
+    if (state.registros[hoy] && state.registros[hoy].salidaReal != null) return;
+    const jornadaRef = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
+    const ahora = new Date();
+    let ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
+    const entradaMin = timeToMinutes(entrada.value);
+    if (ahoraMin < entradaMin) ahoraMin += 24 * 60;
+    const trabajado = ahoraMin - entradaMin;
+    if (trabajado < jornadaRef) return;
+    if (localStorage.getItem(EXTEND_PROMPT_KEY + "_" + hoy)) return;
+    localStorage.setItem(EXTEND_PROMPT_KEY + "_" + hoy, "1");
+    if (modalExtenderJornada) {
+      modalExtenderJornada.hidden = false;
+    }
+  }
+
+  function cerrarModalExtender() {
+    if (modalExtenderJornada) modalExtenderJornada.hidden = true;
+  }
+
+  if (modalExtenderNo) {
+    modalExtenderNo.addEventListener("click", () => {
+      cerrarModalExtender();
+      ejecutarFinalizarJornada(true);
+    });
+  }
+  if (modalExtenderSi) {
+    modalExtenderSi.addEventListener("click", cerrarModalExtender);
+  }
+  if (modalExtenderJornada) {
+    const backdrop = modalExtenderJornada.querySelector(".modal-extender-backdrop");
+    if (backdrop) backdrop.addEventListener("click", cerrarModalExtender);
+  }
+
   setInterval(() => {
     actualizarProgreso();
     controlarNotificaciones();
-}, 1000);
+    comprobarExtenderJornada();
+  }, 1000);
 
   if (entrada) entrada.addEventListener("input", () => {
     recalcularEnVivo();
@@ -583,7 +633,7 @@ function controlarNotificaciones() {
     return ahoraHoraISO();
   }
 
-  function ejecutarFinalizarJornada() {
+  function ejecutarFinalizarJornada(sinExtra) {
     const hoy = hoyISO();
     if (!fecha || !fecha.value) {
       if (fecha) fecha.value = hoy;
@@ -592,7 +642,17 @@ function controlarNotificaciones() {
       alert("Indica la hora de entrada o pulsa primero «Iniciar jornada».");
       return;
     }
-    if (salida) salida.value = ahoraHoraISO();
+    if (sinExtra) {
+      const jornadaRef = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
+      const entradaMin = timeToMinutes(entrada.value);
+      const salidaTeoricaMin = entradaMin + jornadaRef;
+      const minEnDia = salidaTeoricaMin % (24 * 60);
+      const h = Math.floor(minEnDia / 60);
+      const m = minEnDia % 60;
+      if (salida) salida.value = String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+    } else {
+      if (salida) salida.value = ahoraHoraISO();
+    }
 
     const resultado = calcularJornada({
       entrada: entrada.value,
@@ -628,6 +688,7 @@ function controlarNotificaciones() {
       if (salida) salida.value = "";
       if (minAntes) minAntes.value = "0";
       if (disfrutadas) disfrutadas.value = "0";
+      try { localStorage.removeItem(EXTEND_PROMPT_KEY + "_" + hoy); } catch (e) {}
       guardarBorradorSesion();
       actualizarEstadoIniciarJornada();
       recalcularEnVivo();
@@ -1115,6 +1176,29 @@ if(festivos && festivos[fechaISO]){
   actualizarEstadoIniciarJornada();
   actualizarResumenDia();
   solicitarPermisoNotificaciones();
+
+  function checkExtendPromptFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("extend_prompt") !== "1") return;
+    const hoy = getHoyISO();
+    if (state.registros[hoy] && state.registros[hoy].salidaReal != null) return;
+    try { localStorage.setItem(EXTEND_PROMPT_KEY + "_" + hoy, "1"); } catch (e) {}
+    if (modalExtenderJornada) modalExtenderJornada.hidden = false;
+    if (window.history && window.history.replaceState) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("extend_prompt");
+      url.searchParams.delete("fecha");
+      window.history.replaceState({}, "", url.pathname + (url.search || ""));
+    }
+  }
+
+  checkExtendPromptFromUrl();
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") checkExtendPromptFromUrl();
+  });
+
+  window.addEventListener("focus", checkExtendPromptFromUrl);
 
   // ===============================
   // REGISTRO SERVICE WORKER
