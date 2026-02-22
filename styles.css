@@ -234,7 +234,7 @@ button:disabled {
 }
 
 .btn-finalizar {
-  background: var(--primary);
+  background: #f87171;
   color: white;
 }
 
