@@ -650,7 +650,9 @@ if (btnExcel) {
     const ws = XLSX.utils.json_to_sheet(rows);
 
     XLSX.utils.book_append_sheet(wb, ws, "Jornada");
-    XLSX.writeFile(wb, "jornada.xlsx");
+    const hoy = new Date();
+    const fechaExport = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+    XLSX.writeFile(wb, `jornada-${fechaExport}.xlsx`);
   });
 }
 
@@ -666,9 +668,11 @@ if (btnBackup) {
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
+    const hoy = new Date();
+    const fechaExport = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
     const a = document.createElement("a");
     a.href = url;
-    a.download = "backup-jornada.json";
+    a.download = `backup-jornada-${fechaExport}.json`;
     a.click();
 
     URL.revokeObjectURL(url);
