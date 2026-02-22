@@ -19,6 +19,12 @@ function marcarNotificado(fecha, tipo) {
   localStorage.setItem(`notif_${fecha}_${tipo}`, "1");
 }
 
+/** URL del icono para notificaciones (absoluta para iOS/Android). */
+function getNotificationIconUrl() {
+  const base = location.origin + (location.pathname.replace(/\/[^/]*$/, "") || "/");
+  return base.endsWith("/") ? base + "icons/icon-192.png" : base + "/icons/icon-192.png";
+}
+
 export function notificarUnaVez(fecha, tipo, mensaje) {
 
   if (!("Notification" in window)) return;
@@ -29,7 +35,7 @@ export function notificarUnaVez(fecha, tipo, mensaje) {
 
   const notif = new Notification("Jornada Pro", {
     body: mensaje,
-    icon: "./icons/icon-192.png"
+    icon: getNotificationIconUrl()
   });
 
   navigator.vibrate?.([200, 100, 200]);

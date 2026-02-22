@@ -9,6 +9,7 @@ import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
 // ===============================
 // IMPORTS UI
@@ -40,32 +41,60 @@ document.addEventListener("DOMContentLoaded", () => {
   const firebaseApp = initializeApp(firebaseConfig);
   const messaging = getMessaging(firebaseApp);
 
-  // Obtener token
+  let currentFcmToken = null;
 
-(async () => {
+  function getHoyISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
 
-  const swReg = await navigator.serviceWorker.register(
-    "/jornada-pro/firebase-messaging-sw.js"
-  );
-
-  getToken(messaging, {
-    vapidKey: "BHhgWLEfYEysLxe9W16MxacXdlTAaKgd9vNS2gGzGZB2U_4KKnNiuzX9rp3y2hmGFPzUasQ27s8z-Dr7BLp4vLM",
-    serviceWorkerRegistration: swReg
-  }).then((currentToken) => {
-
-    if (currentToken) {
-      console.log("TOKEN PUSH:", currentToken);
-    } else {
-      console.log("No se obtuvo token.");
+  async function registerBackendNotificationsIfReady() {
+    if (!currentFcmToken) return;
+    const hoy = getHoyISO();
+    const entradaHoy =
+      state.registros[hoy]?.entrada ||
+      (fecha && fecha.value === hoy && entrada?.value ? entrada.value : null);
+    if (!entradaHoy) return;
+    try {
+      const functions = getFunctions(firebaseApp);
+      const register = httpsCallable(functions, "registerNotificationSchedule");
+      await register({
+        token: currentFcmToken,
+        fecha: hoy,
+        entrada: entradaHoy,
+        jornadaMin: state.config.jornadaMin,
+        avisoMin: state.config.avisoMin,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Madrid"
+      });
+    } catch (e) {
+      console.warn("No se pudo registrar notificaciones en el servidor:", e.message);
     }
+  }
 
-  }).catch((err) => {
-    console.error("Error obteniendo token:", err);
-  });
+  const swPath = "firebase-messaging-sw.js";
 
-})();
-  
-    onMessage(messaging, (payload) => {
+  if ("serviceWorker" in navigator) {
+    (async () => {
+      try {
+        const swReg = await navigator.serviceWorker.register(swPath);
+        getToken(messaging, {
+          vapidKey: "BHhgWLEfYEysLxe9W16MxacXdlTAaKgd9vNS2gGzGZB2U_4KKnNiuzX9rp3y2hmGFPzUasQ27s8z-Dr7BLp4vLM",
+          serviceWorkerRegistration: swReg
+        }).then(async (currentToken) => {
+          if (currentToken) {
+            currentFcmToken = currentToken;
+            await registerBackendNotificationsIfReady();
+          }
+        }).catch((err) => {
+          console.error("Error obteniendo token:", err);
+        });
+      } catch (e) {
+        console.warn("Service Worker Firebase no registrado:", e.message);
+      }
+    })();
+  }
+
+  onMessage(messaging, (payload) => {
     console.log("Mensaje en primer plano:", payload);
 
     new Notification(
@@ -306,55 +335,56 @@ function actualizarProgreso() {
 }
 
 // ===============================
-// NOTIFICACIONES
+// NOTIFICACIONES (aviso previo + fin de jornada)
 // ===============================
 
 function controlarNotificaciones() {
 
-  console.log("NOTIF CHECK", new Date().toLocaleTimeString());
-
-  if (!entrada.value) return;
-
   const ahora = new Date();
-
   const fechaHoy =
     `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,"0")}-${String(ahora.getDate()).padStart(2,"0")}`;
 
-  let ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
-  const entradaMin = timeToMinutes(entrada.value);
-
-  if (ahoraMin < entradaMin) {
-    ahoraMin += 24 * 60;
+  // Usar hora de entrada de hoy: del formulario si está en hoy, o del registro guardado
+  let entradaHoy = null;
+  if (fecha.value === fechaHoy && entrada.value) {
+    entradaHoy = entrada.value;
+  } else {
+    const regHoy = state.registros[fechaHoy];
+    if (regHoy && !regHoy.vacaciones && regHoy.entrada) entradaHoy = regHoy.entrada;
   }
+  if (!entradaHoy) return;
+
+  let ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
+  const entradaMin = timeToMinutes(entradaHoy);
+  if (ahoraMin < entradaMin) ahoraMin += 24 * 60;
 
   const salidaTeoricaMin = entradaMin + state.config.jornadaMin;
-  const avisoMin = state.config.avisoMin;
+  const avisoMin = Math.max(0, state.config.avisoMin || 0);
 
-// Aviso previo
-if (
-  ahoraMin >= salidaTeoricaMin - avisoMin &&
-  ahoraMin < salidaTeoricaMin &&
-  !localStorage.getItem(`notif_${fechaHoy}_previo`)
-) {
-  notificarUnaVez(
-    fechaHoy,
-    "previo",
-    `Quedan ${avisoMin} minutos para finalizar tu jornada`
-  );
-}
+  // Aviso previo: "Quedan X minutos para finalizar tu jornada"
+  if (
+    ahoraMin >= salidaTeoricaMin - avisoMin &&
+    ahoraMin < salidaTeoricaMin &&
+    !localStorage.getItem(`notif_${fechaHoy}_previo`)
+  ) {
+    notificarUnaVez(
+      fechaHoy,
+      "previo",
+      `Quedan ${avisoMin} minutos para finalizar tu jornada`
+    );
+  }
 
-// Aviso final
-if (
-  ahoraMin >= salidaTeoricaMin &&
-  !localStorage.getItem(`notif_${fechaHoy}_final`)
-) {
-  notificarUnaVez(
-    fechaHoy,
-    "final",
-    "Has finalizado tu jornada"
-  );
-}
-  
+  // Aviso final: "Has finalizado tu jornada"
+  if (
+    ahoraMin >= salidaTeoricaMin &&
+    !localStorage.getItem(`notif_${fechaHoy}_final`)
+  ) {
+    notificarUnaVez(
+      fechaHoy,
+      "final",
+      "Has finalizado tu jornada"
+    );
+  }
 }
 
   
@@ -399,6 +429,12 @@ if (
         renderCalendario();
         actualizarEstadoEliminar();
       }
+      // iOS: el permiso de notificaciones debe pedirse en un gesto del usuario
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().then(() => {});
+      }
+      // Registrar horario en el backend para notificaciones en segundo plano
+      registerBackendNotificationsIfReady();
     };
   }
 
@@ -467,6 +503,7 @@ if (
     actualizarGrafico();
     actualizarEstadoEliminar();
     actualizarResumenDia();
+    if (fecha.value === getHoyISO()) registerBackendNotificationsIfReady();
   };
 
   if (btnVacaciones) btnVacaciones.onclick = () => {

@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Solo el backend (Cloud Functions con Admin SDK) escribe en notification_subscriptions.
+    // El cliente no tiene acceso directo a Firestore para esta colección.
+    match /notification_subscriptions/{docId} {
+      allow read, write: if false;
+    }
+  }
+}
