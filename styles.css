@@ -79,12 +79,31 @@ h1 {
 }
 
 header.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   padding: 16px 20px;
   padding-top: max(16px, var(--safe-top));
   border-bottom: 1px solid var(--border);
   background: var(--card-bg);
   -webkit-backdrop-filter: blur(var(--glass-blur));
   backdrop-filter: blur(var(--glass-blur));
+}
+
+.header-title {
+  margin: 0;
+  font-size: clamp(1rem, 4vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+  max-height: 44px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 /* ============================= */
