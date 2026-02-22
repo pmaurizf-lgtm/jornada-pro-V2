@@ -203,8 +203,27 @@ if (guardarConfig) {
     recalcularEnVivo();
     actualizarProgreso();
     actualizarGrafico();
+    closeConfigPanel();
   });
 }
+
+// Menú hamburguesa: abrir/cerrar panel de configuración
+const btnMenuConfig = document.getElementById("btnMenuConfig");
+const configPanel = document.getElementById("configPanel");
+const configPanelBackdrop = document.getElementById("configPanelBackdrop");
+
+function toggleConfigPanel() {
+  if (configPanel) configPanel.classList.toggle("is-open", !configPanel.classList.contains("is-open"));
+  if (configPanelBackdrop) configPanelBackdrop.setAttribute("aria-hidden", configPanel && configPanel.classList.contains("is-open") ? "false" : "true");
+}
+
+function closeConfigPanel() {
+  if (configPanel) configPanel.classList.remove("is-open");
+  if (configPanelBackdrop) configPanelBackdrop.setAttribute("aria-hidden", "true");
+}
+
+if (btnMenuConfig) btnMenuConfig.addEventListener("click", toggleConfigPanel);
+if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConfigPanel);
   
   // ===============================
   // RESUMEN DEL DÍA

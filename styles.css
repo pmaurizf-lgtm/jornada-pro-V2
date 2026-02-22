@@ -106,6 +106,129 @@ header.header {
   flex-shrink: 0;
 }
 
+/* Botón menú hamburguesa (3 rayas) */
+.header-menu-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 8px;
+}
+
+.header-menu-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body.dark .header-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.hamburger-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+/* Panel configuración (desliza desde la derecha) */
+.config-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 320px;
+  height: 100%;
+  z-index: 1000;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.config-panel.is-open {
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.config-panel-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  width: 100%;
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  padding: max(var(--safe-top), 16px) 20px 20px;
+  padding-bottom: max(20px, var(--safe-bottom));
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+
+.config-panel.is-open .config-panel-inner {
+  transform: translateX(0);
+}
+
+.config-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.config-panel.is-open .config-panel-backdrop {
+  opacity: 1;
+}
+
+.config-panel-title {
+  margin: 0 0 20px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.config-panel label {
+  display: block;
+  margin: 10px 0;
+}
+
+.config-panel input,
+.config-panel select {
+  padding: 6px;
+  margin-left: 10px;
+}
+
+.config-panel .config-notificaciones {
+  margin: 16px 0;
+}
+
+.config-panel .config-hint {
+  margin: 8px 0 0 30px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.config-panel hr {
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+.config-panel button,
+.config-panel input[type="file"] {
+  margin: 6px 0;
+}
+
 /* ============================= */
 /* CARDS – CRISTAL iOS           */
 /* ============================= */
@@ -512,42 +635,6 @@ body.dark .progress-wrapper {
 /* ============================= */
 /* CONFIGURACIÓN (desplegable)   */
 /* ============================= */
-
-.config-details {
-  width: 100%;
-}
-
-.config-summary {
-  list-style: none;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 4px 0;
-  user-select: none;
-}
-
-.config-summary::-webkit-details-marker {
-  display: none;
-}
-
-.config-summary::before {
-  content: "▶";
-  display: inline-block;
-  margin-right: 8px;
-  font-size: 0.7rem;
-  transition: transform 0.2s;
-  opacity: 0.7;
-}
-
-.config-details[open] .config-summary::before {
-  transform: rotate(90deg);
-}
-
-.config-body {
-  padding-top: 16px;
-  margin-top: 4px;
-  border-top: 1px solid var(--border);
-}
 
 .config-card label {
   display: block;
