@@ -9,6 +9,9 @@ export function validateState(state) {
     throw new Error("Estructura corrupta");
   }
 
+  if (typeof state.config.nombreCompleto !== "string") state.config.nombreCompleto = "";
+  if (typeof state.config.numeroSAP !== "string") state.config.numeroSAP = "";
+
   if (typeof state.config.jornadaMin !== "number") {
     throw new Error("Config inválida");
   }

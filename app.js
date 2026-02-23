@@ -171,6 +171,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnBackup = document.getElementById("backup");
   const btnRestore = document.getElementById("restore");
 
+  const cfgNombreCompleto = document.getElementById("cfgNombreCompleto");
+  const cfgNumeroSAP = document.getElementById("cfgNumeroSAP");
   const cfgJornada = document.getElementById("cfgJornada");
   const cfgAviso = document.getElementById("cfgAviso");
   const cfgTheme = document.getElementById("cfgTheme");
@@ -202,6 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // ===============================
 
 // Cargar valores en inputs
+if (cfgNombreCompleto) cfgNombreCompleto.value = state.config.nombreCompleto || "";
+if (cfgNumeroSAP) cfgNumeroSAP.value = state.config.numeroSAP || "";
 if (cfgJornada) cfgJornada.value = state.config.jornadaMin;
 if (cfgAviso) cfgAviso.value = state.config.avisoMin;
 if (cfgTheme) cfgTheme.value = state.config.theme;
@@ -225,6 +229,14 @@ aplicarTheme(state.config.theme);
 // Guardar configuración
 if (guardarConfig) {
   guardarConfig.addEventListener("click", async () => {
+
+    state.config.nombreCompleto = (cfgNombreCompleto && cfgNombreCompleto.value) ? cfgNombreCompleto.value.trim() : "";
+    let sap = (cfgNumeroSAP && cfgNumeroSAP.value) ? String(cfgNumeroSAP.value).replace(/\D/g, "").slice(0, 8) : "";
+    if (sap.length > 0 && sap.length !== 8) {
+      alert("El número SAP debe tener exactamente 8 cifras.");
+      return;
+    }
+    state.config.numeroSAP = sap;
 
     state.config.jornadaMin = Number(cfgJornada.value);
     state.config.avisoMin = Number(cfgAviso.value);
@@ -286,6 +298,17 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
   // RESUMEN DEL DÍA
   // ===============================
 
+  /** Formato para resumen: horas y minutos + decimal, separados para fácil lectura. Devuelve HTML con span para la parte decimal. */
+  function formatoResumenTiempo(min) {
+    const m = Math.abs(min);
+    const h = Math.floor(m / 60);
+    const minResto = Math.round(m % 60);
+    const decimal = (m / 60).toFixed(2).replace(".", ",") + "h";
+    if (h === 0 && minResto === 0) return "0h 00m <span class=\"resumen-decimal\">· 0,00h</span>";
+    const hm = h + "h " + String(minResto).padStart(2, "0") + "m";
+    return hm + " <span class=\"resumen-decimal\">· " + decimal + "</span>";
+  }
+
   function actualizarResumenDia() {
 
     if (!resumenDia || !rTrabajado || !rExtra || !rNegativa) return;
@@ -299,18 +322,18 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
 
     resumenDia.style.display = "grid";
 
-    rTrabajado.innerText = (registro.trabajadosMin / 60).toFixed(2) + "h";
+    rTrabajado.innerHTML = formatoResumenTiempo(registro.trabajadosMin);
 
-    rExtra.innerText = (registro.extraGeneradaMin / 60).toFixed(2) + "h";
-    rExtra.classList.toggle("positive", registro.extraGeneradaMin > 0);
+    rExtra.innerHTML = formatoResumenTiempo(registro.extraGeneradaMin || 0);
+    rExtra.classList.toggle("positive", (registro.extraGeneradaMin || 0) > 0);
     rExtra.classList.remove("negative");
 
     const excesoMin = registro.excesoJornadaMin || 0;
-    if (rExceso) rExceso.innerText = (excesoMin / 60).toFixed(2) + "h";
+    if (rExceso) rExceso.innerHTML = formatoResumenTiempo(excesoMin);
     if (resumenExcesoWrap) resumenExcesoWrap.style.display = excesoMin > 0 ? "" : "none";
 
-    rNegativa.innerText = (registro.negativaMin / 60).toFixed(2) + "h";
-    rNegativa.classList.toggle("negative", registro.negativaMin > 0);
+    rNegativa.innerHTML = formatoResumenTiempo(registro.negativaMin || 0);
+    rNegativa.classList.toggle("negative", (registro.negativaMin || 0) > 0);
     rNegativa.classList.remove("positive");
   }
 

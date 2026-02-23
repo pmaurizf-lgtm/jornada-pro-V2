@@ -74,82 +74,111 @@
   <div class="config-panel-inner">
     <h2 class="config-panel-title">Configuración</h2>
 
-    <div class="config-block">
-      <label class="config-row">
-        <span class="config-label">Jornada (min)</span>
-        <input type="number" id="cfgJornada" class="config-input" min="1">
-      </label>
-      <label class="config-row">
-        <span class="config-label">Aviso antes terminar (min)</span>
-        <input type="number" id="cfgAviso" class="config-input" min="0">
-      </label>
-    </div>
-
-    <div class="config-block">
-      <label class="config-row">
-        <span class="config-label">Tema</span>
-        <select id="cfgTheme" class="config-input config-select">
-          <option value="light">Claro</option>
-          <option value="dark">Oscuro</option>
-        </select>
-      </label>
-    </div>
-
-    <div class="config-block config-block-turnos">
-      <label class="config-row config-toggle-row">
-        <input type="checkbox" id="cfgTrabajoTurnos" class="config-checkbox">
-        <span class="config-label">Trabajo a turnos</span>
-      </label>
-      <div id="configTurnoWrap" class="config-turno-wrap" hidden>
-        <label class="config-row">
-          <span class="config-label">Turno</span>
-          <select id="cfgTurno" class="config-input config-select">
-            <option value="06-14">Mañana (06:00 – 14:00)</option>
-            <option value="14-22">Tarde (14:00 – 22:00)</option>
-            <option value="22-06">Noche (22:00 – 06:00)</option>
-          </select>
-        </label>
+    <!-- 1. Datos Personales -->
+    <details class="config-details" open>
+      <summary class="config-summary">Datos Personales</summary>
+      <div class="config-details-body">
+        <div class="config-block">
+          <label class="config-row">
+            <span class="config-label">Nombre completo</span>
+            <input type="text" id="cfgNombreCompleto" class="config-input config-input-full" placeholder="Nombre y apellidos">
+          </label>
+          <label class="config-row">
+            <span class="config-label">Número SAP</span>
+            <input type="text" id="cfgNumeroSAP" class="config-input" placeholder="8 cifras" maxlength="8" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+          </label>
+          <p class="config-hint">Número SAP: 8 cifras.</p>
+        </div>
       </div>
-    </div>
+    </details>
 
-    <div class="config-block config-iniciales">
-      <span class="config-block-label">Saldo previo (antes de usar la app)</span>
-      <label class="config-row">
-        <span class="config-label">Horas extra previas (h)</span>
-        <input type="number" id="cfgHorasExtraPrevias" class="config-input" min="0" step="0.25" placeholder="0">
-      </label>
-      <label class="config-row">
-        <span class="config-label">Exceso jornada previo (h)</span>
-        <input type="number" id="cfgExcesoJornadaPrevias" class="config-input" min="0" step="0.25" placeholder="0">
-      </label>
-      <div class="config-row config-row-reset">
-        <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
+    <!-- 2. Configuración Aplicación -->
+    <details class="config-details">
+      <summary class="config-summary">Configuración Aplicación</summary>
+      <div class="config-details-body">
+        <div class="config-block">
+          <label class="config-row">
+            <span class="config-label">Tema</span>
+            <select id="cfgTheme" class="config-input config-select">
+              <option value="light">Claro</option>
+              <option value="dark">Oscuro</option>
+            </select>
+          </label>
+          <label class="config-row config-toggle-row">
+            <input type="checkbox" id="cfgNotificaciones" class="config-checkbox" checked>
+            <span class="config-label">Notificaciones</span>
+          </label>
+          <label class="config-row">
+            <span class="config-label">Aviso antes terminar (min)</span>
+            <input type="number" id="cfgAviso" class="config-input" min="0">
+          </label>
+          <p class="config-hint">Aviso previo y fin de jornada (incl. app en segundo plano).</p>
+        </div>
       </div>
-      <p class="config-hint">Se suman al total disponible del banco (independiente del año).</p>
-    </div>
+    </details>
 
-    <div class="config-block config-notificaciones">
-      <label class="config-row config-toggle-row">
-        <input type="checkbox" id="cfgNotificaciones" class="config-checkbox" checked>
-        <span class="config-label">Notificaciones</span>
-      </label>
-      <p class="config-hint">Aviso previo y fin de jornada (incl. app en segundo plano).</p>
-    </div>
+    <!-- 3. Configuración de Jornada -->
+    <details class="config-details">
+      <summary class="config-summary">Configuración de Jornada</summary>
+      <div class="config-details-body">
+        <div class="config-block config-block-turnos">
+          <label class="config-row config-toggle-row">
+            <input type="checkbox" id="cfgTrabajoTurnos" class="config-checkbox">
+            <span class="config-label">Trabajo a turnos</span>
+          </label>
+          <div id="configTurnoWrap" class="config-turno-wrap" hidden>
+            <label class="config-row">
+              <span class="config-label">Turno</span>
+              <select id="cfgTurno" class="config-input config-select">
+                <option value="06-14">Mañana (06:00 – 14:00)</option>
+                <option value="14-22">Tarde (14:00 – 22:00)</option>
+                <option value="22-06">Noche (22:00 – 06:00)</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="config-block">
+          <label class="config-row">
+            <span class="config-label">Duración de la jornada (min)</span>
+            <input type="number" id="cfgJornada" class="config-input" min="1">
+          </label>
+        </div>
+        <div class="config-block config-iniciales">
+          <span class="config-block-label">Saldo previo (antes de usar la app)</span>
+          <label class="config-row">
+            <span class="config-label">Horas extra previas (h)</span>
+            <input type="number" id="cfgHorasExtraPrevias" class="config-input" min="0" step="0.25" placeholder="0">
+          </label>
+          <label class="config-row">
+            <span class="config-label">Exceso jornada previo (h)</span>
+            <input type="number" id="cfgExcesoJornadaPrevias" class="config-input" min="0" step="0.25" placeholder="0">
+          </label>
+          <div class="config-row config-row-reset">
+            <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
+          </div>
+          <p class="config-hint">Se suman al total disponible del banco (independiente del año).</p>
+        </div>
+      </div>
+    </details>
 
     <div class="config-actions">
       <button type="button" id="guardarConfig" class="config-btn config-btn-primary">Guardar configuración</button>
     </div>
 
-    <hr class="config-divider">
-
-    <div class="config-actions">
-      <button type="button" id="excel" class="config-btn">Exportar Excel</button>
-      <button type="button" id="backup" class="config-btn">Backup</button>
-      <label class="config-btn config-btn-file">
-        Restaurar
-        <input type="file" id="restore" class="config-file-input">
-      </label>
-    </div>
+    <!-- 4. Copia de datos y seguridad -->
+    <details class="config-details">
+      <summary class="config-summary">Copia de datos y seguridad</summary>
+      <div class="config-details-body">
+        <div class="config-actions">
+          <button type="button" id="excel" class="config-btn">Exportar Excel</button>
+          <button type="button" id="backup" class="config-btn">Backup</button>
+          <label class="config-btn config-btn-file">
+            Restaurar
+            <input type="file" id="restore" class="config-file-input">
+          </label>
+        </div>
+      </div>
+    </details>
   </div>
   <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
 </div>

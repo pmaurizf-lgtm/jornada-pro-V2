@@ -8,6 +8,8 @@ export function createInitialState() {
     deduccionesPorAusencia: {},
     extensionJornada: null,
     config: {
+      nombreCompleto: "",
+      numeroSAP: "",
       jornadaMin: 459,
       avisoMin: 10,
       theme: "light",
