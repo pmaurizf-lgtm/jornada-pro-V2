@@ -3,6 +3,7 @@
 // ===============================
 
 import { loadState, saveState, exportBackup, importBackup } from "./core/storage.js";
+import { createInitialState } from "./core/state.js";
 import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15 } from "./core/calculations.js";
 import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
@@ -196,6 +197,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalConfirmarEliminar = document.getElementById("modalConfirmarEliminar");
   const modalEliminarSi = document.getElementById("modalEliminarSi");
   const modalEliminarCancelar = document.getElementById("modalEliminarCancelar");
+  const modalConfirmarFabrica = document.getElementById("modalConfirmarFabrica");
+  const modalFabricaSi = document.getElementById("modalFabricaSi");
+  const modalFabricaCancelar = document.getElementById("modalFabricaCancelar");
+  const btnRestaurarFabrica = document.getElementById("restaurarFabrica");
 
   const chartCanvas = document.getElementById("chart");
 
@@ -203,18 +208,21 @@ document.addEventListener("DOMContentLoaded", () => {
 // CONFIGURACIÓN
 // ===============================
 
-// Cargar valores en inputs
-if (cfgNombreCompleto) cfgNombreCompleto.value = state.config.nombreCompleto || "";
-if (cfgNumeroSAP) cfgNumeroSAP.value = state.config.numeroSAP || "";
-if (cfgJornada) cfgJornada.value = state.config.jornadaMin;
-if (cfgAviso) cfgAviso.value = state.config.avisoMin;
-if (cfgTheme) cfgTheme.value = state.config.theme;
-if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
-if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = state.config.trabajoATurnos === true;
-if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
-if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
-if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
-if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
+function aplicarEstadoConfigAUI() {
+  if (cfgNombreCompleto) cfgNombreCompleto.value = state.config.nombreCompleto || "";
+  if (cfgNumeroSAP) cfgNumeroSAP.value = state.config.numeroSAP || "";
+  if (cfgJornada) cfgJornada.value = state.config.jornadaMin;
+  if (cfgAviso) cfgAviso.value = state.config.avisoMin;
+  if (cfgTheme) cfgTheme.value = state.config.theme;
+  if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
+  if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = state.config.trabajoATurnos === true;
+  if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
+  if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
+  if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
+  if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
+}
+
+aplicarEstadoConfigAUI();
 
 // Toggle visibilidad selector turno
 if (cfgTrabajoTurnos && configTurnoWrap) {
@@ -1173,6 +1181,46 @@ function controlarNotificaciones() {
     if (backdropEliminar) backdropEliminar.addEventListener("click", cerrarModalConfirmarEliminar);
   }
 
+  function cerrarModalConfirmarFabrica() {
+    if (modalConfirmarFabrica) modalConfirmarFabrica.hidden = true;
+  }
+
+  if (btnRestaurarFabrica) {
+    btnRestaurarFabrica.addEventListener("click", () => {
+      if (modalConfirmarFabrica) modalConfirmarFabrica.hidden = false;
+    });
+  }
+  if (modalFabricaSi) {
+    modalFabricaSi.addEventListener("click", async () => {
+      state = createInitialState();
+      saveState(state);
+      aplicarTheme(state.config.theme);
+      aplicarEstadoConfigAUI();
+      cerrarModalConfirmarFabrica();
+      closeConfigPanel();
+      limpiarBorradorSesion();
+      if (fecha) fecha.value = getHoyISO();
+      if (entrada) entrada.value = "";
+      if (salida) salida.value = "";
+      if (disfrutadas) disfrutadas.value = "0";
+      if (minAntes) minAntes.value = "0";
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+      actualizarProgreso();
+    });
+  }
+  if (modalFabricaCancelar) {
+    modalFabricaCancelar.addEventListener("click", cerrarModalConfirmarFabrica);
+  }
+  if (modalConfirmarFabrica) {
+    const backdropFabrica = modalConfirmarFabrica.querySelector(".modal-extender-backdrop");
+    if (backdropFabrica) backdropFabrica.addEventListener("click", cerrarModalConfirmarFabrica);
+  }
+
   function actualizarEstadoEliminar() {
     if (!btnEliminar) return;
     btnEliminar.disabled = !state.registros[fecha.value];
@@ -1314,6 +1362,9 @@ if (btnRestore) {
         state = newState;
         saveState(state);
 
+        aplicarTheme(state.config.theme);
+        aplicarEstadoConfigAUI();
+
         if (fecha && fecha.value) {
           cargarFormularioDesdeRegistro(fecha.value);
         }
@@ -1321,6 +1372,7 @@ if (btnRestore) {
         actualizarBanco();
         actualizarGrafico();
         actualizarEstadoEliminar();
+        actualizarEstadoIniciarJornada();
         actualizarResumenDia();
 
       } catch {

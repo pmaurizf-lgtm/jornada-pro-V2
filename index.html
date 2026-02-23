@@ -21,13 +21,7 @@
 <body>
 
 <header class="header">
-  <div class="header-left">
-    <h1 class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
-    <div class="header-app-info">
-      <span class="header-app-name">Jornada Pro</span> <span class="header-version">© 1.0</span>
-      <div class="header-author">Autor: Pablo Mouriz Fontao</div>
-    </div>
-  </div>
+  <h1 class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
   <img src="icons/logo-navantia.png" alt="NAVANTIA" class="header-logo">
   <button type="button" id="btnMenuConfig" class="header-menu-btn" aria-label="Menú configuración">
     <span class="hamburger-line"></span>
@@ -58,6 +52,19 @@
     <div class="modal-extender-botones modal-pase-botones">
       <button type="button" id="modalPaseJustificado" class="modal-extender-btn modal-pase-justificado">Pase de salida justificado</button>
       <button type="button" id="modalPaseSinJustificar" class="modal-extender-btn modal-pase-sinjustificar">Pase de salida sin justificar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmar restaurar valores de fábrica -->
+<div id="modalConfirmarFabrica" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarFabricaTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalConfirmarFabricaTitulo" class="modal-extender-titulo">Restaurar valores de fábrica</h3>
+    <p class="modal-extender-texto">Se borrarán todos los datos almacenados (registros, configuración, datos personales, banco de horas, etc.) y la aplicación volverá al estado inicial. Esta acción no se puede deshacer. ¿Confirmas?</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalFabricaCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalFabricaSi" class="modal-extender-btn modal-extender-si">Sí, restaurar</button>
     </div>
   </div>
 </div>
@@ -182,9 +189,15 @@
             Restaurar
             <input type="file" id="restore" class="config-file-input">
           </label>
+          <button type="button" id="restaurarFabrica" class="config-btn config-btn-reset">Restaurar valores de fábrica</button>
         </div>
       </div>
     </details>
+
+    <div class="config-app-info">
+      <span class="config-app-name">Jornada Pro</span> <span class="config-app-version">© 1.0</span>
+      <div class="config-app-author">Autor: Pablo Mouriz Fontao</div>
+    </div>
   </div>
   <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
 </div>

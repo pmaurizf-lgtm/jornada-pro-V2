@@ -24,6 +24,7 @@ export function saveState(state) {
   localStorage.setItem(KEY, JSON.stringify(state));
 }
 
+/** Exporta el estado completo: registros, config (datos personales, jornada, saldo previo), deducciones, etc. */
 export function exportBackup(state) {
   return JSON.stringify(state, null, 2);
 }
