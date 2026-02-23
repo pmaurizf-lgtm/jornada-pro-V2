@@ -182,6 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnResetSaldoPrevio = document.getElementById("resetSaldoPrevio");
   const configTurnoWrap = document.getElementById("configTurnoWrap");
   const guardarConfig = document.getElementById("guardarConfig");
+  const finalizarJornadaWrap = document.getElementById("finalizarJornadaWrap");
   const finalizarSliderTrack = document.getElementById("finalizarSliderTrack");
   const finalizarSliderThumb = document.getElementById("finalizarSliderThumb");
   const modalExtenderJornada = document.getElementById("modalExtenderJornada");
@@ -921,10 +922,12 @@ function controlarNotificaciones() {
     }
 
     finalizarSliderThumb.addEventListener("mousedown", (e) => {
+      if (finalizarJornadaWrap && finalizarJornadaWrap.classList.contains("finalizar-slider-wrap--disabled")) return;
       e.preventDefault();
       dragging = true;
     });
     finalizarSliderThumb.addEventListener("touchstart", (e) => {
+      if (finalizarJornadaWrap && finalizarJornadaWrap.classList.contains("finalizar-slider-wrap--disabled")) return;
       e.preventDefault();
       dragging = true;
     }, { passive: false });
@@ -1043,6 +1046,21 @@ function controlarNotificaciones() {
     btnEliminar.disabled = !state.registros[fecha.value];
   }
 
+  function jornadaActivaHoy() {
+    const hoy = getHoyISO();
+    const tieneJornadaEnCurso = fecha && fecha.value === hoy && entrada && entrada.value && !(state.registros[hoy] && state.registros[hoy].salidaReal != null);
+    const enPaseJustificado = state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy;
+    const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoy && !pasadoFinTeorico(state.earlyExitState);
+    return !!(tieneJornadaEnCurso || enPaseJustificado || enEarlyExit);
+  }
+
+  function actualizarEstadoFinalizarJornada() {
+    if (!finalizarJornadaWrap) return;
+    const activa = jornadaActivaHoy();
+    finalizarJornadaWrap.classList.toggle("finalizar-slider-wrap--disabled", !activa);
+    finalizarJornadaWrap.setAttribute("aria-disabled", activa ? "false" : "true");
+  }
+
   function actualizarEstadoIniciarJornada() {
     if (!btnIniciarJornada) return;
     const hoy = getHoyISO();
@@ -1059,6 +1077,7 @@ function controlarNotificaciones() {
       btnIniciarJornada.textContent = "Iniciar jornada";
       btnIniciarJornada.disabled = !!(esHoy && tieneEntrada && !yaFinalizado);
     }
+    actualizarEstadoFinalizarJornada();
   }
   
 function mostrarPopupFestivo(texto){
@@ -1258,33 +1277,34 @@ if(festivos && festivos[fechaISO]){
     // ===============================
 
     const registro = state.registros[fechaISO];
+    const deduccionDia = (state.deduccionesPorAusencia && state.deduccionesPorAusencia[fechaISO]) || 0;
 
-    if(registro){
+    if (registro) {
 
-      if(registro.vacaciones){
+      if (registro.vacaciones) {
 
         div.innerHTML += `<small>Vac</small>`;
 
       } else {
 
-        if(registro.extraGeneradaMin > 0){
-          div.innerHTML +=
-            `<small style="color:var(--positive)">+${(registro.extraGeneradaMin/60).toFixed(1)}h</small>`;
-        }
-        if(registro.excesoJornadaMin > 0){
-          div.innerHTML +=
-            `<small class="cal-exceso" title="Exceso de jornada">+${(registro.excesoJornadaMin/60).toFixed(1)}h exc.</small>`;
+        const extra = registro.extraGeneradaMin || 0;
+        const exceso = registro.excesoJornadaMin || 0;
+        const negativa = registro.negativaMin || 0;
+        const saldoDiaMin = extra + exceso - negativa - deduccionDia;
+
+        if (saldoDiaMin > 0) {
+          div.innerHTML += `<small class="cal-saldo cal-saldo-pos">+${(saldoDiaMin / 60).toFixed(1)}h</small>`;
+        } else if (saldoDiaMin < 0) {
+          div.innerHTML += `<small class="cal-saldo cal-saldo-neg">−${(Math.abs(saldoDiaMin) / 60).toFixed(1)}h</small>`;
         }
 
-        if(registro.negativaMin > 0){
-          div.innerHTML +=
-            `<small style="color:var(--negative)">-${(registro.negativaMin/60).toFixed(1)}h</small>`;
-        }
-        if(registro.disfrutadasManualMin > 0){
-          div.innerHTML +=
-            `<small class="cal-disfrutadas">Disfr. ${(registro.disfrutadasManualMin/60).toFixed(1)}h</small>`;
+        if (registro.disfrutadasManualMin > 0) {
+          div.innerHTML += `<small class="cal-disfrutadas">Disfr. ${(registro.disfrutadasManualMin / 60).toFixed(1)}h</small>`;
         }
       }
+    } else if (deduccionDia > 0) {
+
+      div.innerHTML += `<small class="cal-saldo cal-saldo-neg">−${(deduccionDia / 60).toFixed(1)}h</small>`;
     }
 
     calendarGrid.appendChild(div);
