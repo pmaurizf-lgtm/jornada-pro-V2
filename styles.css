@@ -627,6 +627,21 @@ body.dark .cal-day.festivo-nacional {
   opacity: 0.9;
 }
 
+.cal-day small.cal-saldo {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.cal-day small.cal-saldo-pos {
+  color: var(--positive);
+}
+
+.cal-day small.cal-saldo-neg {
+  color: var(--negative);
+}
+
 .cal-day.seleccionado {
   outline: 2px solid var(--primary);
   background: rgba(0, 122, 255, 0.2);
@@ -661,6 +676,14 @@ body:not(.dark) .cal-day small.cal-disfrutadas {
 
 body:not(.dark) .cal-day small.cal-exceso {
   color: #16a34a;
+}
+
+body:not(.dark) .cal-day small.cal-saldo-pos {
+  color: #16a34a;
+}
+
+body:not(.dark) .cal-day small.cal-saldo-neg {
+  color: #dc2626;
 }
 
 body:not(.dark) .cal-day.seleccionado {
@@ -835,6 +858,15 @@ button:disabled {
 
 .finalizar-slider-thumb.finalizar-slider-done {
   background: var(--positive);
+}
+
+.finalizar-slider-wrap--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.finalizar-slider-wrap--disabled .finalizar-slider-track {
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {

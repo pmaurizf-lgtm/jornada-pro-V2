@@ -3,7 +3,7 @@
 // ===============================
 
 import { loadState, saveState, exportBackup, importBackup } from "./core/storage.js";
-import { calcularJornada, minutesToTime, timeToMinutes } from "./core/calculations.js";
+import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15 } from "./core/calculations.js";
 import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
@@ -191,6 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalPaseSalida = document.getElementById("modalPaseSalida");
   const modalPaseJustificado = document.getElementById("modalPaseJustificado");
   const modalPaseSinJustificar = document.getElementById("modalPaseSinJustificar");
+  const modalConfirmarEliminar = document.getElementById("modalConfirmarEliminar");
+  const modalEliminarSi = document.getElementById("modalEliminarSi");
+  const modalEliminarCancelar = document.getElementById("modalEliminarCancelar");
 
   const chartCanvas = document.getElementById("chart");
 
@@ -423,17 +426,43 @@ function recalcularEnVivo() {
 
 function actualizarProgreso() {
 
+  const progresoInside = document.getElementById("progresoInside");
+  const hoy = getHoyISO();
+
+  // Jornada ya finalizada (registro con salida): barra a 0 y no contar
+  if (fecha && state.registros[fecha.value] && state.registros[fecha.value].salidaReal != null) {
+    if (barra) barra.style.width = "0%";
+    if (progresoInside) progresoInside.innerText = "";
+    if (barra) barra.classList.remove("progress-complete");
+    return;
+  }
+
+  // Modo extensión: contador de horas extra desde extensionJornada.desdeTime (bloques de 15 min)
+  if (state.extensionJornada && state.extensionJornada.fecha === hoy && state.extensionJornada.desdeTime) {
+    const ahoraMin = new Date().getHours() * 60 + new Date().getMinutes();
+    const desdeMin = timeToMinutes(state.extensionJornada.desdeTime);
+    let extraMin = ahoraMin - desdeMin;
+    if (extraMin < 0) extraMin += 24 * 60;
+    extraMin = extraEnBloques15(extraMin);
+    if (barra) barra.style.width = "0%";
+    if (progresoInside) {
+      const h = Math.floor(extraMin / 60);
+      const m = extraMin % 60;
+      progresoInside.innerText = "+" + h + "h " + String(m).padStart(2, "0") + "m extra";
+      progresoInside.classList.add("light-text");
+    }
+    if (barra) barra.classList.remove("progress-complete");
+    return;
+  }
+
   if (!entrada || !entrada.value) {
     if (barra) barra.style.width = "0%";
-
-    const progresoInside = document.getElementById("progresoInside");
     if (progresoInside) progresoInside.innerText = "";
-
     return;
   }
 
   const ahora = new Date();
-  let ahoraMin = ahora.getHours()*60 + ahora.getMinutes();
+  let ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
   const entradaMin = timeToMinutes(entrada.value);
 
   if (ahoraMin < entradaMin) {
@@ -442,29 +471,35 @@ function actualizarProgreso() {
 
   const trabajado = ahoraMin - entradaMin;
   const jornadaRef = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
-  const porcentaje = Math.min(
-    (trabajado / jornadaRef) * 100,
-    100
-  );
+
+  // Fin teórico alcanzado: barra a 0 y dejar de contar; si seguimos en sesión mostramos horas extra (bloques 15 min)
+  if (trabajado >= jornadaRef) {
+    if (barra) barra.style.width = "0%";
+    const extraMin = extraEnBloques15(trabajado - jornadaRef);
+    const horas = Math.floor(extraMin / 60);
+    const minutos = extraMin % 60;
+    if (progresoInside) {
+      progresoInside.innerText = "+" + horas + "h " + String(minutos).padStart(2, "0") + "m extra";
+      progresoInside.classList.add("light-text");
+    }
+    if (barra) barra.classList.remove("progress-complete");
+    return;
+  }
+
+  const porcentaje = Math.min((trabajado / jornadaRef) * 100, 100);
 
   if (barra) barra.style.width = porcentaje + "%";
 
-  // 🔥 FORMATO HORAS + MINUTOS
   const horas = Math.floor(trabajado / 60);
   const minutos = trabajado % 60;
 
   const texto =
     horas + "h " +
-    String(minutos).padStart(2,"0") + "m • " +
+    String(minutos).padStart(2, "0") + "m • " +
     Math.round(porcentaje) + "%";
 
-  const progresoInside = document.getElementById("progresoInside");
-
   if (progresoInside) {
-
     progresoInside.innerText = texto;
-
-    // color automático según porcentaje
     if (porcentaje > 35) {
       progresoInside.classList.add("light-text");
     } else {
@@ -472,7 +507,6 @@ function actualizarProgreso() {
     }
   }
 
-  // 🎨 COLOR DINÁMICO CONTINUO
   const hue = Math.max(0, 120 - (porcentaje * 1.2));
 
   if (barra) {
@@ -565,6 +599,16 @@ function controlarNotificaciones() {
     state.earlyExitState = null;
     saveState(state);
     actualizarEstadoIniciarJornada();
+  }
+
+  function limpiarExtensionSiCambioDia() {
+    const ext = state.extensionJornada;
+    if (!ext) return;
+    if (ext.fecha === getHoyISO()) return;
+    state.extensionJornada = null;
+    saveState(state);
+    actualizarEstadoIniciarJornada();
+    actualizarProgreso();
   }
 
   function comprobarExtenderJornada() {
@@ -663,6 +707,7 @@ function controlarNotificaciones() {
     comprobarExtenderJornada();
     comprobarPaseJustificadoAutoFinalizar();
     limpiarEarlyExitStateSiPasado();
+    limpiarExtensionSiCambioDia();
   }, 1000);
 
   if (entrada) entrada.addEventListener("input", () => {
@@ -808,10 +853,51 @@ function controlarNotificaciones() {
     actualizarResumenDia();
   }
 
+  function ejecutarFinalizarExtension() {
+    const hoy = getHoyISO();
+    const ext = state.extensionJornada;
+    if (!ext || ext.fecha !== hoy || !state.registros[hoy]) return;
+
+    const ahoraMin = new Date().getHours() * 60 + new Date().getMinutes();
+    const desdeMin = timeToMinutes(ext.desdeTime);
+    let extraMin = ahoraMin - desdeMin;
+    if (extraMin < 0) extraMin += 24 * 60;
+    extraMin = extraEnBloques15(extraMin);
+
+    const reg = state.registros[hoy];
+    reg.extraGeneradaMin = (reg.extraGeneradaMin || 0) + extraMin;
+    if (state.config.trabajoATurnos && extraMin > 0) {
+      const EXCESO_JORNADA_TURNOS_MIN = 21;
+      reg.excesoJornadaMin = (reg.excesoJornadaMin || 0) + Math.min(extraMin, EXCESO_JORNADA_TURNOS_MIN);
+    }
+
+    state.extensionJornada = null;
+    saveState(state);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+    actualizarProgreso();
+  }
+
   if (btnIniciarJornada) {
     btnIniciarJornada.onclick = () => {
       const hoy = hoyISO();
-      const esContinuar = (btnIniciarJornada.textContent || "").trim().toLowerCase().includes("continuar");
+      const textoBtn = (btnIniciarJornada.textContent || "").trim();
+      const esExtender = textoBtn.includes("Extender jornada") && !btnIniciarJornada.disabled;
+
+      if (esExtender && state.registros[hoy] && state.registros[hoy].salidaReal && getHoyISO() === hoy) {
+        state.extensionJornada = { fecha: hoy, desdeTime: ahoraHoraISO() };
+        saveState(state);
+        actualizarEstadoIniciarJornada();
+        actualizarProgreso();
+        actualizarResumenDia();
+        return;
+      }
+
+      const esContinuar = textoBtn.toLowerCase().includes("continuar");
 
       if (esContinuar && state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) {
         state.paseJustificadoHasta = null;
@@ -908,6 +994,12 @@ function controlarNotificaciones() {
       dragging = false;
       const p = (clientX != null && finalizarSliderTrack) ? getProgress(clientX) : lastProgress;
       if (p >= threshold) {
+        const hoy = getHoyISO();
+        if (state.extensionJornada && state.extensionJornada.fecha === hoy) {
+          ejecutarFinalizarExtension();
+          setThumbPosition(0);
+          return;
+        }
         const salidaAhora = ahoraHoraISO();
         if (esSalidaAnticipada(salidaAhora)) {
           abrirModalPaseSalida(salidaAhora);
@@ -1017,28 +1109,45 @@ function controlarNotificaciones() {
     actualizarResumenDia();
   };
 
+  function ejecutarEliminarRegistroDia() {
+    if (!fecha.value || !state.registros[fecha.value]) return;
+    delete state.registros[fecha.value];
+    if (fecha.value === getHoyISO()) limpiarBorradorSesion();
+    saveState(state);
+    entrada.value = "";
+    salida.value = "";
+    disfrutadas.value = 0;
+    minAntes.value = 0;
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+  }
+
+  function cerrarModalConfirmarEliminar() {
+    if (modalConfirmarEliminar) modalConfirmarEliminar.hidden = true;
+  }
+
   if (btnEliminar) {
     btnEliminar.addEventListener("click", () => {
-
       if (!fecha.value || !state.registros[fecha.value]) return;
-
-      delete state.registros[fecha.value];
-      if (fecha.value === getHoyISO()) limpiarBorradorSesion();
-
-      saveState(state);
-
-      entrada.value = "";
-      salida.value = "";
-      disfrutadas.value = 0;
-      minAntes.value = 0;
-
-      renderCalendario();
-      actualizarBanco();
-      actualizarGrafico();
-      actualizarEstadoEliminar();
-      actualizarEstadoIniciarJornada();
-      actualizarResumenDia();
+      if (modalConfirmarEliminar) modalConfirmarEliminar.hidden = false;
     });
+  }
+  if (modalEliminarSi) {
+    modalEliminarSi.addEventListener("click", () => {
+      ejecutarEliminarRegistroDia();
+      cerrarModalConfirmarEliminar();
+    });
+  }
+  if (modalEliminarCancelar) {
+    modalEliminarCancelar.addEventListener("click", cerrarModalConfirmarEliminar);
+  }
+  if (modalConfirmarEliminar) {
+    const backdropEliminar = modalConfirmarEliminar.querySelector(".modal-extender-backdrop");
+    if (backdropEliminar) backdropEliminar.addEventListener("click", cerrarModalConfirmarEliminar);
   }
 
   function actualizarEstadoEliminar() {
@@ -1051,7 +1160,8 @@ function controlarNotificaciones() {
     const tieneJornadaEnCurso = fecha && fecha.value === hoy && entrada && entrada.value && !(state.registros[hoy] && state.registros[hoy].salidaReal != null);
     const enPaseJustificado = state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy;
     const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoy && !pasadoFinTeorico(state.earlyExitState);
-    return !!(tieneJornadaEnCurso || enPaseJustificado || enEarlyExit);
+    const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoy;
+    return !!(tieneJornadaEnCurso || enPaseJustificado || enEarlyExit || enExtension);
   }
 
   function actualizarEstadoFinalizarJornada() {
@@ -1069,9 +1179,17 @@ function controlarNotificaciones() {
     const yaFinalizado = state.registros[hoy] && state.registros[hoy].salidaReal != null;
     const enPaseJustificado = state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy;
     const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoy && !pasadoFinTeorico(state.earlyExitState);
+    const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoy;
     const mostrarContinuar = enPaseJustificado || enEarlyExit;
+
     if (mostrarContinuar) {
       btnIniciarJornada.textContent = "Continuar jornada";
+      btnIniciarJornada.disabled = false;
+    } else if (enExtension) {
+      btnIniciarJornada.textContent = "Extender jornada";
+      btnIniciarJornada.disabled = true;
+    } else if (yaFinalizado && esHoy) {
+      btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = false;
     } else {
       btnIniciarJornada.textContent = "Iniciar jornada";

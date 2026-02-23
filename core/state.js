@@ -6,6 +6,7 @@ export function createInitialState() {
     paseJustificadoHasta: null,
     earlyExitState: null,
     deduccionesPorAusencia: {},
+    extensionJornada: null,
     config: {
       jornadaMin: 459,
       avisoMin: 10,

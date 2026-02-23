@@ -30,6 +30,12 @@ export function minutesToTime(min) {
 const JORNADA_TURNOS_MIN = 8 * 60; // 480
 const EXCESO_JORNADA_TURNOS_MIN = 21;
 
+/** Horas extra en bloques de 15 minutos (redondeo hacia abajo). */
+export function extraEnBloques15(min) {
+  if (min <= 0) return 0;
+  return Math.floor(min / 15) * 15;
+}
+
 export function calcularJornada({
   entrada,
   salidaReal,
@@ -61,7 +67,7 @@ export function calcularJornada({
   if (trabajoATurnos) {
     const negativaMin = trabajados < jornadaEfectiva ? jornadaEfectiva - trabajados : 0;
     const excesoJornadaMin = trabajados >= jornadaEfectiva ? EXCESO_JORNADA_TURNOS_MIN : 0;
-    const extraGeneradaMin = trabajados > jornadaEfectiva ? trabajados - jornadaEfectiva : 0;
+    const extraGeneradaMin = extraEnBloques15(trabajados > jornadaEfectiva ? trabajados - jornadaEfectiva : 0);
 
     return {
       trabajadosMin: trabajados,
@@ -79,7 +85,7 @@ export function calcularJornada({
     trabajadosMin: trabajados,
     salidaTeoricaMin: entradaMin + jornadaMin,
     salidaAjustadaMin: salidaMin,
-    extraGeneradaMin: diferencia > 0 ? diferencia : 0,
+    extraGeneradaMin: extraEnBloques15(diferencia > 0 ? diferencia : 0),
     negativaMin: diferencia < 0 ? Math.abs(diferencia) : 0,
     excesoJornadaMin: 0
   };
