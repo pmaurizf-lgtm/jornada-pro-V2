@@ -38,4 +38,7 @@ export function validateState(state) {
   if (typeof state.config.excesoJornadaInicialMin !== "number" || state.config.excesoJornadaInicialMin < 0) {
     state.config.excesoJornadaInicialMin = 0;
   }
+  if (!state.paseJustificadoHasta || typeof state.paseJustificadoHasta !== "object") state.paseJustificadoHasta = null;
+  if (!state.earlyExitState || typeof state.earlyExitState !== "object") state.earlyExitState = null;
+  if (!state.deduccionesPorAusencia || typeof state.deduccionesPorAusencia !== "object") state.deduccionesPorAusencia = {};
 }

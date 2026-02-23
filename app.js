@@ -187,6 +187,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalExtenderJornada = document.getElementById("modalExtenderJornada");
   const modalExtenderNo = document.getElementById("modalExtenderNo");
   const modalExtenderSi = document.getElementById("modalExtenderSi");
+  const modalPaseSalida = document.getElementById("modalPaseSalida");
+  const modalPaseJustificado = document.getElementById("modalPaseJustificado");
+  const modalPaseSinJustificar = document.getElementById("modalPaseSinJustificar");
 
   const chartCanvas = document.getElementById("chart");
 
@@ -340,11 +343,19 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     }
 
     const total = calcularResumenTotal(state.registros);
+    const deducciones = state.deduccionesPorAusencia || {};
+    const deduccionTotalMin = Object.values(deducciones).reduce((a, b) => a + b, 0);
+    const deduccionAnualMin = Object.entries(deducciones).filter(([f]) => f.startsWith(String(bankYear))).reduce((s, [, m]) => s + m, 0);
+    const mesStr = String(currentMonth + 1).padStart(2, "0");
+    const deduccionMensualMin = Object.entries(deducciones).filter(([f]) => f.startsWith(String(bankYear) + "-" + mesStr)).reduce((s, [, m]) => s + m, 0);
+
     const inicialExtra = state.config.horasExtraInicialMin || 0;
     const inicialExceso = state.config.excesoJornadaInicialMin || 0;
-    const saldoTotalConInicial = total.saldo + inicialExtra + inicialExceso;
+    const saldoTotalConInicial = total.saldo + inicialExtra + inicialExceso - deduccionTotalMin;
     const anual = calcularResumenAnual(state.registros, bankYear);
+    anual.saldo -= deduccionAnualMin;
     const mensual = calcularResumenMensual(state.registros, currentMonth, bankYear);
+    mensual.saldo -= deduccionMensualMin;
 
     if (bTotalDisponible) {
       bTotalDisponible.innerText = minutosAHorasMinutos(saldoTotalConInicial);
@@ -534,11 +545,33 @@ function controlarNotificaciones() {
 
   const EXTEND_PROMPT_KEY = "jornadaPro_extendPrompt";
 
+  function comprobarPaseJustificadoAutoFinalizar() {
+    const p = state.paseJustificadoHasta;
+    if (!p || !p.fecha || !p.hastaTime) return;
+    const hoy = getHoyISO();
+    const endDate = p.endDate || p.fecha;
+    const pasada = hoy > endDate || (hoy === endDate && ahoraHoraISO() >= p.hastaTime);
+    if (!pasada) return;
+    ejecutarFinalizarJornada(true);
+    state.paseJustificadoHasta = null;
+    saveState(state);
+  }
+
+  function limpiarEarlyExitStateSiPasado() {
+    const e = state.earlyExitState;
+    if (!e) return;
+    if (!pasadoFinTeorico(e)) return;
+    state.earlyExitState = null;
+    saveState(state);
+    actualizarEstadoIniciarJornada();
+  }
+
   function comprobarExtenderJornada() {
     if (!fecha || !entrada || !fecha.value || !entrada.value) return;
     const hoy = getHoyISO();
     if (fecha.value !== hoy) return;
     if (state.registros[hoy] && state.registros[hoy].salidaReal != null) return;
+    if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) return;
     const jornadaRef = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
     const ahora = new Date();
     let ahoraMin = ahora.getHours() * 60 + ahora.getMinutes();
@@ -571,10 +604,64 @@ function controlarNotificaciones() {
     if (backdrop) backdrop.addEventListener("click", cerrarModalExtender);
   }
 
+  function nextDayISO(iso) {
+    const d = new Date(iso + "T12:00:00");
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function pasadoFinTeorico(early) {
+    if (!early || !early.endDate) return true;
+    const hoy = getHoyISO();
+    return hoy > early.endDate || (hoy === early.endDate && ahoraHoraISO() >= early.hastaTime);
+  }
+
+  if (modalPaseJustificado) {
+    modalPaseJustificado.addEventListener("click", () => {
+      const hoy = hoyISO();
+      const fin = calcularFinTeorico();
+      state.paseJustificadoHasta = {
+        fecha: hoy,
+        hastaTime: fin.time,
+        endDate: fin.nextDay ? nextDayISO(hoy) : hoy
+      };
+      if (salida) salida.value = "";
+      saveState(state);
+      cerrarModalPaseSalida();
+      actualizarEstadoIniciarJornada();
+      actualizarProgreso();
+      actualizarResumenDia();
+    });
+  }
+  if (modalPaseSinJustificar) {
+    modalPaseSinJustificar.addEventListener("click", () => {
+      const salidaVal = (pendingPaseSalida && pendingPaseSalida.salidaValue) || ahoraHoraISO();
+      if (salida) salida.value = salidaVal;
+      ejecutarFinalizarJornada();
+      const fin = calcularFinTeorico();
+      state.earlyExitState = {
+        fecha: hoyISO(),
+        salidaAt: salidaVal,
+        entrada: entrada.value,
+        hastaTime: fin.time,
+        endDate: fin.nextDay ? nextDayISO(hoyISO()) : hoyISO()
+      };
+      saveState(state);
+      cerrarModalPaseSalida();
+      actualizarEstadoIniciarJornada();
+    });
+  }
+  if (modalPaseSalida) {
+    const backdropPase = modalPaseSalida.querySelector(".modal-extender-backdrop");
+    if (backdropPase) backdropPase.addEventListener("click", cerrarModalPaseSalida);
+  }
+
   setInterval(() => {
     actualizarProgreso();
     controlarNotificaciones();
     comprobarExtenderJornada();
+    comprobarPaseJustificadoAutoFinalizar();
+    limpiarEarlyExitStateSiPasado();
   }, 1000);
 
   if (entrada) entrada.addEventListener("input", () => {
@@ -598,6 +685,46 @@ function controlarNotificaciones() {
   function ahoraHoraISO() {
     const d = new Date();
     return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  function jornadaRefMin() {
+    return state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
+  }
+
+  /** True si con la salida indicada los minutos trabajados son menores que la jornada de referencia (salida anticipada). */
+  function esSalidaAnticipada(salidaTime) {
+    if (!entrada || !entrada.value) return false;
+    const entMin = timeToMinutes(entrada.value);
+    let salMin = timeToMinutes(salidaTime || "");
+    if (!salidaTime || salMin === 0) return false;
+    if (salMin < entMin) salMin += 24 * 60;
+    const trabajados = salMin - entMin;
+    return trabajados < jornadaRefMin();
+  }
+
+  /** Hora teórica de fin (HH:MM) y si es al día siguiente (turno noche). */
+  function calcularFinTeorico() {
+    if (!entrada || !entrada.value) return { time: "00:00", nextDay: false };
+    const entMin = timeToMinutes(entrada.value);
+    const total = entMin + jornadaRefMin();
+    const nextDay = total >= 24 * 60;
+    const minEnDia = total % (24 * 60);
+    const h = Math.floor(minEnDia / 60);
+    const m = minEnDia % 60;
+    return { time: String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0"), nextDay };
+  }
+
+  let pendingPaseSalida = null;
+
+  function abrirModalPaseSalida(salidaValue) {
+    if (!modalPaseSalida) return;
+    pendingPaseSalida = { salidaValue: salidaValue || ahoraHoraISO() };
+    modalPaseSalida.hidden = false;
+  }
+
+  function cerrarModalPaseSalida() {
+    if (modalPaseSalida) modalPaseSalida.hidden = true;
+    pendingPaseSalida = null;
   }
 
   function hoyISO() {
@@ -683,6 +810,52 @@ function controlarNotificaciones() {
   if (btnIniciarJornada) {
     btnIniciarJornada.onclick = () => {
       const hoy = hoyISO();
+      const esContinuar = (btnIniciarJornada.textContent || "").trim().toLowerCase().includes("continuar");
+
+      if (esContinuar && state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) {
+        state.paseJustificadoHasta = null;
+        if (salida) salida.value = "";
+        saveState(state);
+        actualizarEstadoIniciarJornada();
+        actualizarProgreso();
+        actualizarResumenDia();
+        return;
+      }
+
+      if (esContinuar && state.earlyExitState && state.earlyExitState.fecha === hoy && !pasadoFinTeorico(state.earlyExitState)) {
+        const early = state.earlyExitState;
+        const salidaAtMin = timeToMinutes(early.salidaAt);
+        const hastaMin = timeToMinutes(early.hastaTime);
+        const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
+        const endDate = early.endDate || early.fecha;
+        const rangeMin = endDate === early.fecha
+          ? hastaMin - salidaAtMin
+          : (24 * 60 - salidaAtMin) + hastaMin;
+        let elapsedMin = 0;
+        if (getHoyISO() === early.fecha) {
+          elapsedMin = Math.max(0, nowMin - salidaAtMin);
+        } else {
+          elapsedMin = (24 * 60 - salidaAtMin) + (getHoyISO() === endDate ? nowMin : 24 * 60);
+        }
+        const deduccion = Math.min(elapsedMin, Math.max(0, rangeMin));
+        state.deduccionesPorAusencia[hoy] = (state.deduccionesPorAusencia[hoy] || 0) + deduccion;
+        delete state.registros[hoy];
+        state.earlyExitState = null;
+        if (fecha) fecha.value = hoy;
+        if (entrada) entrada.value = early.entrada;
+        if (salida) salida.value = "";
+        if (minAntes) minAntes.value = "0";
+        if (disfrutadas) disfrutadas.value = "0";
+        saveState(state);
+        renderCalendario();
+        actualizarBanco();
+        actualizarGrafico();
+        actualizarEstadoEliminar();
+        actualizarEstadoIniciarJornada();
+        actualizarResumenDia();
+        return;
+      }
+
       if (fecha) fecha.value = hoy;
       if (entrada) entrada.value = horaInicioJornada();
       if (salida) salida.value = "";
@@ -734,8 +907,14 @@ function controlarNotificaciones() {
       dragging = false;
       const p = (clientX != null && finalizarSliderTrack) ? getProgress(clientX) : lastProgress;
       if (p >= threshold) {
-        ejecutarFinalizarJornada();
-        setThumbPosition(0);
+        const salidaAhora = ahoraHoraISO();
+        if (esSalidaAnticipada(salidaAhora)) {
+          abrirModalPaseSalida(salidaAhora);
+          setThumbPosition(0);
+        } else {
+          ejecutarFinalizarJornada();
+          setThumbPosition(0);
+        }
       } else {
         setThumbPosition(0);
       }
@@ -776,9 +955,15 @@ function controlarNotificaciones() {
 
     if (!fecha.value || !entrada.value) return;
 
+    const salidaParaGuardar = salida.value || null;
+    if (fecha.value === getHoyISO() && salidaParaGuardar && esSalidaAnticipada(salidaParaGuardar)) {
+      abrirModalPaseSalida(salidaParaGuardar);
+      return;
+    }
+
     const resultado = calcularJornada({
       entrada: entrada.value,
-      salidaReal: salida.value || null,
+      salidaReal: salidaParaGuardar,
       jornadaMin: state.config.jornadaMin,
       minAntes: Number(minAntes.value) || 0,
       trabajoATurnos: state.config.trabajoATurnos === true
@@ -864,7 +1049,16 @@ function controlarNotificaciones() {
     const esHoy = fecha && fecha.value === hoy;
     const tieneEntrada = entrada && entrada.value;
     const yaFinalizado = state.registros[hoy] && state.registros[hoy].salidaReal != null;
-    btnIniciarJornada.disabled = !!(esHoy && tieneEntrada && !yaFinalizado);
+    const enPaseJustificado = state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy;
+    const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoy && !pasadoFinTeorico(state.earlyExitState);
+    const mostrarContinuar = enPaseJustificado || enEarlyExit;
+    if (mostrarContinuar) {
+      btnIniciarJornada.textContent = "Continuar jornada";
+      btnIniciarJornada.disabled = false;
+    } else {
+      btnIniciarJornada.textContent = "Iniciar jornada";
+      btnIniciarJornada.disabled = !!(esHoy && tieneEntrada && !yaFinalizado);
+    }
   }
   
 function mostrarPopupFestivo(texto){

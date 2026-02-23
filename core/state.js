@@ -3,6 +3,9 @@
 export function createInitialState() {
   return {
     registros: {},
+    paseJustificadoHasta: null,
+    earlyExitState: null,
+    deduccionesPorAusencia: {},
     config: {
       jornadaMin: 459,
       avisoMin: 10,

@@ -1440,3 +1440,20 @@ body:not(.dark) .cal-day.festivo-ferrol small {
   background: var(--accent, #5df56b);
   color: #fff;
 }
+
+.modal-pase-botones {
+  flex-direction: column;
+}
+
+.modal-pase-justificado {
+  background: var(--accent, #5df56b);
+  color: #fff;
+  width: 100%;
+}
+
+.modal-pase-sinjustificar {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  width: 100%;
+}
