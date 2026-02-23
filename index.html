@@ -21,7 +21,13 @@
 <body>
 
 <header class="header">
-  <h1 class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
+  <div class="header-left">
+    <h1 class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
+    <div class="header-app-info">
+      <span class="header-app-name">Jornada Pro</span> <span class="header-version">© 1.0</span>
+      <div class="header-author">Autor: Pablo Mouriz Fontao</div>
+    </div>
+  </div>
   <img src="icons/logo-navantia.png" alt="NAVANTIA" class="header-logo">
   <button type="button" id="btnMenuConfig" class="header-menu-btn" aria-label="Menú configuración">
     <span class="hamburger-line"></span>
@@ -75,7 +81,7 @@
     <h2 class="config-panel-title">Configuración</h2>
 
     <!-- 1. Datos Personales -->
-    <details class="config-details" open>
+    <details class="config-details">
       <summary class="config-summary">Datos Personales</summary>
       <div class="config-details-body">
         <div class="config-block">
@@ -161,7 +167,7 @@
       </div>
     </details>
 
-    <div class="config-actions">
+    <div class="config-actions config-actions-guardar">
       <button type="button" id="guardarConfig" class="config-btn config-btn-primary">Guardar configuración</button>
     </div>
 

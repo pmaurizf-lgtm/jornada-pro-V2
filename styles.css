@@ -115,11 +115,32 @@ header.header {
   backdrop-filter: blur(var(--glass-blur));
 }
 
+.header-left {
+  text-align: left;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .header-title {
-  margin: 0;
+  margin: 0 0 0.25rem 0;
   font-size: clamp(1rem, 4vw, 1.35rem);
   font-weight: 600;
   letter-spacing: -0.02em;
+}
+
+.header-app-info {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  line-height: 1.35;
+}
+
+.header-app-name,
+.header-version {
+  font-weight: 500;
+}
+
+.header-author {
+  margin-top: 0.1rem;
 }
 
 .header-logo {
@@ -366,6 +387,11 @@ body.dark .config-summary {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.config-actions-guardar {
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .config-btn {
