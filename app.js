@@ -1244,23 +1244,27 @@ function controlarNotificaciones() {
   }
 
   function ejecutarEliminarRegistroDia() {
-    if (!fecha.value || !state.registros[fecha.value]) return;
-    const reg = state.registros[fecha.value];
-    if (reg && reg.vacaciones) devolverDiaVacacion(state, fecha.value);
-    if (reg && reg.libreDisposicion) devolverDiaLD(state, fecha.value);
-    delete state.registros[fecha.value];
-    if (fecha.value === getHoyISO()) limpiarBorradorSesion();
+    if (!fecha || !fecha.value) return;
+    var fechaElim = fecha.value;
+    if (!state.registros[fechaElim]) return;
+    var reg = state.registros[fechaElim];
+    if (reg && reg.vacaciones) devolverDiaVacacion(state, fechaElim);
+    if (reg && reg.libreDisposicion) devolverDiaLD(state, fechaElim);
+    delete state.registros[fechaElim];
+    if (state.earlyExitState && state.earlyExitState.fecha === fechaElim) state.earlyExitState = null;
+    if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === fechaElim) state.paseJustificadoHasta = null;
+    if (fechaElim === getHoyISO()) limpiarBorradorSesion();
     saveState(state);
-    entrada.value = "";
-    salida.value = "";
-    disfrutadas.value = 0;
-    minAntes.value = 0;
+    if (entrada) entrada.value = "";
+    if (salida) salida.value = "";
+    if (disfrutadas) disfrutadas.value = "0";
+    if (minAntes) minAntes.value = "0";
     renderCalendario();
     actualizarBanco();
     actualizarGrafico();
+    actualizarResumenDia();
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
-    actualizarResumenDia();
   }
 
   function cerrarModalConfirmarEliminar() {
@@ -1639,39 +1643,36 @@ if(festivos && festivos[fechaISO]){
         const negativa = registro.negativaMin || 0;
         const saldoDiaMin = extra + exceso - negativa - deduccionDia;
 
+        var saldoHtml = "";
         if (saldoDiaMin !== 0) {
-          const sign = saldoDiaMin > 0 ? "+" : "−";
-          const absMin = Math.abs(saldoDiaMin);
-          const decimalH = (absMin / 60).toFixed(1).replace(".", ",");
-          const hm = (saldoDiaMin >= 0 ? "+" : "") + minutosAHorasMinutos(saldoDiaMin);
-          const cls = saldoDiaMin > 0 ? "cal-saldo-pos" : "cal-saldo-neg";
-          div.innerHTML += `<small class="cal-saldo ${cls}">${sign}${decimalH}h</small>`;
-          div.innerHTML += `<small class="cal-saldo cal-saldo-hm ${cls}">${hm}</small>`;
+          var sign = saldoDiaMin > 0 ? "+" : "\u2212";
+          var absMin = Math.abs(saldoDiaMin);
+          var decimalH = (absMin / 60).toFixed(1).replace(".", ",");
+          var hm = (saldoDiaMin >= 0 ? "+" : "") + minutosAHorasMinutos(saldoDiaMin);
+          var cls = saldoDiaMin > 0 ? "cal-saldo-pos" : "cal-saldo-neg";
+          saldoHtml += "<small class=\"cal-saldo " + cls + "\">" + sign + decimalH + "h</small>";
+          saldoHtml += "<small class=\"cal-saldo cal-saldo-hm " + cls + "\">" + hm + "</small>";
         }
 
         if (registro.disfrutadasManualMin > 0) {
-          div.innerHTML += `<small class="cal-disfrutadas">Disfr. ${(registro.disfrutadasManualMin / 60).toFixed(1)}h</small>`;
+          saldoHtml += "<small class=\"cal-disfrutadas\">Disfr. " + (registro.disfrutadasManualMin / 60).toFixed(1) + "h</small>";
         }
 
         if (registro.entrada && registro.salidaReal != null) {
-          const badge = document.createElement("span");
-          badge.setAttribute("aria-hidden", "true");
-          const esPaseSinJustificar = registro.paseSinJustificado || (state.earlyExitState && state.earlyExitState.fecha === fechaISO);
+          var esPaseSinJustificar = registro.paseSinJustificado === true || (state.earlyExitState && state.earlyExitState.fecha === fechaISO);
           if (esPaseSinJustificar) {
-            badge.className = "cal-day-especial";
-            badge.innerHTML = '<span class="cal-day-especial-symbol">*</span>';
+            saldoHtml += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
           } else {
-            badge.className = "cal-day-completed";
-            badge.innerHTML = '<span class="cal-day-completed-check">✓</span>';
+            saldoHtml += "<span class=\"cal-day-completed\" aria-hidden=\"true\"><span class=\"cal-day-completed-check\">\u2713</span></span>";
           }
-          div.appendChild(badge);
         }
+        div.innerHTML += saldoHtml;
       }
     } else if (deduccionDia > 0) {
-      const decimalH = (deduccionDia / 60).toFixed(1).replace(".", ",");
-      const hm = "−" + minutosAHorasMinutos(-deduccionDia);
-      div.innerHTML += `<small class="cal-saldo cal-saldo-neg">−${decimalH}h</small>`;
-      div.innerHTML += `<small class="cal-saldo cal-saldo-hm cal-saldo-neg">${hm}</small>`;
+      var decimalH = (deduccionDia / 60).toFixed(1).replace(".", ",");
+      var hm = "\u2212" + minutosAHorasMinutos(-deduccionDia);
+      div.innerHTML += "<small class=\"cal-saldo cal-saldo-neg\">\u2212" + decimalH + "h</small>";
+      div.innerHTML += "<small class=\"cal-saldo cal-saldo-hm cal-saldo-neg\">" + hm + "</small>";
     }
 
     calendarGrid.appendChild(div);
