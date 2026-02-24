@@ -710,10 +710,11 @@ function controlarNotificaciones() {
     modalPaseSinJustificar.addEventListener("click", () => {
       const salidaVal = (pendingPaseSalida && pendingPaseSalida.salidaValue) || ahoraHoraISO();
       if (salida) salida.value = salidaVal;
+      const fechaClave = fecha && fecha.value ? fecha.value : hoyISO();
       ejecutarFinalizarJornada();
-      const hoy = hoyISO();
-      if (state.registros[hoy]) state.registros[hoy].paseSinJustificado = true;
+      if (state.registros[fechaClave]) state.registros[fechaClave].paseSinJustificado = true;
       const fin = calcularFinTeorico();
+      const hoy = hoyISO();
       state.earlyExitState = {
         fecha: hoy,
         salidaAt: salidaVal,
@@ -722,6 +723,9 @@ function controlarNotificaciones() {
         endDate: fin.nextDay ? nextDayISO(hoy) : hoy
       };
       saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
       cerrarModalPaseSalida();
       actualizarEstadoIniciarJornada();
     });
