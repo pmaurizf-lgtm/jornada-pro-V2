@@ -47,6 +47,9 @@ export function validateState(state) {
   if (!state.vacacionesDiasPorAnio || typeof state.vacacionesDiasPorAnio !== "object") {
     state.vacacionesDiasPorAnio = {};
   }
+  if (!state.ldDiasPorAnio || typeof state.ldDiasPorAnio !== "object") {
+    state.ldDiasPorAnio = {};
+  }
   if (!state.paseJustificadoHasta || typeof state.paseJustificadoHasta !== "object") state.paseJustificadoHasta = null;
   if (!state.earlyExitState || typeof state.earlyExitState !== "object") state.earlyExitState = null;
   if (!state.deduccionesPorAusencia || typeof state.deduccionesPorAusencia !== "object") state.deduccionesPorAusencia = {};

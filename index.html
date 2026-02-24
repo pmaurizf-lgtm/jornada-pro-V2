@@ -279,6 +279,10 @@
         Vacaciones
       </button>
 
+      <button type="button" id="ld" class="btn-ld">
+        LD
+      </button>
+
       <button type="button" id="eliminar" class="btn-danger">
         Eliminar
       </button>
@@ -357,7 +361,7 @@
 <section class="card metrics">
   <div class="bank-tabs" role="tablist">
     <button type="button" id="bankTabHoras" class="bank-tab bank-tab--active" role="tab" aria-selected="true">Horas TxT</button>
-    <button type="button" id="bankTabVacaciones" class="bank-tab" role="tab" aria-selected="false">Vacaciones</button>
+    <button type="button" id="bankTabVacaciones" class="bank-tab" role="tab" aria-selected="false">Vacaciones/LD</button>
   </div>
 
   <!-- Pestaña Horas TxT -->
@@ -403,27 +407,53 @@
     </div>
   </div>
 
-  <!-- Pestaña Vacaciones -->
+  <!-- Pestaña Vacaciones/LD (dos columnas: vacaciones | LD) -->
   <div id="bankPanelVacaciones" class="bank-panel" role="tabpanel">
-    <div class="metric metric-total">
-      <span>Total días de vacaciones disponibles</span>
-      <strong id="bVacacionesTotal"></strong>
+    <div class="bank-vacaciones-ld-wrap">
+      <div class="bank-vacaciones-col">
+        <div class="metric metric-total">
+          <span>Total días de vacaciones disponibles</span>
+          <strong id="bVacacionesTotal"></strong>
+        </div>
+        <div class="metric">
+          <span>Año en curso (<span id="bVacacionesAnioCursoLabel"></span>)</span>
+          <strong id="bVacacionesAnioCurso"></strong>
+        </div>
+        <div class="metric" id="wrapVacacionesAnioAnterior">
+          <span>Días disponibles año <strong id="bVacacionesAnioAnteriorLabel" class="metric-year-inline"></strong></span>
+          <strong id="bVacacionesAnioAnterior"></strong>
+        </div>
+        <p class="bank-vacaciones-leyenda" id="leyendaCaducidadVacaciones"></p>
+      </div>
+      <div class="bank-vacaciones-divider" aria-hidden="true"></div>
+      <div class="bank-ld-col">
+        <p class="bank-ld-titulo">Libre disposición</p>
+        <div class="metric">
+          <span>Año en curso (<span id="bLDAnioCursoLabel"></span>)</span>
+          <strong id="bLDAnioCurso"></strong>
+        </div>
+        <p class="bank-vacaciones-leyenda" id="leyendaCaducidadLD">Los días LD caducan el 31 de diciembre del año en curso.</p>
+      </div>
     </div>
-
-    <div class="metric">
-      <span>Año en curso (<span id="bVacacionesAnioCursoLabel"></span>)</span>
-      <strong id="bVacacionesAnioCurso"></strong>
-    </div>
-
-    <div class="metric" id="wrapVacacionesAnioAnterior">
-      <span>Días disponibles año <strong id="bVacacionesAnioAnteriorLabel" class="metric-year-inline"></strong></span>
-      <strong id="bVacacionesAnioAnterior"></strong>
-    </div>
-
-    <p class="bank-vacaciones-leyenda" id="leyendaCaducidadVacaciones"></p>
   </div>
 
 </section>
+
+<!-- Modal: solicitar días LD del año en curso -->
+<div id="modalLDAnio" class="modal-extender" role="dialog" aria-labelledby="modalLDAnioTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalLDAnioTitulo" class="modal-extender-titulo">Días de Libre Disposición</h3>
+    <p class="modal-extender-texto">Indica el número de días de Libre Disposición para el año <strong id="modalLDAnioLabel"></strong>.</p>
+    <label class="modal-ld-input-wrap">
+      <span>Nº de días LD</span>
+      <input type="number" id="inputLDAnio" class="config-input" min="0" step="1" value="0">
+    </label>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalLDAceptar" class="modal-extender-btn modal-extender-si">Aceptar</button>
+    </div>
+  </div>
+</div>
 
 <script>
 if ('serviceWorker' in navigator) {

@@ -9,6 +9,8 @@ export function createInitialState() {
     extensionJornada: null,
     /** Días de vacaciones disponibles por año de generación. Ej: { "2025": 22, "2026": 25 } */
     vacacionesDiasPorAnio: {},
+    /** Días de libre disposición por año (caducan 31 dic). Ej: { "2026": 5 } */
+    ldDiasPorAnio: {},
     config: {
       nombreCompleto: "",
       numeroSAP: "",

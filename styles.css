@@ -580,8 +580,59 @@ body.dark .bank-tab.bank-tab--active {
 #bankPanelVacaciones.bank-panel--active {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   padding: 20px 0 0 0;
+}
+
+.bank-vacaciones-ld-wrap {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  min-height: 0;
+}
+
+.bank-vacaciones-col,
+.bank-ld-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.bank-vacaciones-divider {
+  width: 1px;
+  margin: 12px 16px;
+  background: var(--border, rgba(0, 0, 0, 0.15));
+  flex-shrink: 0;
+}
+
+body.dark .bank-vacaciones-divider {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.bank-ld-titulo {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: var(--text);
+}
+
+.modal-ld-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.modal-ld-input-wrap span {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.modal-ld-input-wrap .config-input {
+  max-width: 120px;
 }
 
 .metrics-header {
@@ -1115,6 +1166,33 @@ button:disabled {
 
 .btn-danger:hover {
   opacity: 0.85;
+}
+
+.btn-ld {
+  background: #d97706;
+  color: #ffffff;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-ld:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-ld:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+body.dark .btn-ld {
+  background: #f59e0b;
+  color: #1f2937;
 }
 
 /* ============================= */

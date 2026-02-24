@@ -381,10 +381,14 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     if (leyendaCaducidadVacaciones) {
       leyendaCaducidadVacaciones.textContent = "Las vacaciones anuales podrán disfrutarse como máximo hasta el 30 de septiembre del año siguiente.";
     }
-    if (bLDAnioCursoLabel) bLDAnioCursoLabel.innerText = anioActual;
-    if (bLDAnioCurso) {
-      const ldCur = getLDDisponiblesAnio(state, anioActual, hoy);
-      bLDAnioCurso.innerText = ldCur + " días";
+    try {
+      if (bLDAnioCursoLabel) bLDAnioCursoLabel.innerText = anioActual;
+      if (bLDAnioCurso) {
+        const ldCur = getLDDisponiblesAnio(state, anioActual, hoy);
+        bLDAnioCurso.innerText = ldCur + " días";
+      }
+    } catch (e) {
+      console.warn("Actualizar panel LD:", e);
     }
   }
 
@@ -1219,9 +1223,10 @@ function controlarNotificaciones() {
 
   if (modalLDAceptar) {
     modalLDAceptar.addEventListener("click", () => {
-      const anio = modalLDAnioLabel ? parseInt(modalLDAnioLabel.textContent, 10) : new Date().getFullYear();
+      const anioRaw = modalLDAnioLabel ? parseInt(modalLDAnioLabel.textContent, 10) : NaN;
+      const anio = Number.isFinite(anioRaw) ? anioRaw : new Date().getFullYear();
       const val = Math.max(0, parseInt(inputLDAnio?.value, 10) || 0);
-      state.ldDiasPorAnio = { ...(state.ldDiasPorAnio || {}), [anio]: val };
+      state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anio]: val } : { [anio]: val };
       saveState(state);
       cerrarModalLDAnio();
       actualizarBanco();
@@ -1735,8 +1740,12 @@ if(festivos && festivos[fechaISO]){
   actualizarResumenDia();
   solicitarPermisoNotificaciones();
 
-  if (state.ldDiasPorAnio?.[currentYear] === undefined && modalLDAnio) {
-    setTimeout(() => abrirModalLDAnio(currentYear), 800);
+  try {
+    if ((!state.ldDiasPorAnio || state.ldDiasPorAnio[currentYear] === undefined) && modalLDAnio) {
+      setTimeout(() => { try { abrirModalLDAnio(currentYear); } catch (e) { console.warn("Modal LD:", e); } }, 800);
+    }
+  } catch (e) {
+    console.warn("Init LD modal:", e);
   }
 
   function checkExtendPromptFromUrl() {
