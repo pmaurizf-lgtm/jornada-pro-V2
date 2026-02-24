@@ -933,6 +933,11 @@ body.dark .cal-day.festivo-nacional {
   margin-top: 2px;
 }
 
+.cal-day small.cal-saldo-hm {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
 .cal-day small.cal-saldo-pos {
   color: var(--positive);
 }

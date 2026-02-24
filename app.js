@@ -1639,10 +1639,14 @@ if(festivos && festivos[fechaISO]){
         const negativa = registro.negativaMin || 0;
         const saldoDiaMin = extra + exceso - negativa - deduccionDia;
 
-        if (saldoDiaMin > 0) {
-          div.innerHTML += `<small class="cal-saldo cal-saldo-pos">+${(saldoDiaMin / 60).toFixed(1)}h</small>`;
-        } else if (saldoDiaMin < 0) {
-          div.innerHTML += `<small class="cal-saldo cal-saldo-neg">−${(Math.abs(saldoDiaMin) / 60).toFixed(1)}h</small>`;
+        if (saldoDiaMin !== 0) {
+          const sign = saldoDiaMin > 0 ? "+" : "−";
+          const absMin = Math.abs(saldoDiaMin);
+          const decimalH = (absMin / 60).toFixed(1).replace(".", ",");
+          const hm = (saldoDiaMin >= 0 ? "+" : "") + minutosAHorasMinutos(saldoDiaMin);
+          const cls = saldoDiaMin > 0 ? "cal-saldo-pos" : "cal-saldo-neg";
+          div.innerHTML += `<small class="cal-saldo ${cls}">${sign}${decimalH}h</small>`;
+          div.innerHTML += `<small class="cal-saldo cal-saldo-hm ${cls}">${hm}</small>`;
         }
 
         if (registro.disfrutadasManualMin > 0) {
@@ -1652,7 +1656,8 @@ if(festivos && festivos[fechaISO]){
         if (registro.entrada && registro.salidaReal != null) {
           const badge = document.createElement("span");
           badge.setAttribute("aria-hidden", "true");
-          if (registro.paseSinJustificado) {
+          const esPaseSinJustificar = registro.paseSinJustificado || (state.earlyExitState && state.earlyExitState.fecha === fechaISO);
+          if (esPaseSinJustificar) {
             badge.className = "cal-day-especial";
             badge.innerHTML = '<span class="cal-day-especial-symbol">*</span>';
           } else {
@@ -1663,8 +1668,10 @@ if(festivos && festivos[fechaISO]){
         }
       }
     } else if (deduccionDia > 0) {
-
-      div.innerHTML += `<small class="cal-saldo cal-saldo-neg">−${(deduccionDia / 60).toFixed(1)}h</small>`;
+      const decimalH = (deduccionDia / 60).toFixed(1).replace(".", ",");
+      const hm = "−" + minutosAHorasMinutos(-deduccionDia);
+      div.innerHTML += `<small class="cal-saldo cal-saldo-neg">−${decimalH}h</small>`;
+      div.innerHTML += `<small class="cal-saldo cal-saldo-hm cal-saldo-neg">${hm}</small>`;
     }
 
     calendarGrid.appendChild(div);
