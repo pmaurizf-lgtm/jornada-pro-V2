@@ -826,6 +826,28 @@ body.dark .cal-empty {
   line-height: 1;
 }
 
+.cal-day-especial {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: #d97706;
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 2px 3px 0 0;
+  border-radius: 0 12px 0 0;
+}
+
+.cal-day-especial-symbol {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .cal-day-vacaciones {
   display: block;
   font-size: 2rem;

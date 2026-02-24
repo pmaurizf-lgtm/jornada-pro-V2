@@ -711,13 +711,15 @@ function controlarNotificaciones() {
       const salidaVal = (pendingPaseSalida && pendingPaseSalida.salidaValue) || ahoraHoraISO();
       if (salida) salida.value = salidaVal;
       ejecutarFinalizarJornada();
+      const hoy = hoyISO();
+      if (state.registros[hoy]) state.registros[hoy].paseSinJustificado = true;
       const fin = calcularFinTeorico();
       state.earlyExitState = {
-        fecha: hoyISO(),
+        fecha: hoy,
         salidaAt: salidaVal,
         entrada: entrada.value,
         hastaTime: fin.time,
-        endDate: fin.nextDay ? nextDayISO(hoyISO()) : hoyISO()
+        endDate: fin.nextDay ? nextDayISO(hoy) : hoy
       };
       saveState(state);
       cerrarModalPaseSalida();
@@ -1644,11 +1646,16 @@ if(festivos && festivos[fechaISO]){
         }
 
         if (registro.entrada && registro.salidaReal != null) {
-          const completed = document.createElement("span");
-          completed.className = "cal-day-completed";
-          completed.setAttribute("aria-hidden", "true");
-          completed.innerHTML = '<span class="cal-day-completed-check">✓</span>';
-          div.appendChild(completed);
+          const badge = document.createElement("span");
+          badge.setAttribute("aria-hidden", "true");
+          if (registro.paseSinJustificado) {
+            badge.className = "cal-day-especial";
+            badge.innerHTML = '<span class="cal-day-especial-symbol">*</span>';
+          } else {
+            badge.className = "cal-day-completed";
+            badge.innerHTML = '<span class="cal-day-completed-check">✓</span>';
+          }
+          div.appendChild(badge);
         }
       }
     } else if (deduccionDia > 0) {
