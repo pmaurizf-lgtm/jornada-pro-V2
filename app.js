@@ -15,6 +15,7 @@ import {
   devolverDiaVacacion,
   ensureAnioActual
 } from "./core/vacaciones.js";
+import { getLDDisponiblesAnio, descontarDiaLD, devolverDiaLD } from "./core/ld.js";
 
 // ===============================
 // IMPORTS UI
@@ -96,10 +97,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const bVacacionesAnioAnterior = document.getElementById("bVacacionesAnioAnterior");
   const leyendaCaducidadVacaciones = document.getElementById("leyendaCaducidadVacaciones");
   const labelVacacionesDiasPrevio = document.getElementById("labelVacacionesDiasPrevio");
+  const bLDAnioCursoLabel = document.getElementById("bLDAnioCursoLabel");
+  const bLDAnioCurso = document.getElementById("bLDAnioCurso");
+  const modalLDAnio = document.getElementById("modalLDAnio");
+  const modalLDAnioLabel = document.getElementById("modalLDAnioLabel");
+  const inputLDAnio = document.getElementById("inputLDAnio");
+  const modalLDAceptar = document.getElementById("modalLDAceptar");
 
   const btnEliminar = document.getElementById("eliminar");
   const btnGuardar = document.getElementById("guardar");
   const btnVacaciones = document.getElementById("vacaciones");
+  const btnLD = document.getElementById("ld");
   const btnIniciarJornada = document.getElementById("iniciarJornada");
   const btnExcel = document.getElementById("excel");
   const btnBackup = document.getElementById("backup");
@@ -372,6 +380,11 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     }
     if (leyendaCaducidadVacaciones) {
       leyendaCaducidadVacaciones.textContent = "Las vacaciones anuales podrán disfrutarse como máximo hasta el 30 de septiembre del año siguiente.";
+    }
+    if (bLDAnioCursoLabel) bLDAnioCursoLabel.innerText = anioActual;
+    if (bLDAnioCurso) {
+      const ldCur = getLDDisponiblesAnio(state, anioActual, hoy);
+      bLDAnioCurso.innerText = ldCur + " días";
     }
   }
 
@@ -1122,10 +1135,11 @@ function controlarNotificaciones() {
   if (btnVacaciones) btnVacaciones.onclick = () => {
 
     if (!fecha.value) return;
+    if (state.registros[fecha.value]?.libreDisposicion) return;
 
     const anioDescontado = descontarDiaVacacion(state, fecha.value);
     if (anioDescontado == null) {
-      alert("No hay días de vacaciones disponibles en el banco. Revisa la pestaña Vacaciones.");
+      alert("No hay días de vacaciones disponibles en el banco. Revisa la pestaña Vacaciones/LD.");
       return;
     }
 
@@ -1152,10 +1166,77 @@ function controlarNotificaciones() {
     actualizarResumenDia();
   };
 
+  function abrirModalLDAnio(anio) {
+    if (modalLDAnioLabel) modalLDAnioLabel.textContent = anio;
+    if (inputLDAnio) { inputLDAnio.value = String(state.ldDiasPorAnio?.[anio] ?? 0); inputLDAnio.focus(); }
+    if (modalLDAnio) modalLDAnio.hidden = false;
+  }
+
+  function cerrarModalLDAnio() {
+    if (modalLDAnio) modalLDAnio.hidden = true;
+  }
+
+  if (btnLD) btnLD.onclick = () => {
+
+    if (!fecha.value) return;
+    if (state.registros[fecha.value]?.vacaciones) return;
+
+    const anio = parseInt(fecha.value.slice(0, 4), 10);
+    const anioActual = new Date().getFullYear();
+    if (state.ldDiasPorAnio?.[anio] === undefined) {
+      abrirModalLDAnio(anio);
+      return;
+    }
+
+    const anioDescontado = descontarDiaLD(state, fecha.value);
+    if (anioDescontado == null) {
+      alert("No hay días de Libre Disposición disponibles para ese año. Indica los días LD del año en la pestaña Vacaciones/LD.");
+      return;
+    }
+
+    state.registros[fecha.value] = {
+      entrada: null,
+      salidaReal: null,
+      trabajadosMin: 0,
+      salidaTeoricaMin: 0,
+      salidaAjustadaMin: 0,
+      extraGeneradaMin: 0,
+      negativaMin: 0,
+      excesoJornadaMin: 0,
+      disfrutadasManualMin: 0,
+      libreDisposicion: true,
+      ldDiaAnioDescontado: anioDescontado
+    };
+
+    saveState(state);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+  };
+
+  if (modalLDAceptar) {
+    modalLDAceptar.addEventListener("click", () => {
+      const anio = modalLDAnioLabel ? parseInt(modalLDAnioLabel.textContent, 10) : new Date().getFullYear();
+      const val = Math.max(0, parseInt(inputLDAnio?.value, 10) || 0);
+      state.ldDiasPorAnio = { ...(state.ldDiasPorAnio || {}), [anio]: val };
+      saveState(state);
+      cerrarModalLDAnio();
+      actualizarBanco();
+    });
+  }
+  if (modalLDAnio) {
+    const backdropLD = modalLDAnio.querySelector(".modal-extender-backdrop");
+    if (backdropLD) backdropLD.addEventListener("click", cerrarModalLDAnio);
+  }
+
   function ejecutarEliminarRegistroDia() {
     if (!fecha.value || !state.registros[fecha.value]) return;
     const reg = state.registros[fecha.value];
     if (reg && reg.vacaciones) devolverDiaVacacion(state, fecha.value);
+    if (reg && reg.libreDisposicion) devolverDiaLD(state, fecha.value);
     delete state.registros[fecha.value];
     if (fecha.value === getHoyISO()) limpiarBorradorSesion();
     saveState(state);
@@ -1272,7 +1353,8 @@ function controlarNotificaciones() {
   function actualizarEstadoFinalizarJornada() {
     if (!finalizarJornadaWrap) return;
     const esVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
-    if (esVacaciones) {
+    const esLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
+    if (esVacaciones || esLD) {
       finalizarJornadaWrap.classList.add("finalizar-slider-wrap--disabled");
       finalizarJornadaWrap.setAttribute("aria-disabled", "true");
       return;
@@ -1284,13 +1366,17 @@ function controlarNotificaciones() {
 
   function actualizarEstadoIniciarJornada() {
     const esDiaVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
-    if (entrada) entrada.disabled = esDiaVacaciones;
-    if (salida) salida.disabled = esDiaVacaciones;
-    if (minAntes) minAntes.disabled = esDiaVacaciones;
-    if (disfrutadas) disfrutadas.disabled = esDiaVacaciones;
-    if (btnGuardar) btnGuardar.disabled = esDiaVacaciones;
+    const esDiaLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
+    const esDiaNoTrabajable = esDiaVacaciones || esDiaLD;
+    if (entrada) entrada.disabled = esDiaNoTrabajable;
+    if (salida) salida.disabled = esDiaNoTrabajable;
+    if (minAntes) minAntes.disabled = esDiaNoTrabajable;
+    if (disfrutadas) disfrutadas.disabled = esDiaNoTrabajable;
+    if (btnGuardar) btnGuardar.disabled = esDiaNoTrabajable;
+    if (btnVacaciones) btnVacaciones.disabled = esDiaLD;
+    if (btnLD) btnLD.disabled = esDiaVacaciones;
 
-    if (esDiaVacaciones) {
+    if (esDiaNoTrabajable) {
       if (btnIniciarJornada) btnIniciarJornada.disabled = true;
       actualizarEstadoFinalizarJornada();
       return;
@@ -1527,7 +1613,11 @@ if(festivos && festivos[fechaISO]){
 
     if (registro) {
 
-      if (registro.vacaciones) {
+      if (registro.libreDisposicion) {
+
+        div.innerHTML += `<span class="cal-day-vacaciones" aria-label="Libre disposición">🕶️</span>`;
+
+      } else if (registro.vacaciones) {
 
         div.innerHTML += `<span class="cal-day-vacaciones" aria-label="Vacaciones">🏖️</span>`;
 
@@ -1578,7 +1668,7 @@ if(festivos && festivos[fechaISO]){
     const registro = state.registros[fechaISO];
     const set = (el, val) => { if (el) el.value = val; };
     if (registro) {
-      if (registro.vacaciones) {
+      if (registro.vacaciones || registro.libreDisposicion) {
         set(entrada, ""); set(salida, ""); set(disfrutadas, "0"); set(minAntes, "0");
       } else {
         set(entrada, registro.entrada || "");
@@ -1644,6 +1734,10 @@ if(festivos && festivos[fechaISO]){
   actualizarEstadoIniciarJornada();
   actualizarResumenDia();
   solicitarPermisoNotificaciones();
+
+  if (state.ldDiasPorAnio?.[currentYear] === undefined && modalLDAnio) {
+    setTimeout(() => abrirModalLDAnio(currentYear), 800);
+  }
 
   function checkExtendPromptFromUrl() {
     const params = new URLSearchParams(window.location.search);
