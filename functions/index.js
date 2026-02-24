@@ -105,7 +105,9 @@ exports.unregisterNotificationSchedule = functions.https.onCall(async (data, con
 });
 
 /**
- * Programada cada minuto: revisa suscripciones y envía aviso previo / aviso final por FCM.
+ * Programada cada minuto: revisa suscripciones y envía aviso previo y aviso de extender por FCM.
+ * Las notificaciones llegan al dispositivo aunque la app esté en segundo plano o cerrada (vía Service Worker).
+ * Debe estar desplegada: firebase deploy --only functions
  */
 exports.checkAndSendJornadaNotifications = functions.pubsub
   .schedule("every 1 minutes")
@@ -148,6 +150,7 @@ exports.checkAndSendJornadaNotifications = functions.pubsub
               title: "Jornada Pro",
               body: `Quedan ${aviso} minutos para finalizar tu jornada`,
             },
+            data: { type: "previo", fecha: String(fecha) },
             android: { priority: "high" },
             apns: { payload: { aps: { sound: "default" } } },
           });

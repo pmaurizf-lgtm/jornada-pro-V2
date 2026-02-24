@@ -19,7 +19,7 @@ messaging.onBackgroundMessage(function(payload) {
     body: payload.notification?.body || "Aviso de jornada",
     icon: "icon-192.png",
     data: data,
-    tag: data.type === "extend_prompt" ? "extend_prompt" : "jornada",
+    tag: data.type ? "jornada_" + data.type : "jornada",
     requireInteraction: data.type === "extend_prompt"
   };
 

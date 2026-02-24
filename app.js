@@ -8,8 +8,6 @@ import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15 } from 
 import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
 // ===============================
 // IMPORTS UI
@@ -27,104 +25,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let bankYear = currentYear;
 
   // ===============================
-  // FIREBASE INIT
+  // NOTIFICACIONES (solo con la app abierta; sin servicios externos)
   // ===============================
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAAQBdFnKPD7u6a0KTFp9gAmF8ZgdIB2Ak",
-    authDomain: "jornada-pro-88d2d.firebaseapp.com",
-    projectId: "jornada-pro-88d2d",
-    storageBucket: "jornada-pro-88d2d.firebasestorage.app",
-    messagingSenderId: "1086735102271",
-    appId: "1:1086735102271:web:fb9fbf3da6f489ec51238a"
-  };
-
-  const firebaseApp = initializeApp(firebaseConfig);
-  const messaging = getMessaging(firebaseApp);
-
-  let currentFcmToken = null;
+  const EXTEND_PROMPT_KEY = "jornadaPro_extendPrompt";
 
   function getHoyISO() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   }
 
-  async function registerBackendNotificationsIfReady() {
-    if (!currentFcmToken || !state.config.notificationsEnabled) return;
-    const hoy = getHoyISO();
-    const entradaHoy =
-      state.registros[hoy]?.entrada ||
-      (fecha && fecha.value === hoy && entrada?.value ? entrada.value : null);
-    if (!entradaHoy) return;
-    try {
-      const { getFunctions, httpsCallable } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js");
-      const functions = getFunctions(firebaseApp);
-      const register = httpsCallable(functions, "registerNotificationSchedule");
-      const jornadaNotif = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
-      await register({
-        token: currentFcmToken,
-        fecha: hoy,
-        entrada: entradaHoy,
-        jornadaMin: jornadaNotif,
-        avisoMin: state.config.avisoMin,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Madrid"
-      });
-    } catch (e) {
-      console.warn("Notificaciones en segundo plano no disponibles:", e.message);
-    }
-  }
-
-  async function unregisterBackendNotifications() {
-    if (!currentFcmToken) return;
-    try {
-      const { getFunctions, httpsCallable } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js");
-      const functions = getFunctions(firebaseApp);
-      const unregister = httpsCallable(functions, "unregisterNotificationSchedule");
-      await unregister({ token: currentFcmToken });
-    } catch (e) {
-      console.warn("No se pudo desactivar notificaciones en el servidor:", e.message);
-    }
-  }
-
-  const swPath = "firebase-messaging-sw.js";
-
-  if ("serviceWorker" in navigator) {
-    (async () => {
-      try {
-        const swReg = await navigator.serviceWorker.register(swPath);
-        getToken(messaging, {
-          vapidKey: "BHhgWLEfYEysLxe9W16MxacXdlTAaKgd9vNS2gGzGZB2U_4KKnNiuzX9rp3y2hmGFPzUasQ27s8z-Dr7BLp4vLM",
-          serviceWorkerRegistration: swReg
-        }).then(async (currentToken) => {
-          if (currentToken) {
-            currentFcmToken = currentToken;
-            if (state.config.notificationsEnabled) await registerBackendNotificationsIfReady();
-          }
-        }).catch((err) => {
-          console.error("Error obteniendo token:", err);
-        });
-      } catch (e) {
-        console.warn("Service Worker Firebase no registrado:", e.message);
-      }
-    })();
-  }
-
-  onMessage(messaging, (payload) => {
-    if (payload.data && payload.data.type === "extend_prompt") {
-      const hoy = payload.data.fecha || getHoyISO();
-      try { localStorage.setItem(EXTEND_PROMPT_KEY + "_" + hoy, "1"); } catch (e) {}
-      const modal = document.getElementById("modalExtenderJornada");
-      if (modal) modal.hidden = false;
-      return;
-    }
-    new Notification(
-      payload.notification?.title || "Jornada Pro",
-      {
-        body: payload.notification?.body || "",
-        icon: "icon-192.png"
-      }
-    );
-  });
+  setTimeout(() => {
+    if (state.config.notificationsEnabled) solicitarPermisoNotificaciones();
+  }, 1500);
 
   // ===============================
   // DOM
@@ -199,8 +112,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalEliminarCancelar = document.getElementById("modalEliminarCancelar");
   const modalConfirmarFabrica = document.getElementById("modalConfirmarFabrica");
   const modalFabricaSi = document.getElementById("modalFabricaSi");
+  const modalFabricaSi = document.getElementById("modalFabricaSi");
   const modalFabricaCancelar = document.getElementById("modalFabricaCancelar");
   const btnRestaurarFabrica = document.getElementById("restaurarFabrica");
+  const configAuthorTapTarget = document.getElementById("configAuthorTapTarget");
+  const configDevMenu = document.getElementById("configDevMenu");
+  const btnResetDiaCurso = document.getElementById("btnResetDiaCurso");
 
   const chartCanvas = document.getElementById("chart");
 
@@ -236,7 +153,7 @@ aplicarTheme(state.config.theme);
 
 // Guardar configuración
 if (guardarConfig) {
-  guardarConfig.addEventListener("click", async () => {
+  guardarConfig.addEventListener("click", () => {
 
     state.config.nombreCompleto = (cfgNombreCompleto && cfgNombreCompleto.value) ? cfgNombreCompleto.value.trim() : "";
     let sap = (cfgNumeroSAP && cfgNumeroSAP.value) ? String(cfgNumeroSAP.value).replace(/\D/g, "").slice(0, 8) : "";
@@ -258,12 +175,6 @@ if (guardarConfig) {
     saveState(state);
 
     aplicarTheme(state.config.theme);
-
-    if (state.config.notificationsEnabled) {
-      await registerBackendNotificationsIfReady();
-    } else {
-      await unregisterBackendNotifications();
-    }
 
     recalcularEnVivo();
     actualizarProgreso();
@@ -609,8 +520,6 @@ function controlarNotificaciones() {
   }
 }
 
-  const EXTEND_PROMPT_KEY = "jornadaPro_extendPrompt";
-
   function comprobarPaseJustificadoAutoFinalizar() {
     const p = state.paseJustificadoHasta;
     if (!p || !p.fecha || !p.hastaTime) return;
@@ -827,6 +736,33 @@ function controlarNotificaciones() {
     } catch (e) {}
   }
 
+  /** Para pruebas: deja el día en curso como si no se hubiera iniciado ni interactuado. */
+  function resetearDiaEnCurso() {
+    const hoy = getHoyISO();
+    delete state.registros[hoy];
+    if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) state.paseJustificadoHasta = null;
+    if (state.earlyExitState && state.earlyExitState.fecha === hoy) state.earlyExitState = null;
+    if (state.extensionJornada && state.extensionJornada.fecha === hoy) state.extensionJornada = null;
+    if (state.deduccionesPorAusencia && state.deduccionesPorAusencia[hoy] !== undefined) delete state.deduccionesPorAusencia[hoy];
+    limpiarBorradorSesion();
+    try { localStorage.removeItem(EXTEND_PROMPT_KEY + "_" + hoy); } catch (e) {}
+    saveState(state);
+    if (fecha && fecha.value === hoy) {
+      if (entrada) entrada.value = "";
+      if (salida) salida.value = "";
+      if (minAntes) minAntes.value = "0";
+      if (disfrutadas) disfrutadas.value = "0";
+    }
+    if (fecha) fecha.value = hoy;
+    actualizarEstadoIniciarJornada();
+    actualizarProgreso();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarResumenDia();
+    renderCalendario();
+    actualizarEstadoEliminar();
+  }
+
   function horaInicioJornada() {
     const d = new Date();
     const ahoraMin = d.getHours() * 60 + d.getMinutes();
@@ -992,7 +928,6 @@ function controlarNotificaciones() {
       if ("Notification" in window && Notification.permission === "default") {
         Notification.requestPermission().then(() => {});
       }
-      if (state.config.notificationsEnabled) registerBackendNotificationsIfReady();
     };
   }
 
@@ -1111,7 +1046,6 @@ function controlarNotificaciones() {
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
-    if (fecha.value === getHoyISO() && state.config.notificationsEnabled) registerBackendNotificationsIfReady();
   };
 
   if (btnVacaciones) btnVacaciones.onclick = () => {
@@ -1221,6 +1155,26 @@ function controlarNotificaciones() {
     if (backdropFabrica) backdropFabrica.addEventListener("click", cerrarModalConfirmarFabrica);
   }
 
+  if (configAuthorTapTarget && configDevMenu) {
+    let authorTapCount = 0;
+    let authorTapResetTimer = null;
+    configAuthorTapTarget.addEventListener("click", () => {
+      if (authorTapResetTimer) clearTimeout(authorTapResetTimer);
+      authorTapCount++;
+      if (authorTapCount >= 5) {
+        configDevMenu.hidden = !configDevMenu.hidden;
+        authorTapCount = 0;
+      } else {
+        authorTapResetTimer = setTimeout(() => { authorTapCount = 0; }, 1500);
+      }
+    });
+  }
+  if (btnResetDiaCurso) {
+    btnResetDiaCurso.addEventListener("click", () => {
+      resetearDiaEnCurso();
+    });
+  }
+
   function actualizarEstadoEliminar() {
     if (!btnEliminar) return;
     btnEliminar.disabled = !state.registros[fecha.value];
@@ -1237,12 +1191,31 @@ function controlarNotificaciones() {
 
   function actualizarEstadoFinalizarJornada() {
     if (!finalizarJornadaWrap) return;
+    const esVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
+    if (esVacaciones) {
+      finalizarJornadaWrap.classList.add("finalizar-slider-wrap--disabled");
+      finalizarJornadaWrap.setAttribute("aria-disabled", "true");
+      return;
+    }
     const activa = jornadaActivaHoy();
     finalizarJornadaWrap.classList.toggle("finalizar-slider-wrap--disabled", !activa);
     finalizarJornadaWrap.setAttribute("aria-disabled", activa ? "false" : "true");
   }
 
   function actualizarEstadoIniciarJornada() {
+    const esDiaVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
+    if (entrada) entrada.disabled = esDiaVacaciones;
+    if (salida) salida.disabled = esDiaVacaciones;
+    if (minAntes) minAntes.disabled = esDiaVacaciones;
+    if (disfrutadas) disfrutadas.disabled = esDiaVacaciones;
+    if (btnGuardar) btnGuardar.disabled = esDiaVacaciones;
+
+    if (esDiaVacaciones) {
+      if (btnIniciarJornada) btnIniciarJornada.disabled = true;
+      actualizarEstadoFinalizarJornada();
+      return;
+    }
+
     if (!btnIniciarJornada) return;
     const hoy = getHoyISO();
     const esHoy = fecha && fecha.value === hoy;
@@ -1476,7 +1449,7 @@ if(festivos && festivos[fechaISO]){
 
       if (registro.vacaciones) {
 
-        div.innerHTML += `<small>Vac</small>`;
+        div.innerHTML += `<span class="cal-day-vacaciones" aria-label="Vacaciones">🏖️</span>`;
 
       } else {
 
@@ -1493,6 +1466,14 @@ if(festivos && festivos[fechaISO]){
 
         if (registro.disfrutadasManualMin > 0) {
           div.innerHTML += `<small class="cal-disfrutadas">Disfr. ${(registro.disfrutadasManualMin / 60).toFixed(1)}h</small>`;
+        }
+
+        if (registro.entrada && registro.salidaReal != null) {
+          const completed = document.createElement("span");
+          completed.className = "cal-day-completed";
+          completed.setAttribute("aria-hidden", "true");
+          completed.innerHTML = '<span class="cal-day-completed-check">✓</span>';
+          div.appendChild(completed);
         }
       }
     } else if (deduccionDia > 0) {

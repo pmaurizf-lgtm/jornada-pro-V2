@@ -393,6 +393,23 @@ body.dark .config-summary {
   margin-top: 0.2rem;
 }
 
+.config-author-tap {
+  cursor: pointer;
+  user-select: none;
+}
+
+.config-dev-menu {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+.config-dev-title {
+  font-size: 0.8rem;
+  color: var(--muted-color, #6b7280);
+  margin: 0 0 0.5rem 0;
+}
+
 .config-btn {
   padding: 0.6rem 1rem;
   font-size: 0.9375rem;
@@ -625,6 +642,7 @@ body.dark .cal-empty {
 }
 
 .cal-day {
+  position: relative;
   min-height: 70px;
   border-radius: 12px;
   padding: 8px;
@@ -636,6 +654,36 @@ body.dark .cal-empty {
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   transition: background 0.2s;
+}
+
+.cal-day-completed {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: #22c55e;
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 2px 3px 0 0;
+  border-radius: 0 12px 0 0;
+}
+
+.cal-day-completed-check {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cal-day-vacaciones {
+  display: block;
+  font-size: 2rem;
+  line-height: 1;
+  margin-top: 2px;
+  text-align: center;
 }
 
 body.dark .cal-day {

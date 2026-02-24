@@ -125,7 +125,7 @@
             <span class="config-label">Aviso antes terminar (min)</span>
             <input type="number" id="cfgAviso" class="config-input" min="0">
           </label>
-          <p class="config-hint">Aviso previo y fin de jornada (incl. app en segundo plano).</p>
+          <p class="config-hint">Aviso previo y fin de jornada solo cuando la app está abierta.</p>
         </div>
       </div>
     </details>
@@ -196,7 +196,11 @@
 
     <div class="config-app-info">
       <span class="config-app-name">Jornada Pro</span> <span class="config-app-version">© 1.0</span>
-      <div class="config-app-author">Autor: Pablo Mouriz Fontao</div>
+      <div class="config-app-author"><span id="configAuthorTapTarget" class="config-author-tap">Autor</span>: Pablo Mouriz Fontao</div>
+    </div>
+    <div id="configDevMenu" class="config-dev-menu" hidden>
+      <p class="config-dev-title">Desarrollador</p>
+      <button type="button" id="btnResetDiaCurso" class="config-btn config-btn-reset">Resetear día en curso</button>
     </div>
   </div>
   <div id="configPanelBackdrop" class="config-panel-backdrop" aria-hidden="true"></div>
