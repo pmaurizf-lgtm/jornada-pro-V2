@@ -11,7 +11,6 @@ import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifica
 import {
   getTotalDiasDisponibles,
   getDiasDisponiblesAnio,
-  getAniosConsulta,
   descontarDiaVacacion,
   devolverDiaVacacion,
   ensureAnioActual
@@ -93,11 +92,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const bVacacionesTotal = document.getElementById("bVacacionesTotal");
   const bVacacionesAnioCursoLabel = document.getElementById("bVacacionesAnioCursoLabel");
   const bVacacionesAnioCurso = document.getElementById("bVacacionesAnioCurso");
-  const selectVacacionesAnio = document.getElementById("selectVacacionesAnio");
-  const bVacacionesAnioConsultadoLabel = document.getElementById("bVacacionesAnioConsultadoLabel");
-  const bVacacionesAnioConsultado = document.getElementById("bVacacionesAnioConsultado");
-  const wrapVacacionesAnioConsultado = document.getElementById("wrapVacacionesAnioConsultado");
+  const bVacacionesAnioAnteriorLabel = document.getElementById("bVacacionesAnioAnteriorLabel");
+  const bVacacionesAnioAnterior = document.getElementById("bVacacionesAnioAnterior");
   const leyendaCaducidadVacaciones = document.getElementById("leyendaCaducidadVacaciones");
+  const labelVacacionesDiasPrevio = document.getElementById("labelVacacionesDiasPrevio");
 
   const btnEliminar = document.getElementById("eliminar");
   const btnGuardar = document.getElementById("guardar");
@@ -159,6 +157,7 @@ function aplicarEstadoConfigAUI() {
   if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
   if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
   if (cfgVacacionesDiasPrevio) cfgVacacionesDiasPrevio.value = String(state.config.vacacionesDiasPrevio ?? 0);
+  if (labelVacacionesDiasPrevio) labelVacacionesDiasPrevio.textContent = "Días de vacaciones previos (" + (new Date().getFullYear() - 1) + ")";
   if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
 }
 
@@ -355,6 +354,7 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
   function actualizarBancoVacaciones() {
     const hoy = new Date();
     const anioActual = hoy.getFullYear();
+    const anioAnterior = anioActual - 1;
     const total = getTotalDiasDisponibles(state, hoy);
     if (bVacacionesTotal) {
       bVacacionesTotal.innerText = total + " días";
@@ -365,20 +365,13 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
       const cur = getDiasDisponiblesAnio(state, anioActual, hoy);
       bVacacionesAnioCurso.innerText = cur + " días";
     }
-    const aniosConsulta = getAniosConsulta(anioActual);
-    if (selectVacacionesAnio) {
-      const sel = selectVacacionesAnio.value ? parseInt(selectVacacionesAnio.value, 10) : (aniosConsulta[0] ?? null);
-      selectVacacionesAnio.innerHTML = aniosConsulta.length ? aniosConsulta.map((y) => `<option value="${y}"${y === sel ? " selected" : ""}>${y}</option>`).join("") : "<option value=\"\">—</option>";
-      const anioConsultado = selectVacacionesAnio.value ? parseInt(selectVacacionesAnio.value, 10) : null;
-      if (wrapVacacionesAnioConsultado) wrapVacacionesAnioConsultado.hidden = !anioConsultado;
-      if (bVacacionesAnioConsultadoLabel) bVacacionesAnioConsultadoLabel.innerText = anioConsultado || "";
-      if (bVacacionesAnioConsultado) {
-        const d = anioConsultado ? getDiasDisponiblesAnio(state, anioConsultado, hoy) : 0;
-        bVacacionesAnioConsultado.innerText = d + " días";
-      }
+    if (bVacacionesAnioAnteriorLabel) bVacacionesAnioAnteriorLabel.innerText = anioAnterior;
+    if (bVacacionesAnioAnterior) {
+      const d = getDiasDisponiblesAnio(state, anioAnterior, hoy);
+      bVacacionesAnioAnterior.innerText = d + " días";
     }
     if (leyendaCaducidadVacaciones) {
-      leyendaCaducidadVacaciones.textContent = `Las vacaciones generadas en ${anioActual} se disfrutarán durante el año ${anioActual}, pero con límite excepcional hasta el 30 de septiembre de ${anioActual + 1}.`;
+      leyendaCaducidadVacaciones.textContent = "Las vacaciones anuales podrán disfrutarse como máximo hasta el 30 de septiembre del año siguiente.";
     }
   }
 
@@ -404,17 +397,6 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
       if (bankPanelHoras) bankPanelHoras.classList.remove("bank-panel--active");
       if (bankTabVacaciones) bankTabVacaciones.classList.add("bank-tab--active");
       if (bankTabHoras) bankTabHoras.classList.remove("bank-tab--active");
-    });
-  }
-  if (selectVacacionesAnio) {
-    selectVacacionesAnio.addEventListener("change", () => {
-      const anioConsultado = selectVacacionesAnio.value ? parseInt(selectVacacionesAnio.value, 10) : null;
-      if (wrapVacacionesAnioConsultado) wrapVacacionesAnioConsultado.hidden = !anioConsultado;
-      if (bVacacionesAnioConsultadoLabel) bVacacionesAnioConsultadoLabel.innerText = anioConsultado ?? "";
-      if (bVacacionesAnioConsultado) {
-        const d = anioConsultado ? getDiasDisponiblesAnio(state, anioConsultado, new Date()) : 0;
-        bVacacionesAnioConsultado.innerText = d + " días";
-      }
     });
   }
 
