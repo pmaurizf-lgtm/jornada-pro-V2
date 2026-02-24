@@ -491,12 +491,60 @@ body.dark .config-summary {
 }
 
 /* ============================= */
-/* MÉTRICAS – BANCO HORAS (una fila, compactas) */
+/* MÉTRICAS – BANCO HORAS (pestañas Horas TxT / Vacaciones) */
 /* ============================= */
 
 .metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bank-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.bank-tab {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.bank-tab:hover {
+  background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+}
+
+.bank-tab.bank-tab--active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+body.dark .bank-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.bank-panel:not(.bank-panel--active) {
+  display: none !important;
+}
+
+.bank-panel.bank-panel--active {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+#bankPanelVacaciones.bank-panel--active {
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
@@ -506,6 +554,21 @@ body.dark .config-summary {
   align-items: center;
   gap: 10px;
   margin-bottom: 4px;
+}
+
+.metrics-header--vacaciones {
+  margin-top: 4px;
+}
+
+.bank-vacaciones-leyenda {
+  font-size: 0.75rem;
+  color: var(--muted-color, #6b7280);
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+body.dark .bank-vacaciones-leyenda {
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .metrics-year-label {
@@ -577,13 +640,13 @@ body.dark .metric {
 }
 
 @media (max-width: 640px) {
-  .metrics {
+  .bank-panel.bank-panel--active {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 400px) {
-  .metrics {
+  .bank-panel.bank-panel--active {
     grid-template-columns: 1fr 1fr;
   }
 }

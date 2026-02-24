@@ -7,6 +7,8 @@ export function createInitialState() {
     earlyExitState: null,
     deduccionesPorAusencia: {},
     extensionJornada: null,
+    /** Días de vacaciones disponibles por año de generación. Ej: { "2025": 22, "2026": 25 } */
+    vacacionesDiasPorAnio: {},
     config: {
       nombreCompleto: "",
       numeroSAP: "",
@@ -17,7 +19,9 @@ export function createInitialState() {
       trabajoATurnos: false,
       turno: "06-14",
       horasExtraInicialMin: 0,
-      excesoJornadaInicialMin: 0
+      excesoJornadaInicialMin: 0,
+      /** Saldo de días de vacaciones previo (año 2025) al usar la app. */
+      vacacionesDiasPrevio: 0
     }
   };
 }

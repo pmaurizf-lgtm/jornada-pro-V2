@@ -8,6 +8,14 @@ import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15 } from 
 import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
+import {
+  getTotalDiasDisponibles,
+  getDiasDisponiblesAnio,
+  getAniosConsulta,
+  descontarDiaVacacion,
+  devolverDiaVacacion,
+  ensureAnioActual
+} from "./core/vacaciones.js";
 
 // ===============================
 // IMPORTS UI
@@ -19,6 +27,7 @@ import { renderGrafico } from "./ui/charts.js";
 document.addEventListener("DOMContentLoaded", () => {
 
   let state = loadState();
+  ensureAnioActual(state, new Date().getFullYear());
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
@@ -77,6 +86,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const bSaldoAnual = document.getElementById("bSaldoAnual");
   const bSaldo = document.getElementById("bSaldo");
 
+  const bankTabHoras = document.getElementById("bankTabHoras");
+  const bankTabVacaciones = document.getElementById("bankTabVacaciones");
+  const bankPanelHoras = document.getElementById("bankPanelHoras");
+  const bankPanelVacaciones = document.getElementById("bankPanelVacaciones");
+  const bVacacionesTotal = document.getElementById("bVacacionesTotal");
+  const bVacacionesAnioCursoLabel = document.getElementById("bVacacionesAnioCursoLabel");
+  const bVacacionesAnioCurso = document.getElementById("bVacacionesAnioCurso");
+  const selectVacacionesAnio = document.getElementById("selectVacacionesAnio");
+  const bVacacionesAnioConsultadoLabel = document.getElementById("bVacacionesAnioConsultadoLabel");
+  const bVacacionesAnioConsultado = document.getElementById("bVacacionesAnioConsultado");
+  const wrapVacacionesAnioConsultado = document.getElementById("wrapVacacionesAnioConsultado");
+  const leyendaCaducidadVacaciones = document.getElementById("leyendaCaducidadVacaciones");
+
   const btnEliminar = document.getElementById("eliminar");
   const btnGuardar = document.getElementById("guardar");
   const btnVacaciones = document.getElementById("vacaciones");
@@ -95,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cfgTurno = document.getElementById("cfgTurno");
   const cfgHorasExtraPrevias = document.getElementById("cfgHorasExtraPrevias");
   const cfgExcesoJornadaPrevias = document.getElementById("cfgExcesoJornadaPrevias");
+  const cfgVacacionesDiasPrevio = document.getElementById("cfgVacacionesDiasPrevio");
   const btnResetSaldoPrevio = document.getElementById("resetSaldoPrevio");
   const configTurnoWrap = document.getElementById("configTurnoWrap");
   const guardarConfig = document.getElementById("guardarConfig");
@@ -135,6 +158,7 @@ function aplicarEstadoConfigAUI() {
   if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
   if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
   if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
+  if (cfgVacacionesDiasPrevio) cfgVacacionesDiasPrevio.value = String(state.config.vacacionesDiasPrevio ?? 0);
   if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
 }
 
@@ -170,6 +194,12 @@ if (guardarConfig) {
     state.config.turno = cfgTurno ? cfgTurno.value : "06-14";
     state.config.horasExtraInicialMin = Math.round((parseFloat(cfgHorasExtraPrevias?.value) || 0) * 60);
     state.config.excesoJornadaInicialMin = Math.round((parseFloat(cfgExcesoJornadaPrevias?.value) || 0) * 60);
+    state.config.vacacionesDiasPrevio = Math.max(0, parseInt(cfgVacacionesDiasPrevio?.value, 10) || 0);
+    if (state.vacacionesDiasPorAnio) {
+      state.vacacionesDiasPorAnio = { ...state.vacacionesDiasPorAnio, "2025": state.config.vacacionesDiasPrevio };
+    } else {
+      state.vacacionesDiasPorAnio = { "2025": state.config.vacacionesDiasPrevio };
+    }
 
     saveState(state);
 
@@ -318,6 +348,38 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
       bSaldo.innerText = minutosAHorasMinutos(mensual.saldo);
       bSaldo.style.color = mensual.saldo >= 0 ? "var(--positive)" : "var(--negative)";
     }
+
+    actualizarBancoVacaciones();
+  }
+
+  function actualizarBancoVacaciones() {
+    const hoy = new Date();
+    const anioActual = hoy.getFullYear();
+    const total = getTotalDiasDisponibles(state, hoy);
+    if (bVacacionesTotal) {
+      bVacacionesTotal.innerText = total + " días";
+      bVacacionesTotal.style.color = total >= 0 ? "var(--positive)" : "var(--negative)";
+    }
+    if (bVacacionesAnioCursoLabel) bVacacionesAnioCursoLabel.innerText = anioActual;
+    if (bVacacionesAnioCurso) {
+      const cur = getDiasDisponiblesAnio(state, anioActual, hoy);
+      bVacacionesAnioCurso.innerText = cur + " días";
+    }
+    const aniosConsulta = getAniosConsulta(anioActual);
+    if (selectVacacionesAnio) {
+      const sel = selectVacacionesAnio.value ? parseInt(selectVacacionesAnio.value, 10) : (aniosConsulta[0] ?? null);
+      selectVacacionesAnio.innerHTML = aniosConsulta.length ? aniosConsulta.map((y) => `<option value="${y}"${y === sel ? " selected" : ""}>${y}</option>`).join("") : "<option value=\"\">—</option>";
+      const anioConsultado = selectVacacionesAnio.value ? parseInt(selectVacacionesAnio.value, 10) : null;
+      if (wrapVacacionesAnioConsultado) wrapVacacionesAnioConsultado.hidden = !anioConsultado;
+      if (bVacacionesAnioConsultadoLabel) bVacacionesAnioConsultadoLabel.innerText = anioConsultado || "";
+      if (bVacacionesAnioConsultado) {
+        const d = anioConsultado ? getDiasDisponiblesAnio(state, anioConsultado, hoy) : 0;
+        bVacacionesAnioConsultado.innerText = d + " días";
+      }
+    }
+    if (leyendaCaducidadVacaciones) {
+      leyendaCaducidadVacaciones.textContent = `Las vacaciones generadas en ${anioActual} se disfrutarán durante el año ${anioActual}, pero con límite excepcional hasta el 30 de septiembre de ${anioActual + 1}.`;
+    }
   }
 
   if (selectBankYear) {
@@ -325,6 +387,34 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
       bankYear = parseInt(selectBankYear.value, 10) || currentYear;
       actualizarBanco();
       actualizarGrafico();
+    });
+  }
+
+  if (bankTabHoras) {
+    bankTabHoras.addEventListener("click", () => {
+      if (bankPanelHoras) bankPanelHoras.classList.add("bank-panel--active");
+      if (bankPanelVacaciones) bankPanelVacaciones.classList.remove("bank-panel--active");
+      if (bankTabHoras) bankTabHoras.classList.add("bank-tab--active");
+      if (bankTabVacaciones) bankTabVacaciones.classList.remove("bank-tab--active");
+    });
+  }
+  if (bankTabVacaciones) {
+    bankTabVacaciones.addEventListener("click", () => {
+      if (bankPanelVacaciones) bankPanelVacaciones.classList.add("bank-panel--active");
+      if (bankPanelHoras) bankPanelHoras.classList.remove("bank-panel--active");
+      if (bankTabVacaciones) bankTabVacaciones.classList.add("bank-tab--active");
+      if (bankTabHoras) bankTabHoras.classList.remove("bank-tab--active");
+    });
+  }
+  if (selectVacacionesAnio) {
+    selectVacacionesAnio.addEventListener("change", () => {
+      const anioConsultado = selectVacacionesAnio.value ? parseInt(selectVacacionesAnio.value, 10) : null;
+      if (wrapVacacionesAnioConsultado) wrapVacacionesAnioConsultado.hidden = !anioConsultado;
+      if (bVacacionesAnioConsultadoLabel) bVacacionesAnioConsultadoLabel.innerText = anioConsultado ?? "";
+      if (bVacacionesAnioConsultado) {
+        const d = anioConsultado ? getDiasDisponiblesAnio(state, anioConsultado, new Date()) : 0;
+        bVacacionesAnioConsultado.innerText = d + " días";
+      }
     });
   }
 
@@ -1051,17 +1141,24 @@ function controlarNotificaciones() {
 
     if (!fecha.value) return;
 
+    const anioDescontado = descontarDiaVacacion(state, fecha.value);
+    if (anioDescontado == null) {
+      alert("No hay días de vacaciones disponibles en el banco. Revisa la pestaña Vacaciones.");
+      return;
+    }
+
     state.registros[fecha.value] = {
-      entrada:null,
-      salidaReal:null,
-      trabajadosMin:0,
-      salidaTeoricaMin:0,
-      salidaAjustadaMin:0,
-      extraGeneradaMin:0,
-      negativaMin:0,
-      excesoJornadaMin:0,
-      disfrutadasManualMin:0,
-      vacaciones:true
+      entrada: null,
+      salidaReal: null,
+      trabajadosMin: 0,
+      salidaTeoricaMin: 0,
+      salidaAjustadaMin: 0,
+      extraGeneradaMin: 0,
+      negativaMin: 0,
+      excesoJornadaMin: 0,
+      disfrutadasManualMin: 0,
+      vacaciones: true,
+      vacacionesDiaAnioDescontado: anioDescontado
     };
 
     saveState(state);
@@ -1075,6 +1172,8 @@ function controlarNotificaciones() {
 
   function ejecutarEliminarRegistroDia() {
     if (!fecha.value || !state.registros[fecha.value]) return;
+    const reg = state.registros[fecha.value];
+    if (reg && reg.vacaciones) devolverDiaVacacion(state, fecha.value);
     delete state.registros[fecha.value];
     if (fecha.value === getHoyISO()) limpiarBorradorSesion();
     saveState(state);

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de uso – Jornada Pro</title>
+  <style>
+    :root {
+      --text: #1a1a1a;
+      --muted: #555;
+      --border: #ddd;
+      --accent: #007aff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      background: #fff;
+    }
+    h1 {
+      font-size: 1.75rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 1.35rem;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+    h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    p { margin: 0.75rem 0; }
+    ul, ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+    li { margin: 0.35rem 0; }
+    strong { font-weight: 600; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+    }
+    th { background: #f5f5f5; font-weight: 600; }
+    .meta { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    .footer { font-size: 0.85rem; color: var(--muted); margin-top: 2.5rem; }
+
+    @media print {
+      body { padding: 1rem; max-width: 100%; }
+      h2 { page-break-after: avoid; }
+      h3 { page-break-after: avoid; }
+      table { page-break-inside: avoid; }
+      ul, ol { page-break-inside: avoid; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Guía de uso – Jornada Pro</h1>
+  <p class="meta"><strong>Jornada Pro © 1.0</strong> – Control de jornada laboral<br>Autor: Pablo Mouriz Fontao</p>
+
+  <hr>
+
+  <h2>1. Introducción</h2>
+  <p>Jornada Pro es una aplicación para el control de la jornada laboral: registrar entradas y salidas, calcular horas trabajadas, horas extra, excesos y negativas, y mantener un banco de horas. Está pensada para uso en NAVANTIA (Ferrol), con soporte para turnos y festivos locales.</p>
+  <p>Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y restaurar desde el menú de configuración.</p>
+
+  <h2>2. Pantalla principal</h2>
+  <ul>
+    <li><strong>Cabecera:</strong> título de la app, logo y botón de menú (☰) para abrir Configuración.</li>
+    <li><strong>Registro diario:</strong> formulario con fecha, entrada, salida y acciones (Iniciar jornada, Finalizar, Guardar, Vacaciones, Eliminar).</li>
+    <li><strong>Salidas teórica y ajustada:</strong> se calculan en función de la jornada configurada.</li>
+    <li><strong>Barra de progreso:</strong> indica el avance del día respecto a la jornada nominal.</li>
+    <li><strong>Resumen del día:</strong> horas trabajadas, extra, exceso y negativa (en horas y minutos y en decimal).</li>
+    <li><strong>Calendario:</strong> vista mensual con registros, saldos y días festivos.</li>
+    <li><strong>Banco de horas:</strong> total disponible, generadas, exceso, negativas, disfrutadas y saldo anual.</li>
+    <li><strong>Gráfico:</strong> evolución del banco en el año seleccionado.</li>
+  </ul>
+
+  <h2>3. Registro diario</h2>
+
+  <h3>3.1 Iniciar la jornada</h3>
+  <ol>
+    <li>Selecciona la <strong>fecha</strong> del día (por defecto es hoy).</li>
+    <li>Pulsa <strong>«Iniciar jornada»</strong>. Se rellenará automáticamente la <strong>hora de entrada</strong> con la hora actual (o la de inicio del turno si tienes turnos configurados).</li>
+    <li>Puedes ajustar manualmente la entrada si lo necesitas.</li>
+  </ol>
+  <p>Solo puede haber una jornada «iniciada» al día. Si ya has finalizado la jornada y pasas del fin teórico, el botón cambiará a <strong>«Extender jornada»</strong>.</p>
+
+  <h3>3.2 Finalizar la jornada</h3>
+  <p>Cuando tengas entrada puesta y quieras dar por terminado el día: usa el <strong>control deslizante</strong> «Desliza para finalizar jornada» (arrastra hasta el final y suelta). La app pondrá la hora de salida real y guardará el registro. El control solo está activo si hay una jornada en curso.</p>
+
+  <h3>3.3 Pase de salida</h3>
+  <p>Si intentas finalizar o guardar con una hora de salida <strong>anterior al fin teórico</strong>, se abre un modal con dos opciones:</p>
+  <ul>
+    <li><strong>Pase justificado:</strong> la jornada se considera completada hasta el fin teórico y se cierra automáticamente.</li>
+    <li><strong>Pase sin justificar:</strong> se registra la salida y se descuenta del banco el tiempo no trabajado. Puedes usar «Continuar jornada» más tarde para reanudar.</li>
+  </ul>
+
+  <h3>3.4 Continuar jornada</h3>
+  <p>Tras un pase, el botón <strong>«Continuar jornada»</strong> permite reabrir el día para seguir registrando.</p>
+
+  <h3>3.5 Extender jornada (horas extra)</h3>
+  <p>Cuando la jornada nominal ha terminado, la app puede preguntar «¿Vas a extender la jornada?». <strong>Sí</strong>: el tiempo que sigas se contará como horas extra (en bloques de 15 minutos). <strong>No</strong>: se cierra el día con la salida teórica. Si ya cerraste el día, el botón «Extender jornada» reabre el día en modo extensión. La extensión solo es posible hasta las 23:59.</p>
+
+  <h3>3.6 Guardar (registro manual)</h3>
+  <p>Rellena fecha, entrada y salida y pulsa <strong>«Guardar»</strong> para guardar o modificar el registro sin usar Iniciar/Finalizar.</p>
+
+  <h3>3.7 Vacaciones</h3>
+  <p>Con el día seleccionado, pulsa <strong>«Vacaciones»</strong>. Ese día queda marcado (icono de playa en el calendario). En un día de vacaciones no se pueden usar los controles de entrada/salida ni Iniciar/Finalizar. Usa «Eliminar» en ese día para quitar la marca.</p>
+
+  <h3>3.8 Eliminar registro del día</h3>
+  <p>Con el día seleccionado, pulsa <strong>«Eliminar»</strong>. Tras confirmar, se borra todo el registro de ese día.</p>
+
+  <h3>3.9 Otros campos</h3>
+  <p><strong>Salir antes (minutos):</strong> minutos que sales antes de la salida teórica. <strong>Horas disfrutadas (min):</strong> horas de banco que disfrutas ese día.</p>
+
+  <h2>4. Calendario</h2>
+  <p>Muestra el mes. Pulsando en un día lo seleccionas y se cargan sus datos en el formulario. Indicadores: <strong>triángulo verde con ✓</strong> = jornada completada; <strong>+X.Xh / −X.Xh</strong> = saldo del día; <strong>Disfr. X.Xh</strong> = horas disfrutadas; <strong>icono de playa</strong> = vacaciones. Festivos resaltados; pulsar en uno muestra su nombre.</p>
+
+  <h2>5. Banco de horas</h2>
+  <p>Total disponible, generadas, exceso, negativas, disfrutadas y saldo anual. Puedes cambiar el año con el selector. El saldo inicial se configura en Configuración → Configuración de jornada. «Resetear saldo previo» pone a cero horas extra y exceso previos.</p>
+
+  <h2>6. Gráfico</h2>
+  <p>Muestra la evolución del banco de horas a lo largo del año seleccionado.</p>
+
+  <h2>7. Configuración</h2>
+  <p>Se abre desde el menú (☰). Bloques desplegables:</p>
+  <ul>
+    <li><strong>Datos personales:</strong> nombre completo, número SAP (8 cifras).</li>
+    <li><strong>Configuración de la aplicación:</strong> tema (Claro/Oscuro), notificaciones, aviso antes de terminar (min). Las notificaciones solo funcionan con la app abierta.</li>
+    <li><strong>Configuración de jornada:</strong> jornada (min), trabajo a turnos, turno, horas extra previas, exceso previo, resetear saldo previo.</li>
+    <li><strong>Copia de datos y seguridad:</strong> Exportar Excel, Backup, Restaurar, Restaurar valores de fábrica.</li>
+  </ul>
+  <p>Después de cambiar opciones, pulsa <strong>«Guardar configuración»</strong>.</p>
+
+  <h2>8. Notificaciones</h2>
+  <p>Aviso antes del fin teórico y aviso al llegar al fin teórico. Solo se muestran con la aplicación abierta en primer plano.</p>
+
+  <h2>9. Resumen rápido</h2>
+  <table>
+    <thead>
+      <tr><th>Acción</th><th>Dónde</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Empezar el día</td><td>Iniciar jornada</td></tr>
+      <tr><td>Terminar el día</td><td>Deslizar para finalizar jornada</td></tr>
+      <tr><td>Salir antes de hora</td><td>Modal → Pase justificado / sin justificar</td></tr>
+      <tr><td>Seguir después del fin teórico</td><td>Extender jornada</td></tr>
+      <tr><td>Guardar a mano un día</td><td>Rellenar fecha, entrada, salida → Guardar</td></tr>
+      <tr><td>Marcar vacaciones</td><td>Vacaciones</td></tr>
+      <tr><td>Borrar el día</td><td>Eliminar (con confirmación)</td></tr>
+      <tr><td>Cambiar tema, notificaciones, jornada</td><td>Menú ☰ → Configuración</td></tr>
+      <tr><td>Exportar datos</td><td>Configuración → Exportar Excel / Backup</td></tr>
+      <tr><td>Dejar la app como nueva</td><td>Configuración → Restaurar valores de fábrica</td></tr>
+    </tbody>
+  </table>
+
+  <p class="footer">Jornada Pro © 1.0 – Autor: Pablo Mouriz Fontao. Para obtener un PDF: Archivo → Imprimir → Guardar como PDF (o destino «Guardar como PDF»).</p>
+
+  <p class="no-print" style="margin-top: 2rem; padding: 1rem; background: #f0f7ff; border-radius: 8px;">
+    <strong>Obtener PDF:</strong> En el menú del navegador elige <strong>Archivo → Imprimir</strong> (o <kbd>Ctrl+P</kbd> / <kbd>Cmd+P</kbd>). Como destino selecciona <strong>«Guardar como PDF»</strong> o <strong>«Microsoft Print to PDF»</strong> y guarda el archivo.
+  </p>
+
+</body>
+</html>

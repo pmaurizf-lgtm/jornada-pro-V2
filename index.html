@@ -166,6 +166,11 @@
             <span class="config-label">Exceso jornada previo (h)</span>
             <input type="number" id="cfgExcesoJornadaPrevias" class="config-input" min="0" step="0.25" placeholder="0">
           </label>
+          <label class="config-row">
+            <span class="config-label">Días de vacaciones previos (2025)</span>
+            <input type="number" id="cfgVacacionesDiasPrevio" class="config-input" min="0" step="1" placeholder="0">
+          </label>
+          <p class="config-hint config-hint-vacaciones">Años anteriores a 2025 no se tienen en cuenta (ya venció su uso).</p>
           <div class="config-row config-row-reset">
             <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
           </div>
@@ -348,48 +353,79 @@
 
 </section>
 
-<!-- MÉTRICAS BANCO -->
+<!-- MÉTRICAS BANCO (pestañas Horas TxT / Vacaciones) -->
 <section class="card metrics">
-  <div class="metrics-header">
-    <label class="metrics-year-label" for="selectBankYear">Año</label>
-    <select id="selectBankYear" class="metrics-year-select" aria-label="Año del banco de horas"></select>
+  <div class="bank-tabs" role="tablist">
+    <button type="button" id="bankTabHoras" class="bank-tab bank-tab--active" role="tab" aria-selected="true">Horas TxT</button>
+    <button type="button" id="bankTabVacaciones" class="bank-tab" role="tab" aria-selected="false">Vacaciones</button>
   </div>
 
-  <div class="metric metric-total">
-    <span>Total disponible (acumulado)</span>
-    <strong id="bTotalDisponible"></strong>
+  <!-- Pestaña Horas TxT -->
+  <div id="bankPanelHoras" class="bank-panel bank-panel--active" role="tabpanel">
+    <div class="metrics-header">
+      <label class="metrics-year-label" for="selectBankYear">Año</label>
+      <select id="selectBankYear" class="metrics-year-select" aria-label="Año del banco de horas"></select>
+    </div>
+
+    <div class="metric metric-total">
+      <span>Total disponible (acumulado)</span>
+      <strong id="bTotalDisponible"></strong>
+    </div>
+
+    <div class="metric">
+      <span>Extra (Anual)</span>
+      <strong id="bGeneradas"></strong>
+    </div>
+
+    <div class="metric">
+      <span>Exceso jornada (Anual)</span>
+      <strong id="bExceso"></strong>
+    </div>
+
+    <div class="metric">
+      <span>Negativas (Anual)</span>
+      <strong id="bNegativas"></strong>
+    </div>
+
+    <div class="metric">
+      <span>Disfrutadas (Anual)</span>
+      <strong id="bDisfrutadas"></strong>
+    </div>
+
+    <div class="metric saldo">
+      <span>Saldo Anual</span>
+      <strong id="bSaldoAnual"></strong>
+    </div>
+
+    <div class="metric saldo">
+      <span>Saldo Mensual</span>
+      <strong id="bSaldo"></strong>
+    </div>
   </div>
 
-  <div class="metric">
-    <span>Extra (Anual)</span>
-    <strong id="bGeneradas"></strong>
-  </div>
+  <!-- Pestaña Vacaciones -->
+  <div id="bankPanelVacaciones" class="bank-panel" role="tabpanel">
+    <div class="metric metric-total">
+      <span>Total días de vacaciones disponibles</span>
+      <strong id="bVacacionesTotal"></strong>
+    </div>
 
-  <div class="metric">
-    <span>Exceso jornada (Anual)</span>
-    <strong id="bExceso"></strong>
-  </div>
+    <div class="metric">
+      <span>Año en curso (<span id="bVacacionesAnioCursoLabel"></span>)</span>
+      <strong id="bVacacionesAnioCurso"></strong>
+    </div>
 
-  <div class="metric">
-    <span>Negativas (Anual)</span>
-    <strong id="bNegativas"></strong>
-  </div>
+    <div class="metrics-header metrics-header--vacaciones">
+      <label class="metrics-year-label" for="selectVacacionesAnio">Consultar año anterior</label>
+      <select id="selectVacacionesAnio" class="metrics-year-select" aria-label="Año a consultar (solo años anteriores al actual)"></select>
+    </div>
+    <div class="metric" id="wrapVacacionesAnioConsultado">
+      <span>Días disponibles año <span id="bVacacionesAnioConsultadoLabel"></span></span>
+      <strong id="bVacacionesAnioConsultado"></strong>
+    </div>
 
-  <div class="metric">
-    <span>Disfrutadas (Anual)</span>
-    <strong id="bDisfrutadas"></strong>
+    <p class="bank-vacaciones-leyenda" id="leyendaCaducidadVacaciones"></p>
   </div>
-
-  <div class="metric saldo">
-    <span>Saldo Anual</span>
-    <strong id="bSaldoAnual"></strong>
-  </div>
-
-  <div class="metric saldo">
-    <span>Saldo Mensual</span>
-    <strong id="bSaldo"></strong>
-  </div>
-
 
 </section>
 
