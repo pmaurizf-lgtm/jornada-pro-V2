@@ -112,7 +112,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalEliminarCancelar = document.getElementById("modalEliminarCancelar");
   const modalConfirmarFabrica = document.getElementById("modalConfirmarFabrica");
   const modalFabricaSi = document.getElementById("modalFabricaSi");
-  const modalFabricaSi = document.getElementById("modalFabricaSi");
   const modalFabricaCancelar = document.getElementById("modalFabricaCancelar");
   const btnRestaurarFabrica = document.getElementById("restaurarFabrica");
   const configAuthorTapTarget = document.getElementById("configAuthorTapTarget");
