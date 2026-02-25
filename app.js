@@ -117,6 +117,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const cfgNombreCompleto = document.getElementById("cfgNombreCompleto");
   const cfgNumeroSAP = document.getElementById("cfgNumeroSAP");
+  const cfgCentroCoste = document.getElementById("cfgCentroCoste");
+  const cfgGrupoProfesional = document.getElementById("cfgGrupoProfesional");
   const cfgJornada = document.getElementById("cfgJornada");
   const cfgAviso = document.getElementById("cfgAviso");
   const cfgTheme = document.getElementById("cfgTheme");
@@ -158,6 +160,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function aplicarEstadoConfigAUI() {
   if (cfgNombreCompleto) cfgNombreCompleto.value = state.config.nombreCompleto || "";
   if (cfgNumeroSAP) cfgNumeroSAP.value = state.config.numeroSAP || "";
+  if (cfgCentroCoste) cfgCentroCoste.value = state.config.centroCoste || "";
+  if (cfgGrupoProfesional) cfgGrupoProfesional.value = state.config.grupoProfesional || "GP1";
   if (cfgJornada) cfgJornada.value = state.config.jornadaMin;
   if (cfgAviso) cfgAviso.value = state.config.avisoMin;
   if (cfgTheme) cfgTheme.value = state.config.theme;
@@ -194,6 +198,9 @@ if (guardarConfig) {
       return;
     }
     state.config.numeroSAP = sap;
+
+    state.config.centroCoste = (cfgCentroCoste && cfgCentroCoste.value) ? cfgCentroCoste.value.trim() : "";
+    state.config.grupoProfesional = (cfgGrupoProfesional && cfgGrupoProfesional.value && ["GP1", "GP2", "GP3", "GP4"].includes(cfgGrupoProfesional.value)) ? cfgGrupoProfesional.value : "GP1";
 
     state.config.jornadaMin = Number(cfgJornada.value);
     state.config.avisoMin = Number(cfgAviso.value);

@@ -11,6 +11,10 @@ export function validateState(state) {
 
   if (typeof state.config.nombreCompleto !== "string") state.config.nombreCompleto = "";
   if (typeof state.config.numeroSAP !== "string") state.config.numeroSAP = "";
+  if (typeof state.config.centroCoste !== "string") state.config.centroCoste = "";
+  if (typeof state.config.grupoProfesional !== "string" || !["GP1", "GP2", "GP3", "GP4"].includes(state.config.grupoProfesional)) {
+    state.config.grupoProfesional = "GP1";
+  }
 
   if (typeof state.config.jornadaMin !== "number") {
     throw new Error("Config inválida");

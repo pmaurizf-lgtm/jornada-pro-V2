@@ -100,6 +100,19 @@
             <span class="config-label">Número SAP</span>
             <input type="text" id="cfgNumeroSAP" class="config-input" placeholder="8 cifras" maxlength="8" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
           </label>
+          <label class="config-row">
+            <span class="config-label">Centro de Coste</span>
+            <input type="text" id="cfgCentroCoste" class="config-input config-input-full" placeholder="Centro de coste">
+          </label>
+          <label class="config-row">
+            <span class="config-label">Grupo Profesional</span>
+            <select id="cfgGrupoProfesional" class="config-input config-select">
+              <option value="GP1">GP1</option>
+              <option value="GP2">GP2</option>
+              <option value="GP3">GP3</option>
+              <option value="GP4">GP4</option>
+            </select>
+          </label>
           <p class="config-hint">Número SAP: 8 cifras.</p>
         </div>
       </div>
@@ -284,7 +297,7 @@
       </button>
 
       <button type="button" id="disfruteHorasExtra" class="btn-disfrute-horas" title="Disfrutar este día como horas extra (se descontarán del banco de horas)">
-        Disfr. h. extra
+        Disfr. TxT
       </button>
 
       <button type="button" id="eliminar" class="btn-danger">

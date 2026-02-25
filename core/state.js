@@ -14,6 +14,8 @@ export function createInitialState() {
     config: {
       nombreCompleto: "",
       numeroSAP: "",
+      centroCoste: "",
+      grupoProfesional: "GP1",
       jornadaMin: 459,
       avisoMin: 10,
       theme: "light",
