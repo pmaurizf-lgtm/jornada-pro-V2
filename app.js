@@ -90,7 +90,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const bankTabHoras = document.getElementById("bankTabHoras");
   const bankTabVacaciones = document.getElementById("bankTabVacaciones");
   const bankPanelHoras = document.getElementById("bankPanelHoras");
+  const bankPanelHorasTxT = document.getElementById("bankPanelHorasTxT");
+  const bankPanelMinutosSemana = document.getElementById("bankPanelMinutosSemana");
+  const bBancoMinutosSemana = document.getElementById("bBancoMinutosSemana");
   const bankPanelVacaciones = document.getElementById("bankPanelVacaciones");
+  const configSaldoHorasExtraWrap = document.getElementById("configSaldoHorasExtraWrap");
+  const configResetSaldoWrap = document.getElementById("configResetSaldoWrap");
+  const wrapMinAntes = document.getElementById("wrapMinAntes");
+  const wrapDisfrutadas = document.getElementById("wrapDisfrutadas");
+  const resumenDiaHorasWrap = document.getElementById("resumenDiaHorasWrap");
+  const resumenDiaMinutosWrap = document.getElementById("resumenDiaMinutosWrap");
+  const rTrabajadoMin = document.getElementById("rTrabajadoMin");
+  const rBancoMinutosSemana = document.getElementById("rBancoMinutosSemana");
+  const rHoyDelta = document.getElementById("rHoyDelta");
+  const chartCard = document.getElementById("chartCard");
   const bVacacionesTotal = document.getElementById("bVacacionesTotal");
   const bVacacionesAnioCursoLabel = document.getElementById("bVacacionesAnioCursoLabel");
   const bVacacionesAnioCurso = document.getElementById("bVacacionesAnioCurso");
@@ -220,11 +233,15 @@ if (guardarConfig) {
     saveState(state);
 
     aplicarTheme(state.config.theme);
+    aplicarModoGrupoProfesional();
 
     recalcularEnVivo();
     actualizarProgreso();
     actualizarBanco();
     actualizarGrafico();
+    renderCalendario();
+    actualizarResumenDia();
+    actualizarEstadoIniciarJornada();
     closeConfigPanel();
   });
 }
@@ -275,7 +292,7 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
 
   function actualizarResumenDia() {
 
-    if (!resumenDia || !rTrabajado || !rExtra || !rNegativa) return;
+    if (!resumenDia) return;
 
     const registro = state.registros[fecha.value];
 
@@ -285,6 +302,27 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     }
 
     resumenDia.style.display = "grid";
+
+    if (esModoMinutosSemanal()) {
+      if (resumenDiaHorasWrap) resumenDiaHorasWrap.style.display = "none";
+      if (resumenDiaMinutosWrap) resumenDiaMinutosWrap.hidden = false;
+      if (rTrabajadoMin) rTrabajadoMin.innerHTML = formatoResumenTiempo(registro.trabajadosMin || 0);
+      var bancoSem = calcularBancoMinutosSemana(fecha.value);
+      if (rBancoMinutosSemana) {
+        rBancoMinutosSemana.innerText = (bancoSem >= 0 ? "+" : "") + minutosAHorasMinutos(bancoSem);
+        rBancoMinutosSemana.style.color = bancoSem >= 0 ? "var(--positive)" : "var(--negative)";
+      }
+      var delta = (registro.extraGeneradaMin || 0) - (registro.negativaMin || 0);
+      if (rHoyDelta) {
+        rHoyDelta.innerText = delta === 0 ? "0m" : (delta > 0 ? "+" : "") + delta + "m";
+        rHoyDelta.style.color = delta >= 0 ? "var(--positive)" : "var(--negative)";
+      }
+      return;
+    }
+
+    if (resumenDiaMinutosWrap) resumenDiaMinutosWrap.hidden = true;
+    if (resumenDiaHorasWrap) resumenDiaHorasWrap.style.display = "";
+    if (!rTrabajado || !rExtra || !rNegativa) return;
 
     rTrabajado.innerHTML = formatoResumenTiempo(registro.trabajadosMin);
 
@@ -314,6 +352,57 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     return sign + h + "h " + m + "m";
   }
 
+  function esModoMinutosSemanal() {
+    const gp = state.config.grupoProfesional || "";
+    return gp === "GP1" || gp === "GP2";
+  }
+
+  /** Para GP1/GP2: lunes (1) a domingo (7). Devuelve [lunesISO, domingoISO] de la semana que contiene fechaISO. */
+  function getLunesDomingoSemana(fechaISO) {
+    const [y, m, d] = fechaISO.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    const day = date.getDay();
+    const diffLunes = day === 0 ? -6 : 1 - day;
+    const lunes = new Date(date);
+    lunes.setDate(date.getDate() + diffLunes);
+    const domingo = new Date(lunes);
+    domingo.setDate(lunes.getDate() + 6);
+    const toISO = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    return [toISO(lunes), toISO(domingo)];
+  }
+
+  /** Banco de minutos de la semana (lunes a domingo) que contiene fechaISO. Solo días con jornada (extra - negativa). */
+  function calcularBancoMinutosSemana(fechaISO) {
+    const [lunesStr, domingoStr] = getLunesDomingoSemana(fechaISO);
+    let total = 0;
+    const regs = state.registros || {};
+    const [ly, lm, ld] = lunesStr.split("-").map(Number);
+    const [dy, dm, dd] = domingoStr.split("-").map(Number);
+    const start = new Date(ly, lm - 1, ld);
+    const end = new Date(dy, dm - 1, dd);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      const r = regs[iso];
+      if (!r || r.vacaciones || r.libreDisposicion || r.disfruteHorasExtra) continue;
+      total += (r.extraGeneradaMin || 0) - (r.negativaMin || 0);
+    }
+    return total;
+  }
+
+  function aplicarModoGrupoProfesional() {
+    const modoMin = esModoMinutosSemanal();
+    if (bankPanelMinutosSemana) bankPanelMinutosSemana.hidden = !modoMin;
+    if (bankPanelHorasTxT) bankPanelHorasTxT.style.display = modoMin ? "none" : "";
+    if (configSaldoHorasExtraWrap) configSaldoHorasExtraWrap.style.display = modoMin ? "none" : "";
+    if (configResetSaldoWrap) configResetSaldoWrap.style.display = modoMin ? "none" : "";
+    if (wrapMinAntes) wrapMinAntes.style.display = modoMin ? "none" : "";
+    if (wrapDisfrutadas) wrapDisfrutadas.style.display = modoMin ? "none" : "";
+    if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.style.display = modoMin ? "none" : "";
+    if (chartCard) chartCard.style.display = modoMin ? "none" : "";
+    if (modoMin && minAntes) minAntes.value = "0";
+    if (modoMin && disfrutadas) disfrutadas.value = "0";
+  }
+
   function obtenerAniosBanco() {
     const anios = new Set();
     Object.keys(state.registros || {}).forEach((f) => {
@@ -325,6 +414,17 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
   }
 
   function actualizarBanco() {
+    aplicarModoGrupoProfesional();
+    if (esModoMinutosSemanal()) {
+      const hoy = getHoyISO();
+      const bancoMin = calcularBancoMinutosSemana(hoy);
+      if (bBancoMinutosSemana) {
+        bBancoMinutosSemana.innerText = (bancoMin >= 0 ? "" : "\u2212") + minutosAHorasMinutos(bancoMin >= 0 ? bancoMin : -bancoMin);
+        bBancoMinutosSemana.style.color = bancoMin >= 0 ? "var(--positive)" : "var(--negative)";
+      }
+      actualizarBancoVacaciones();
+      return;
+    }
     const anios = obtenerAniosBanco();
     if (selectBankYear) {
       const value = selectBankYear.value;
@@ -432,7 +532,7 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
   }
 
   function actualizarGrafico() {
-    if (!chartCanvas) return;
+    if (!chartCanvas || esModoMinutosSemanal()) return;
     const anual = calcularResumenAnual(state.registros, bankYear);
     renderGrafico(chartCanvas, anual);
   }
@@ -481,8 +581,8 @@ function actualizarProgreso() {
     return;
   }
 
-  // Modo extensión: contador de horas extra desde extensionJornada.desdeTime (bloques de 15 min)
-  if (state.extensionJornada && state.extensionJornada.fecha === hoy && state.extensionJornada.desdeTime) {
+  // Modo extensión: contador de horas extra desde extensionJornada.desdeTime (bloques de 15 min) — solo GP3/GP4
+  if (!esModoMinutosSemanal() && state.extensionJornada && state.extensionJornada.fecha === hoy && state.extensionJornada.desdeTime) {
     const ahoraMin = new Date().getHours() * 60 + new Date().getMinutes();
     const desdeMin = timeToMinutes(state.extensionJornada.desdeTime);
     let extraMin = ahoraMin - desdeMin;
@@ -516,14 +616,18 @@ function actualizarProgreso() {
   const trabajado = ahoraMin - entradaMin;
   const jornadaRef = state.config.trabajoATurnos ? 8 * 60 : state.config.jornadaMin;
 
-  // Fin teórico alcanzado: barra a 0 y dejar de contar; si seguimos en sesión mostramos horas extra (bloques 15 min)
+  // Fin teórico alcanzado: barra a 0; GP3/GP4 muestran horas extra, GP1/GP2 solo "Completado"
   if (trabajado >= jornadaRef) {
     if (barra) barra.style.width = "0%";
-    const extraMin = extraEnBloques15(trabajado - jornadaRef);
-    const horas = Math.floor(extraMin / 60);
-    const minutos = extraMin % 60;
     if (progresoInside) {
-      progresoInside.innerText = "+" + horas + "h " + String(minutos).padStart(2, "0") + "m extra";
+      if (esModoMinutosSemanal()) {
+        progresoInside.innerText = "Completado";
+      } else {
+        const extraMin = extraEnBloques15(trabajado - jornadaRef);
+        const horas = Math.floor(extraMin / 60);
+        const minutos = extraMin % 60;
+        progresoInside.innerText = "+" + horas + "h " + String(minutos).padStart(2, "0") + "m extra";
+      }
       progresoInside.classList.add("light-text");
     }
     if (barra) barra.classList.remove("progress-complete");
@@ -1461,10 +1565,10 @@ function controlarNotificaciones() {
     if (mostrarContinuar) {
       btnIniciarJornada.textContent = "Continuar jornada";
       btnIniciarJornada.disabled = false;
-    } else if (enExtension) {
+    } else if (!esModoMinutosSemanal() && enExtension) {
       btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = true;
-    } else if (yaFinalizado && esHoy) {
+    } else if (!esModoMinutosSemanal() && yaFinalizado && esHoy) {
       btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = false;
     } else {
@@ -1743,12 +1847,19 @@ if(festivos && festivos[fechaISO]){
 
       } else {
 
+        var saldoHtml = "";
+        if (esModoMinutosSemanal()) {
+          var deltaMin = (registro.extraGeneradaMin || 0) - (registro.negativaMin || 0);
+          if (deltaMin !== 0) {
+            var clsDelta = deltaMin > 0 ? "cal-saldo-pos" : "cal-saldo-neg";
+            saldoHtml += "<small class=\"cal-saldo " + clsDelta + "\">" + (deltaMin > 0 ? "+" : "") + deltaMin + "m</small>";
+          }
+        } else {
         const extra = registro.extraGeneradaMin || 0;
         const exceso = registro.excesoJornadaMin || 0;
         const negativa = registro.negativaMin || 0;
         const saldoDiaMin = extra + exceso - negativa - deduccionDia;
 
-        var saldoHtml = "";
         if (saldoDiaMin !== 0) {
           var sign = saldoDiaMin > 0 ? "+" : "\u2212";
           var absMin = Math.abs(saldoDiaMin);
@@ -1761,6 +1872,7 @@ if(festivos && festivos[fechaISO]){
 
         if (registro.disfrutadasManualMin > 0) {
           saldoHtml += "<small class=\"cal-disfrutadas\">Disfr. " + (registro.disfrutadasManualMin / 60).toFixed(1) + "h</small>";
+        }
         }
 
         if (registro.entrada && registro.salidaReal != null) {

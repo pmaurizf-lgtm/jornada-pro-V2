@@ -171,20 +171,22 @@
         </div>
         <div class="config-block config-iniciales">
           <span class="config-block-label">Saldo previo (antes de usar la app)</span>
-          <label class="config-row">
-            <span class="config-label">Horas extra previas (h)</span>
-            <input type="number" id="cfgHorasExtraPrevias" class="config-input" min="0" step="0.25" placeholder="0">
-          </label>
-          <label class="config-row">
-            <span class="config-label">Exceso jornada previo (h)</span>
-            <input type="number" id="cfgExcesoJornadaPrevias" class="config-input" min="0" step="0.25" placeholder="0">
-          </label>
+          <div id="configSaldoHorasExtraWrap">
+            <label class="config-row">
+              <span class="config-label">Horas extra previas (h)</span>
+              <input type="number" id="cfgHorasExtraPrevias" class="config-input" min="0" step="0.25" placeholder="0">
+            </label>
+            <label class="config-row">
+              <span class="config-label">Exceso jornada previo (h)</span>
+              <input type="number" id="cfgExcesoJornadaPrevias" class="config-input" min="0" step="0.25" placeholder="0">
+            </label>
+          </div>
           <label class="config-row">
             <span class="config-label" id="labelVacacionesDiasPrevio">Días de vacaciones previos (2025)</span>
             <input type="number" id="cfgVacacionesDiasPrevio" class="config-input" min="0" step="1" placeholder="0">
           </label>
           <p class="config-hint config-hint-vacaciones">Años anteriores a 2025 no se tienen en cuenta (ya venció su uso).</p>
-          <div class="config-row config-row-reset">
+          <div id="configResetSaldoWrap" class="config-row config-row-reset">
             <button type="button" id="resetSaldoPrevio" class="config-btn config-btn-reset">Resetear saldo previo</button>
           </div>
           <p class="config-hint">Se suman al total disponible del banco (independiente del año).</p>
@@ -268,15 +270,15 @@
         <label for="salida">Hora de salida real</label>
       </div>
 
-      <div class="floating-group">
+      <div class="floating-group" id="wrapMinAntes">
         <input type="number" id="minAntes" min="0">
         <label for="minAntes">Salir antes (minutos)</label>
       </div>
 
     </div>
 
-    <!-- DISFRUTADAS -->
-    <div class="floating-group">
+    <!-- DISFRUTADAS (solo GP3/GP4) -->
+    <div class="floating-group" id="wrapDisfrutadas">
       <input type="number" id="disfrutadas" min="0">
       <label for="disfrutadas">Horas disfrutadas (min)</label>
     </div>
@@ -296,7 +298,7 @@
         LD
       </button>
 
-      <button type="button" id="disfruteHorasExtra" class="btn-disfrute-horas" title="Disfrutar este día como horas extra (se descontarán del banco de horas)">
+      <button type="button" id="disfruteHorasExtra" class="btn-disfrute-horas" title="Disfrutar este día como horas extra (se descontarán del banco de horas)" data-solo-gp34>
         Disfr. TxT
       </button>
 
@@ -328,24 +330,37 @@
 </div>
 
 <div id="resumenDia" class="resumen-dia">
-  <div class="resumen-line">
-    <span>Trabajado</span>
-    <strong id="rTrabajado">--</strong>
+  <div id="resumenDiaHorasWrap">
+    <div class="resumen-line">
+      <span>Trabajado</span>
+      <strong id="rTrabajado">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Extra</span>
+      <strong id="rExtra">--</strong>
+    </div>
+    <div class="resumen-line" id="resumenExcesoWrap">
+      <span>Exceso jornada</span>
+      <strong id="rExceso">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Negativa</span>
+      <strong id="rNegativa">--</strong>
+    </div>
   </div>
-
-  <div class="resumen-line">
-    <span>Extra</span>
-    <strong id="rExtra">--</strong>
-  </div>
-
-  <div class="resumen-line" id="resumenExcesoWrap">
-    <span>Exceso jornada</span>
-    <strong id="rExceso">--</strong>
-  </div>
-
-  <div class="resumen-line">
-    <span>Negativa</span>
-    <strong id="rNegativa">--</strong>
+  <div id="resumenDiaMinutosWrap" class="resumen-dia-minutos" hidden>
+    <div class="resumen-line">
+      <span>Trabajado</span>
+      <strong id="rTrabajadoMin">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Banco minutos (semana)</span>
+      <strong id="rBancoMinutosSemana">--</strong>
+    </div>
+    <div class="resumen-line">
+      <span>Hoy (delta)</span>
+      <strong id="rHoyDelta">--</strong>
+    </div>
   </div>
 </div>
   
@@ -368,7 +383,7 @@
   </div>
 
   <!-- GRÁFICO LATERAL -->
-  <div class="card chart-card">
+  <div id="chartCard" class="card chart-card">
     <canvas id="chart"></canvas>
   </div>
 
@@ -381,51 +396,61 @@
     <button type="button" id="bankTabVacaciones" class="bank-tab" role="tab" aria-selected="false">Vacaciones/LD</button>
   </div>
 
-  <!-- Pestaña Horas TxT -->
+  <!-- Pestaña Horas TxT (GP3/GP4) o Banco minutos (GP1/GP2) -->
   <div id="bankPanelHoras" class="bank-panel bank-panel--active" role="tabpanel">
-    <div class="metrics-header">
-      <label class="metrics-year-label" for="selectBankYear">Año</label>
-      <select id="selectBankYear" class="metrics-year-select" aria-label="Año del banco de horas"></select>
+    <!-- Modo minutos semanal (GP1/GP2) -->
+    <div id="bankPanelMinutosSemana" class="bank-panel-minutos" hidden>
+      <div class="metric metric-total">
+        <span>Banco de minutos (esta semana)</span>
+        <strong id="bBancoMinutosSemana">0h</strong>
+      </div>
     </div>
+    <!-- Modo horas TxT (GP3/GP4) -->
+    <div id="bankPanelHorasTxT">
+      <div class="metrics-header">
+        <label class="metrics-year-label" for="selectBankYear">Año</label>
+        <select id="selectBankYear" class="metrics-year-select" aria-label="Año del banco de horas"></select>
+      </div>
 
-    <div class="metric metric-total">
-      <span>Total disponible (acumulado)</span>
-      <strong id="bTotalDisponible"></strong>
-    </div>
+      <div class="metric metric-total">
+        <span>Total disponible (acumulado)</span>
+        <strong id="bTotalDisponible"></strong>
+      </div>
 
-    <div class="metric">
-      <span>Extra (Anual)</span>
-      <strong id="bGeneradas"></strong>
-    </div>
+      <div class="metric">
+        <span>Extra (Anual)</span>
+        <strong id="bGeneradas"></strong>
+      </div>
 
-    <div class="metric">
-      <span>Exceso jornada (Anual)</span>
-      <strong id="bExceso"></strong>
-    </div>
+      <div class="metric">
+        <span>Exceso jornada (Anual)</span>
+        <strong id="bExceso"></strong>
+      </div>
 
-    <div class="metric">
-      <span>Negativas (Anual)</span>
-      <strong id="bNegativas"></strong>
-    </div>
+      <div class="metric">
+        <span>Negativas (Anual)</span>
+        <strong id="bNegativas"></strong>
+      </div>
 
-    <div class="metric">
-      <span>Disfrutadas (Anual)</span>
-      <strong id="bDisfrutadas"></strong>
-    </div>
+      <div class="metric">
+        <span>Disfrutadas (Anual)</span>
+        <strong id="bDisfrutadas"></strong>
+      </div>
 
-    <div class="metric">
-      <span>Disfr. h. extra (Anual)</span>
-      <strong id="bDisfruteHorasExtra"></strong>
-    </div>
+      <div class="metric">
+        <span>Disfr. h. extra (Anual)</span>
+        <strong id="bDisfruteHorasExtra"></strong>
+      </div>
 
-    <div class="metric saldo">
-      <span>Saldo Anual</span>
-      <strong id="bSaldoAnual"></strong>
-    </div>
+      <div class="metric saldo">
+        <span>Saldo Anual</span>
+        <strong id="bSaldoAnual"></strong>
+      </div>
 
-    <div class="metric saldo">
-      <span>Saldo Mensual</span>
-      <strong id="bSaldo"></strong>
+      <div class="metric saldo">
+        <span>Saldo Mensual</span>
+        <strong id="bSaldo"></strong>
+      </div>
     </div>
   </div>
 
