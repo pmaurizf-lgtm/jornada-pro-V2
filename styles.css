@@ -2051,6 +2051,32 @@ body:not(.dark) .cal-day.festivo-ferrol small {
   color: #fff;
 }
 
+.modal-elegir-gp .modal-extender-texto {
+  margin-bottom: 20px;
+}
+
+.modal-elegir-gp-botones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-elegir-gp-btn {
+  min-height: 48px;
+  padding: 14px 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text);
+  border: 2px solid var(--border);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.modal-elegir-gp-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
 .modal-pase-botones {
   flex-direction: column;
 }

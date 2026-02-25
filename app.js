@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===============================
 
   const EXTEND_PROMPT_KEY = "jornadaPro_extendPrompt";
+  const GP_ELIGIDO_KEY = "jornadaPro_modalGPShown";
 
   function getHoyISO() {
     const d = new Date();
@@ -159,6 +160,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalConfirmarFabrica = document.getElementById("modalConfirmarFabrica");
   const modalFabricaSi = document.getElementById("modalFabricaSi");
   const modalFabricaCancelar = document.getElementById("modalFabricaCancelar");
+  const modalElegirGP = document.getElementById("modalElegirGP");
+  const modalElegirGP1 = document.getElementById("modalElegirGP1");
+  const modalElegirGP2 = document.getElementById("modalElegirGP2");
+  const modalElegirGP3 = document.getElementById("modalElegirGP3");
+  const modalElegirGP4 = document.getElementById("modalElegirGP4");
   const btnRestaurarFabrica = document.getElementById("restaurarFabrica");
   const configAuthorTapTarget = document.getElementById("configAuthorTapTarget");
   const configDevMenu = document.getElementById("configDevMenu");
@@ -1460,6 +1466,7 @@ function controlarNotificaciones() {
     modalFabricaSi.addEventListener("click", async () => {
       state = createInitialState();
       saveState(state);
+      try { localStorage.removeItem(GP_ELIGIDO_KEY); } catch (e) {}
       aplicarTheme(state.config.theme);
       aplicarEstadoConfigAUI();
       cerrarModalConfirmarFabrica();
@@ -1477,6 +1484,7 @@ function controlarNotificaciones() {
       actualizarEstadoIniciarJornada();
       actualizarResumenDia();
       actualizarProgreso();
+      if (modalElegirGP) modalElegirGP.hidden = false;
     });
   }
   if (modalFabricaCancelar) {
@@ -1486,6 +1494,29 @@ function controlarNotificaciones() {
     const backdropFabrica = modalConfirmarFabrica.querySelector(".modal-extender-backdrop");
     if (backdropFabrica) backdropFabrica.addEventListener("click", cerrarModalConfirmarFabrica);
   }
+
+  function aplicarGPYcerrarModal(gp) {
+    if (!gp || !["GP1", "GP2", "GP3", "GP4"].includes(gp)) return;
+    state.config.grupoProfesional = gp;
+    saveState(state);
+    try { localStorage.setItem(GP_ELIGIDO_KEY, "1"); } catch (e) {}
+    if (modalElegirGP) modalElegirGP.hidden = true;
+    if (cfgGrupoProfesional) cfgGrupoProfesional.value = gp;
+    aplicarModoGrupoProfesional();
+    actualizarBanco();
+    actualizarGrafico();
+    renderCalendario();
+    actualizarResumenDia();
+    actualizarEstadoIniciarJornada();
+  }
+
+  [modalElegirGP1, modalElegirGP2, modalElegirGP3, modalElegirGP4].forEach(function (btn) {
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      var val = btn.getAttribute("value") || btn.value;
+      aplicarGPYcerrarModal(val);
+    });
+  });
 
   if (configAuthorTapTarget && configDevMenu) {
     let authorTapCount = 0;
@@ -2010,6 +2041,13 @@ if(festivos && festivos[fechaISO]){
   });
 
   window.addEventListener("focus", checkExtendPromptFromUrl);
+
+  // Primera vez: mostrar modal para elegir grupo profesional
+  try {
+    if (!localStorage.getItem(GP_ELIGIDO_KEY) && modalElegirGP) {
+      modalElegirGP.hidden = false;
+    }
+  } catch (e) {}
 
   // ===============================
   // REGISTRO SERVICE WORKER
