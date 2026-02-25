@@ -8,8 +8,11 @@ function parseFechaLocal(isoStr) {
 }
 
 export function calcularSaldoDia(registro) {
-  if (!registro || registro.vacaciones) {
+  if (!registro || registro.vacaciones || registro.libreDisposicion) {
     return 0;
+  }
+  if (registro.disfruteHorasExtra) {
+    return -(registro.disfruteHorasExtraMin || 0);
   }
 
   const generadas = registro.extraGeneradaMin || 0;
@@ -25,12 +28,20 @@ export function calcularResumenPeriodo(registros, filtroFn) {
   let exceso = 0;
   let negativas = 0;
   let disfrutadas = 0;
+  let disfruteHorasExtraMin = 0;
   let saldo = 0;
 
   Object.entries(registros)
     .filter(([fecha]) => filtroFn(parseFechaLocal(fecha)))
     .forEach(([_, r]) => {
-      if (r.vacaciones) return;
+      if (r.vacaciones || r.libreDisposicion) return;
+
+      if (r.disfruteHorasExtra) {
+        const min = r.disfruteHorasExtraMin || 0;
+        disfruteHorasExtraMin += min;
+        saldo -= min;
+        return;
+      }
 
       const g = r.extraGeneradaMin || 0;
       const e = r.excesoJornadaMin || 0;
@@ -49,6 +60,7 @@ export function calcularResumenPeriodo(registros, filtroFn) {
     exceso,
     negativas,
     disfrutadas,
+    disfruteHorasExtraMin,
     saldo
   };
 }

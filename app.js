@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bExceso = document.getElementById("bExceso");
   const bNegativas = document.getElementById("bNegativas");
   const bDisfrutadas = document.getElementById("bDisfrutadas");
+  const bDisfruteHorasExtra = document.getElementById("bDisfruteHorasExtra");
   const bSaldoAnual = document.getElementById("bSaldoAnual");
   const bSaldo = document.getElementById("bSaldo");
 
@@ -108,6 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnGuardar = document.getElementById("guardar");
   const btnVacaciones = document.getElementById("vacaciones");
   const btnLD = document.getElementById("ld");
+  const btnDisfruteHorasExtra = document.getElementById("disfruteHorasExtra");
   const btnIniciarJornada = document.getElementById("iniciarJornada");
   const btnExcel = document.getElementById("excel");
   const btnBackup = document.getElementById("backup");
@@ -347,6 +349,11 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     if (bExceso) bExceso.innerText = minutosAHorasMinutos(anual.exceso || 0);
     if (bNegativas) bNegativas.innerText = minutosAHorasMinutos(anual.negativas);
     if (bDisfrutadas) bDisfrutadas.innerText = minutosAHorasMinutos(anual.disfrutadas);
+    if (bDisfruteHorasExtra) {
+      const dhe = anual.disfruteHorasExtraMin ?? 0;
+      bDisfruteHorasExtra.innerText = dhe === 0 ? "0h" : "\u2212" + minutosAHorasMinutos(dhe);
+      bDisfruteHorasExtra.style.color = dhe > 0 ? "var(--negative)" : "";
+    }
     if (bSaldoAnual) {
       bSaldoAnual.innerText = minutosAHorasMinutos(anual.saldo);
       bSaldoAnual.style.color = anual.saldo >= 0 ? "var(--positive)" : "var(--negative)";
@@ -896,6 +903,7 @@ function controlarNotificaciones() {
       trabajoATurnos: state.config.trabajoATurnos === true
     });
 
+    var yaPaseSinJustificado = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
     state.registros[fecha.value] = {
       ...resultado,
       entrada: entrada.value,
@@ -903,6 +911,7 @@ function controlarNotificaciones() {
       disfrutadasManualMin: Number(disfrutadas.value) || 0,
       vacaciones: false
     };
+    if (yaPaseSinJustificado) state.registros[fecha.value].paseSinJustificado = true;
 
     saveState(state);
     limpiarBorradorSesion();
@@ -1124,6 +1133,7 @@ function controlarNotificaciones() {
       trabajoATurnos: state.config.trabajoATurnos === true
     });
 
+    var yaPaseSinJustificadoGuardar = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
     state.registros[fecha.value] = {
       ...resultado,
       entrada: entrada.value,
@@ -1131,6 +1141,7 @@ function controlarNotificaciones() {
       disfrutadasManualMin: Number(disfrutadas.value)||0,
       vacaciones: false
     };
+    if (yaPaseSinJustificadoGuardar) state.registros[fecha.value].paseSinJustificado = true;
 
     saveState(state);
     if (fecha.value === getHoyISO()) limpiarBorradorSesion();
@@ -1216,6 +1227,36 @@ function controlarNotificaciones() {
       disfrutadasManualMin: 0,
       libreDisposicion: true,
       ldDiaAnioDescontado: anioDescontado
+    };
+
+    saveState(state);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+  };
+
+  if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.onclick = () => {
+    if (!fecha || !fecha.value) return;
+    if (state.registros[fecha.value]?.vacaciones || state.registros[fecha.value]?.libreDisposicion) return;
+    if (state.registros[fecha.value]?.disfruteHorasExtra) return;
+
+    const jornadaMin = state.config.trabajoATurnos ? 8 * 60 : (state.config.jornadaMin || 480);
+    state.registros[fecha.value] = {
+      entrada: null,
+      salidaReal: null,
+      trabajadosMin: 0,
+      salidaTeoricaMin: 0,
+      salidaAjustadaMin: 0,
+      extraGeneradaMin: 0,
+      negativaMin: 0,
+      excesoJornadaMin: 0,
+      disfrutadasManualMin: 0,
+      disfruteHorasExtra: true,
+      disfruteHorasExtraMin: jornadaMin,
+      vacaciones: false
     };
 
     saveState(state);
@@ -1369,7 +1410,8 @@ function controlarNotificaciones() {
     if (!finalizarJornadaWrap) return;
     const esVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
     const esLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
-    if (esVacaciones || esLD) {
+    const esDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
+    if (esVacaciones || esLD || esDisfruteHorasExtra) {
       finalizarJornadaWrap.classList.add("finalizar-slider-wrap--disabled");
       finalizarJornadaWrap.setAttribute("aria-disabled", "true");
       return;
@@ -1382,14 +1424,16 @@ function controlarNotificaciones() {
   function actualizarEstadoIniciarJornada() {
     const esDiaVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
     const esDiaLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
-    const esDiaNoTrabajable = esDiaVacaciones || esDiaLD;
+    const esDiaDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
+    const esDiaNoTrabajable = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra;
     if (entrada) entrada.disabled = esDiaNoTrabajable;
     if (salida) salida.disabled = esDiaNoTrabajable;
     if (minAntes) minAntes.disabled = esDiaNoTrabajable;
     if (disfrutadas) disfrutadas.disabled = esDiaNoTrabajable;
     if (btnGuardar) btnGuardar.disabled = esDiaNoTrabajable;
-    if (btnVacaciones) btnVacaciones.disabled = esDiaLD;
-    if (btnLD) btnLD.disabled = esDiaVacaciones;
+    if (btnVacaciones) btnVacaciones.disabled = esDiaLD || esDiaDisfruteHorasExtra;
+    if (btnLD) btnLD.disabled = esDiaVacaciones || esDiaDisfruteHorasExtra;
+    if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.disabled = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra;
 
     if (esDiaNoTrabajable) {
       if (btnIniciarJornada) btnIniciarJornada.disabled = true;
@@ -1453,15 +1497,65 @@ if (btnExcel) {
       return;
     }
 
+    var early = state.earlyExitState || null;
+    var paseHasta = state.paseJustificadoHasta || null;
+    var extJornada = state.extensionJornada || null;
+
     const rows = Object.entries(state.registros)
-      .map(([f, r]) => ({
-        Fecha: f,
-        Generadas: (r.extraGeneradaMin || 0) / 60,
-        "Exceso jornada": (r.excesoJornadaMin || 0) / 60,
-        Negativas: (r.negativaMin || 0) / 60,
-        Disfrutadas: (r.disfrutadasManualMin || 0) / 60,
-        Vacaciones: r.vacaciones ? "Sí" : "No"
-      }));
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([f, r]) => {
+        var horaEntrada = "";
+        var horaSalida = "";
+        var horaPaseSalida = "";
+        var tipoPase = "";
+        var continuacionJornada = "";
+        var tipoDia = "Jornada";
+
+        if (r.vacaciones) {
+          tipoDia = "Vacaciones";
+        } else if (r.libreDisposicion) {
+          tipoDia = "Libre disposición";
+        } else if (r.disfruteHorasExtra) {
+          tipoDia = "Disfr. h. extra";
+        } else {
+          horaEntrada = r.entrada || "";
+          horaSalida = r.salidaReal != null ? r.salidaReal : "";
+          if (r.paseSinJustificado === true) {
+            tipoPase = "Sin justificar";
+            if (early && early.fecha === f && early.salidaAt) horaPaseSalida = early.salidaAt;
+            else if (horaSalida) horaPaseSalida = horaSalida;
+          } else if (paseHasta && paseHasta.fecha === f && paseHasta.salidaAt) {
+            tipoPase = "Justificado";
+            horaPaseSalida = paseHasta.salidaAt;
+          } else if (early && early.fecha === f) {
+            tipoPase = "Sin justificar";
+            horaPaseSalida = early.salidaAt || "";
+          }
+          if ((r.extraGeneradaMin || 0) > 0 || (r.excesoJornadaMin || 0) > 0) {
+            continuacionJornada = "Sí";
+            if (extJornada && extJornada.fecha === f && extJornada.desdeTime) {
+              continuacionJornada = "Sí (desde " + extJornada.desdeTime + ")";
+            }
+          }
+        }
+
+        return {
+          Fecha: f,
+          "Tipo día": tipoDia,
+          "Hora entrada": horaEntrada,
+          "Hora salida": horaSalida,
+          "Hora pase salida": horaPaseSalida,
+          "Tipo pase": tipoPase,
+          "Continuación jornada": continuacionJornada,
+          Generadas: (r.extraGeneradaMin || 0) / 60,
+          "Exceso jornada": (r.excesoJornadaMin || 0) / 60,
+          Negativas: (r.negativaMin || 0) / 60,
+          Disfrutadas: (r.disfrutadasManualMin || 0) / 60,
+          Vacaciones: r.vacaciones ? "Sí" : "No",
+          "Libre disposición": r.libreDisposicion ? "Sí" : "No",
+          "Disfr. h. extra": r.disfruteHorasExtra ? "Sí" : "No"
+        };
+      });
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(rows);
@@ -1636,6 +1730,10 @@ if(festivos && festivos[fechaISO]){
 
         div.innerHTML += `<span class="cal-day-vacaciones" aria-label="Vacaciones">🏖️</span>`;
 
+      } else if (registro.disfruteHorasExtra) {
+
+        div.innerHTML += `<span class="cal-day-disfrute-horas" aria-label="Disfrute horas extra">⏳</span>`;
+
       } else {
 
         const extra = registro.extraGeneradaMin || 0;
@@ -1692,7 +1790,7 @@ if(festivos && festivos[fechaISO]){
     const registro = state.registros[fechaISO];
     const set = (el, val) => { if (el) el.value = val; };
     if (registro) {
-      if (registro.vacaciones || registro.libreDisposicion) {
+      if (registro.vacaciones || registro.libreDisposicion || registro.disfruteHorasExtra) {
         set(entrada, ""); set(salida, ""); set(disfrutadas, "0"); set(minAntes, "0");
       } else {
         set(entrada, registro.entrada || "");

@@ -848,12 +848,17 @@ body.dark .cal-empty {
   line-height: 1;
 }
 
-.cal-day-vacaciones {
+.cal-day-vacaciones,
+.cal-day-disfrute-horas {
   display: block;
   font-size: 2rem;
   line-height: 1;
   margin-top: 2px;
   text-align: center;
+}
+
+.cal-day-disfrute-horas {
+  font-size: 2.2rem;
 }
 
 body.dark .cal-day {
@@ -1220,6 +1225,33 @@ button:disabled {
 body.dark .btn-ld {
   background: #f59e0b;
   color: #1f2937;
+}
+
+.btn-disfrute-horas {
+  background: #7c3aed;
+  color: #ffffff;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-disfrute-horas:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-disfrute-horas:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+body.dark .btn-disfrute-horas {
+  background: #8b5cf6;
+  color: #ffffff;
 }
 
 /* ============================= */
