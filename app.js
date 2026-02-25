@@ -389,6 +389,8 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     return total;
   }
 
+  const mainGrid = document.getElementById("mainGrid");
+
   function aplicarModoGrupoProfesional() {
     const modoMin = esModoMinutosSemanal();
     if (bankPanelMinutosSemana) bankPanelMinutosSemana.hidden = !modoMin;
@@ -399,6 +401,8 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
     if (wrapDisfrutadas) wrapDisfrutadas.style.display = modoMin ? "none" : "";
     if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.style.display = modoMin ? "none" : "";
     if (chartCard) chartCard.style.display = modoMin ? "none" : "";
+    if (mainGrid) mainGrid.classList.toggle("main-grid--full", modoMin);
+    if (bankTabHoras) bankTabHoras.textContent = modoMin ? "Tiempo Exceso Jornada" : "Horas TxT";
     if (modoMin && minAntes) minAntes.value = "0";
     if (modoMin && disfrutadas) disfrutadas.value = "0";
   }

@@ -584,6 +584,28 @@ body.dark .bank-tab.bank-tab--active {
   padding: 20px 0 0 0;
 }
 
+/* Pestaña Horas TxT (GP3/GP4): métricas en fila horizontal */
+#bankPanelHoras #bankPanelHorasTxT {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px 20px;
+  width: 100%;
+}
+
+#bankPanelHoras #bankPanelHorasTxT .metrics-header {
+  flex-basis: 100%;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+#bankPanelHoras #bankPanelHorasTxT .metric {
+  flex: 1 1 auto;
+  min-width: 90px;
+}
+
 .bank-vacaciones-ld-wrap {
   display: flex;
   align-items: stretch;
@@ -747,6 +769,10 @@ body.dark .metric {
   margin: 0 16px;
   margin-left: max(16px, var(--safe-left));
   margin-right: max(16px, var(--safe-right));
+}
+
+.main-grid.main-grid--full {
+  grid-template-columns: 1fr;
 }
 
 /* ============================= */
@@ -1393,12 +1419,195 @@ body.dark .progress-wrapper {
 }
 
 /* ============================= */
-/* RESPONSIVE                    */
+/* RESPONSIVE – MÓVIL            */
 /* ============================= */
 
 @media (max-width: 1000px) {
   .main-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Vista móvil: alineación, proporciones y espaciado consistente */
+@media (max-width: 768px) {
+  body {
+    padding-left: max(12px, var(--safe-left));
+    padding-right: max(12px, var(--safe-right));
+    overflow-x: hidden;
+  }
+
+  header.header {
+    padding: 12px 16px;
+    padding-top: max(12px, var(--safe-top));
+    gap: 12px;
+  }
+
+  .header-title {
+    font-size: clamp(0.9rem, 4vw, 1.15rem);
+    line-height: 1.2;
+  }
+
+  .header-logo {
+    height: 36px;
+    max-height: 40px;
+  }
+
+  .card {
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 16px;
+  }
+
+  .main-grid {
+    margin-left: 0;
+    margin-right: 0;
+    gap: 12px;
+  }
+
+  .form-card.registro-card h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .floating-group input {
+    padding: 14px 10px 6px 10px;
+    font-size: 16px; /* evita zoom automático en iOS al enfocar */
+    min-height: 44px;
+  }
+
+  .jornada-acciones {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .btn-jornada {
+    padding: 14px 16px;
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+
+  .acciones-row {
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
+  }
+
+  .acciones-row button {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    flex: 1 1 120px;
+    max-width: 50%;
+  }
+
+  .salidas-card {
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+
+  .salida-box {
+    padding: 12px;
+    min-height: 52px;
+  }
+
+  .progress-wrapper {
+    margin-top: 14px;
+    height: 26px;
+  }
+
+  .resumen-dia {
+    gap: 8px 16px;
+    padding-top: 12px;
+  }
+
+  .resumen-line {
+    min-width: 0;
+  }
+
+  .calendar-card {
+    padding: 14px;
+    min-height: 260px;
+  }
+
+  .cal-nav {
+    margin-bottom: 8px;
+  }
+
+  .cal-nav button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+  }
+
+  .cal-day {
+    min-height: 56px;
+    padding: 6px;
+    font-size: 13px;
+  }
+
+  .cal-header {
+    font-size: 0.75rem;
+    padding: 6px 0;
+  }
+
+  .calendar-grid {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .metrics {
+    padding: 16px;
+  }
+
+  .bank-tabs {
+    gap: 0;
+  }
+
+  .bank-tab {
+    flex: 1;
+    min-height: 44px;
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+
+  .bank-panel.bank-panel--active {
+    padding: 16px 0 0 0;
+  }
+
+  #bankPanelHoras #bankPanelHorasTxT .metric {
+    min-width: 80px;
+  }
+
+  .config-panel {
+    max-width: 100%;
+  }
+
+  .config-panel-inner {
+    padding: max(var(--safe-top), 12px) 16px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones-row button {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  .cal-day {
+    min-height: 52px;
+    font-size: 12px;
   }
 }
 
