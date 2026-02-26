@@ -2142,3 +2142,17 @@ body:not(.dark) .cal-day.festivo-ferrol small {
   border: 1px solid var(--border);
   width: 100%;
 }
+
+.modal-pase-fin-jornada {
+  background: rgba(59, 130, 246, 0.25);
+  color: var(--text);
+  border: 1px solid var(--accent, #3b82f6);
+  width: 100%;
+}
+
+.bolsa-experimental {
+  display: block;
+  font-size: 0.7em;
+  font-weight: normal;
+  opacity: 0.85;
+}

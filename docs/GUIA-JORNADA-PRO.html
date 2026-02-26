@@ -73,82 +73,68 @@
   <hr>
 
   <h2>1. Introducción</h2>
-  <p>Jornada Pro es una aplicación para el control de la jornada laboral: registrar entradas y salidas, calcular horas trabajadas, horas extra, excesos y negativas, y mantener un banco de horas. Está pensada para uso en NAVANTIA (Ferrol), con soporte para turnos y festivos locales.</p>
+  <p>Jornada Pro es una aplicación para el control de la jornada laboral: registrar entradas y salidas, calcular horas trabajadas, horas extra, excesos y negativas, y mantener un banco de horas o un banco de minutos semanal según tu grupo profesional. Está pensada para uso en NAVANTIA (Ferrol), con soporte para turnos y festivos locales.</p>
+  <p>La aplicación ofrece <strong>dos modos</strong> según el <strong>grupo profesional</strong> (GP1–GP4): <strong>GP1/GP2</strong> = banco de minutos semanal (lunes a domingo); <strong>GP3/GP4</strong> = Horas TxT (banco de horas anual, con reglas especiales para fines de semana y festivos).</p>
   <p>Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y restaurar desde el menú de configuración.</p>
 
-  <h2>2. Pantalla principal</h2>
+  <h2>2. Grupo profesional (GP1–GP4)</h2>
+  <p>La primera vez (o si no tienes grupo asignado) se muestra un <strong>modal para elegir grupo profesional</strong>: GP1, GP2, GP3 o GP4. Puedes cambiarlo en <strong>Configuración → Datos personales → Grupo Profesional</strong>.</p>
   <ul>
-    <li><strong>Cabecera:</strong> título de la app, logo y botón de menú (☰) para abrir Configuración.</li>
-    <li><strong>Registro diario:</strong> formulario con fecha, entrada, salida y acciones (Iniciar jornada, Finalizar, Guardar, Vacaciones, Eliminar).</li>
-    <li><strong>Salidas teórica y ajustada:</strong> se calculan en función de la jornada configurada.</li>
-    <li><strong>Barra de progreso:</strong> indica el avance del día respecto a la jornada nominal.</li>
-    <li><strong>Resumen del día:</strong> horas trabajadas, extra, exceso y negativa (en horas y minutos y en decimal).</li>
-    <li><strong>Calendario:</strong> vista mensual con registros, saldos y días festivos.</li>
-    <li><strong>Banco de horas:</strong> total disponible, generadas, exceso, negativas, disfrutadas y saldo anual.</li>
-    <li><strong>Gráfico:</strong> evolución del banco en el año seleccionado.</li>
+    <li><strong>GP1/GP2:</strong> modo banco de minutos semanal; no hay Extender jornada ni gráfico; no se muestran Disfrutadas ni Disfr. TxT.</li>
+    <li><strong>GP3/GP4:</strong> modo Horas TxT (banco anual), Extender jornada, gráfico, Horas disfrutadas (min), botón Disfr. TxT y reglas de TxT para fines de semana y festivos.</li>
   </ul>
 
-  <h2>3. Registro diario</h2>
-
-  <h3>3.1 Iniciar la jornada</h3>
-  <ol>
-    <li>Selecciona la <strong>fecha</strong> del día (por defecto es hoy).</li>
-    <li>Pulsa <strong>«Iniciar jornada»</strong>. Se rellenará automáticamente la <strong>hora de entrada</strong> con la hora actual (o la de inicio del turno si tienes turnos configurados).</li>
-    <li>Puedes ajustar manualmente la entrada si lo necesitas.</li>
-  </ol>
-  <p>Solo puede haber una jornada «iniciada» al día. Si ya has finalizado la jornada y pasas del fin teórico, el botón cambiará a <strong>«Extender jornada»</strong>.</p>
-
-  <h3>3.2 Finalizar la jornada</h3>
-  <p>Cuando tengas entrada puesta y quieras dar por terminado el día: usa el <strong>control deslizante</strong> «Desliza para finalizar jornada» (arrastra hasta el final y suelta). La app pondrá la hora de salida real y guardará el registro. El control solo está activo si hay una jornada en curso.</p>
-
-  <h3>3.3 Pase de salida</h3>
-  <p>Si intentas finalizar o guardar con una hora de salida <strong>anterior al fin teórico</strong>, se abre un modal con dos opciones:</p>
+  <h2>3. Pantalla principal</h2>
   <ul>
-    <li><strong>Pase justificado:</strong> la jornada se considera completada hasta el fin teórico y se cierra automáticamente.</li>
-    <li><strong>Pase sin justificar:</strong> se registra la salida y se descuenta del banco el tiempo no trabajado. Puedes usar «Continuar jornada» más tarde para reanudar.</li>
+    <li><strong>Cabecera:</strong> título, logo y menú (☰) para Configuración.</li>
+    <li><strong>Registro diario:</strong> fecha, entrada, salida; acciones: Iniciar jornada, Finalizar, Guardar, Vacaciones, LD, Disfr. TxT (solo GP3/GP4), Eliminar.</li>
+    <li><strong>Salidas teórica y ajustada</strong> y <strong>barra de progreso</strong> (en GP3/GP4 en extensión muestra horas extra).</li>
+    <li><strong>Resumen del día:</strong> GP3/GP4 = trabajado, extra, exceso, negativa; GP1/GP2 = trabajado, banco minutos (semana), hoy (delta).</li>
+    <li><strong>Calendario:</strong> vista mensual; indicadores según modo (saldos día o semana).</li>
+    <li><strong>Banco:</strong> pestaña «Horas TxT» (o «Banco minutos» en GP1/GP2) y pestaña «Vacaciones/LD».</li>
+    <li><strong>Gráfico:</strong> solo GP3/GP4.</li>
   </ul>
 
-  <h3>3.4 Continuar jornada</h3>
-  <p>Tras un pase, el botón <strong>«Continuar jornada»</strong> permite reabrir el día para seguir registrando.</p>
+  <h2>4. Registro diario</h2>
+  <h3>4.1 Iniciar la jornada</h3>
+  <p>Selecciona fecha, pulsa <strong>«Iniciar jornada»</strong> (se rellena la entrada). En GP3/GP4, si ya finalizaste y pasas del fin teórico, el botón pasa a <strong>«Extender jornada»</strong>; en GP1/GP2 no se ofrece extensión.</p>
+  <h3>4.2 Finalizar la jornada</h3>
+  <p>Usa el control deslizante «Desliza para finalizar jornada». La app guarda la salida real y el registro.</p>
+  <h3>4.3 Pase de salida</h3>
+  <p>Si la salida es anterior al fin teórico: modal con <strong>Pase justificado</strong> (jornada completada hasta fin teórico) o <strong>Pase sin justificar</strong> (se descuenta el tiempo no trabajado; puedes «Continuar jornada» después).</p>
+  <h3>4.4 Continuar jornada / 4.5 Extender jornada (solo GP3/GP4)</h3>
+  <p>Tras un pase, <strong>«Continuar jornada»</strong> reabre el día. Cuando la jornada nominal ha terminado, la app puede preguntar si vas a extender; <strong>Sí</strong> = el tiempo extra cuenta en bloques de 15 min. Botón «Extender jornada» si ya cerraste el mismo día. Hasta 23:59.</p>
+  <h3>4.6 Guardar</h3>
+  <p>Fecha, entrada, salida (y «Salir antes» en GP3/GP4) → <strong>«Guardar»</strong>. En GP3/GP4, si el día es sábado, domingo o festivo, se aplican las reglas de TxT (ver sección 10).</p>
+  <h3>4.7 Vacaciones / 4.8 Libre Disposición (LD) / 4.9 Disfr. TxT (solo GP3/GP4)</h3>
+  <p><strong>Vacaciones:</strong> marca el día (icono playa); se descuenta del banco de vacaciones. <strong>LD:</strong> marca día de Libre Disposición; la primera vez en un año pide el número de días LD. <strong>Disfr. TxT:</strong> descuenta una jornada completa del banco de horas.</p>
+  <h3>4.10 Eliminar / 4.11 Otros campos</h3>
+  <p><strong>Eliminar</strong> borra el registro (si era vacaciones/LD, se devuelve el día al banco). <strong>Salir antes (min)</strong> y <strong>Horas disfrutadas (min)</strong> solo GP3/GP4.</p>
 
-  <h3>3.5 Extender jornada (horas extra)</h3>
-  <p>Cuando la jornada nominal ha terminado, la app puede preguntar «¿Vas a extender la jornada?». <strong>Sí</strong>: el tiempo que sigas se contará como horas extra (en bloques de 15 minutos). <strong>No</strong>: se cierra el día con la salida teórica. Si ya cerraste el día, el botón «Extender jornada» reabre el día en modo extensión. La extensión solo es posible hasta las 23:59.</p>
+  <h2>5. Calendario</h2>
+  <p>Mes con celdas por día. Indicadores: ✓ = completada; +X.Xh / −X.Xh (TxT) o banco semana/delta (minutos); Disfr. X.Xh; 🏖️ = vacaciones. Festivos resaltados; pulsar muestra el nombre.</p>
 
-  <h3>3.6 Guardar (registro manual)</h3>
-  <p>Rellena fecha, entrada y salida y pulsa <strong>«Guardar»</strong> para guardar o modificar el registro sin usar Iniciar/Finalizar.</p>
+  <h2>6. Banco de horas / Banco de minutos</h2>
+  <p><strong>Pestaña Horas TxT (o Banco minutos):</strong> GP1/GP2 = solo banco de minutos de la semana. GP3/GP4 = total disponible, generadas, exceso, negativas, disfrutadas, Disfr. h. extra, saldo anual/mensual; año seleccionable. Saldo previo y «Resetear saldo previo» en Configuración de jornada (GP3/GP4). <strong>Pestaña Vacaciones/LD:</strong> días de vacaciones (año curso y anterior) y días LD del año en curso.</p>
 
-  <h3>3.7 Vacaciones</h3>
-  <p>Con el día seleccionado, pulsa <strong>«Vacaciones»</strong>. Ese día queda marcado (icono de playa en el calendario). En un día de vacaciones no se pueden usar los controles de entrada/salida ni Iniciar/Finalizar. Usa «Eliminar» en ese día para quitar la marca.</p>
+  <h2>7. Gráfico</h2>
+  <p>Evolución del banco de horas en el año. Solo visible en GP3/GP4.</p>
 
-  <h3>3.8 Eliminar registro del día</h3>
-  <p>Con el día seleccionado, pulsa <strong>«Eliminar»</strong>. Tras confirmar, se borra todo el registro de ese día.</p>
+  <h2>8. Configuración</h2>
+  <p>Menú (☰). <strong>Datos personales:</strong> nombre, número SAP, centro de coste, <strong>Grupo Profesional</strong> (GP1–GP4). <strong>Configuración aplicación:</strong> tema, notificaciones, aviso antes de terminar. <strong>Configuración jornada:</strong> jornada (min), turnos, turno, horas extra previas, exceso previo, resetear saldo (GP3/GP4). <strong>Copia y seguridad:</strong> Exportar Excel, Backup, Restaurar, Restaurar valores de fábrica. Pulsa <strong>«Guardar configuración»</strong>.</p>
 
-  <h3>3.9 Otros campos</h3>
-  <p><strong>Salir antes (minutos):</strong> minutos que sales antes de la salida teórica. <strong>Horas disfrutadas (min):</strong> horas de banco que disfrutas ese día.</p>
+  <h2>9. Notificaciones</h2>
+  <p>Aviso antes del fin teórico y al llegar al fin teórico. Solo con la app abierta en primer plano.</p>
 
-  <h2>4. Calendario</h2>
-  <p>Muestra el mes. Pulsando en un día lo seleccionas y se cargan sus datos en el formulario. Indicadores: <strong>triángulo verde con ✓</strong> = jornada completada; <strong>+X.Xh / −X.Xh</strong> = saldo del día; <strong>Disfr. X.Xh</strong> = horas disfrutadas; <strong>icono de playa</strong> = vacaciones. Festivos resaltados; pulsar en uno muestra su nombre.</p>
-
-  <h2>5. Banco de horas</h2>
-  <p>Total disponible, generadas, exceso, negativas, disfrutadas y saldo anual. Puedes cambiar el año con el selector. El saldo inicial se configura en Configuración → Configuración de jornada. «Resetear saldo previo» pone a cero horas extra y exceso previos.</p>
-
-  <h2>6. Gráfico</h2>
-  <p>Muestra la evolución del banco de horas a lo largo del año seleccionado.</p>
-
-  <h2>7. Configuración</h2>
-  <p>Se abre desde el menú (☰). Bloques desplegables:</p>
+  <h2>10. Horas TxT en fines de semana y festivos (GP3/GP4)</h2>
+  <p>Al guardar/finalizar en <strong>sábado, domingo o festivo</strong> se aplican automáticamente:</p>
   <ul>
-    <li><strong>Datos personales:</strong> nombre completo, número SAP (8 cifras).</li>
-    <li><strong>Configuración de la aplicación:</strong> tema (Claro/Oscuro), notificaciones, aviso antes de terminar (min). Las notificaciones solo funcionan con la app abierta.</li>
-    <li><strong>Configuración de jornada:</strong> jornada (min), trabajo a turnos, turno, horas extra previas, exceso previo, resetear saldo previo.</li>
-    <li><strong>Copia de datos y seguridad:</strong> Exportar Excel, Backup, Restaurar, Restaurar valores de fábrica.</li>
+    <li><strong>Sábado:</strong> Mañana (&lt;14:00): &lt;6 h → 1:1; ≥6 h → horas+2. Tarde (≥14:00): &lt;6 h → 1:1; ≥6 h → horas+6. Día completo: horas+6 (ej. 06:00–18:00 → 18 h TxT).</li>
+    <li><strong>Domingo:</strong> Mañana: &lt;6 h → 1:1; ≥6 h → horas+10. Tarde: &lt;6 h → 1:1; ≥6 h → horas+14. Día completo: horas+14 (ej. 06:00–18:00 → 26 h TxT).</li>
+    <li><strong>Festivos:</strong> 1 h TxT por hora trabajada (1:1).</li>
   </ul>
-  <p>Después de cambiar opciones, pulsa <strong>«Guardar configuración»</strong>.</p>
 
-  <h2>8. Notificaciones</h2>
-  <p>Aviso antes del fin teórico y aviso al llegar al fin teórico. Solo se muestran con la aplicación abierta en primer plano.</p>
-
-  <h2>9. Resumen rápido</h2>
+  <h2>11. Resumen rápido</h2>
   <table>
     <thead>
       <tr><th>Acción</th><th>Dónde</th></tr>
@@ -157,11 +143,13 @@
       <tr><td>Empezar el día</td><td>Iniciar jornada</td></tr>
       <tr><td>Terminar el día</td><td>Deslizar para finalizar jornada</td></tr>
       <tr><td>Salir antes de hora</td><td>Modal → Pase justificado / sin justificar</td></tr>
-      <tr><td>Seguir después del fin teórico</td><td>Extender jornada</td></tr>
+      <tr><td>Seguir después del fin teórico (GP3/GP4)</td><td>Extender jornada</td></tr>
       <tr><td>Guardar a mano un día</td><td>Rellenar fecha, entrada, salida → Guardar</td></tr>
       <tr><td>Marcar vacaciones</td><td>Vacaciones</td></tr>
+      <tr><td>Marcar Libre Disposición</td><td>LD</td></tr>
+      <tr><td>Disfrutar horas del banco (GP3/GP4)</td><td>Disfr. TxT</td></tr>
       <tr><td>Borrar el día</td><td>Eliminar (con confirmación)</td></tr>
-      <tr><td>Cambiar tema, notificaciones, jornada</td><td>Menú ☰ → Configuración</td></tr>
+      <tr><td>Cambiar grupo, tema, notificaciones, jornada</td><td>Menú ☰ → Configuración</td></tr>
       <tr><td>Exportar datos</td><td>Configuración → Exportar Excel / Backup</td></tr>
       <tr><td>Dejar la app como nueva</td><td>Configuración → Restaurar valores de fábrica</td></tr>
     </tbody>

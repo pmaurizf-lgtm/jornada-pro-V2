@@ -4,7 +4,7 @@
 
 import { loadState, saveState, exportBackup, importBackup } from "./core/storage.js";
 import { createInitialState } from "./core/state.js";
-import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15 } from "./core/calculations.js";
+import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15, calcularTxTFinDeSemanaYFestivos } from "./core/calculations.js";
 import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
@@ -154,6 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalPaseSalida = document.getElementById("modalPaseSalida");
   const modalPaseJustificado = document.getElementById("modalPaseJustificado");
   const modalPaseSinJustificar = document.getElementById("modalPaseSinJustificar");
+  const modalPaseFinJornada = document.getElementById("modalPaseFinJornada");
   const modalConfirmarEliminar = document.getElementById("modalConfirmarEliminar");
   const modalEliminarSi = document.getElementById("modalEliminarSi");
   const modalEliminarCancelar = document.getElementById("modalEliminarCancelar");
@@ -369,6 +370,23 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
   function esModoMinutosSemanal() {
     const gp = state.config.grupoProfesional || "";
     return gp === "GP1" || gp === "GP2";
+  }
+
+  /** Aplica reglas TxT fin de semana/festivo (solo GP3/GP4). Si el día es sábado, domingo o festivo, sustituye extra/exceso por el TxT calculado. */
+  function aplicarTxTSiFinDeSemanaOFestivo(registro, fechaISO) {
+    if (esModoMinutosSemanal()) return registro;
+    const festivos = obtenerFestivos(fechaISO.slice(0, 4));
+    const esFestivo = !!(festivos && festivos[fechaISO]);
+    const [y, mo, d] = fechaISO.split("-").map(Number);
+    const dow = new Date(y, mo - 1, d).getDay();
+    if (dow !== 0 && dow !== 6 && !esFestivo) return registro;
+    const entrada = registro.entrada;
+    const salidaReal = registro.salidaReal;
+    const trabajadosMin = registro.trabajadosMin || 0;
+    if (!entrada || !salidaReal || trabajadosMin <= 0) return registro;
+    const txTMin = calcularTxTFinDeSemanaYFestivos(fechaISO, entrada, salidaReal, trabajadosMin, esFestivo);
+    if (txTMin == null) return registro;
+    return { ...registro, extraGeneradaMin: txTMin, excesoJornadaMin: 0 };
   }
 
   /** Para GP1/GP2: lunes (1) a domingo (7). Devuelve [lunesISO, domingoISO] de la semana que contiene fechaISO. */
@@ -776,6 +794,7 @@ function controlarNotificaciones() {
   }
 
   function comprobarExtenderJornada() {
+    if (esModoMinutosSemanal()) return;
     if (!fecha || !entrada || !fecha.value || !entrada.value) return;
     const hoy = getHoyISO();
     if (fecha.value !== hoy) return;
@@ -866,6 +885,21 @@ function controlarNotificaciones() {
       actualizarEstadoIniciarJornada();
     });
   }
+  if (modalPaseFinJornada) {
+    modalPaseFinJornada.addEventListener("click", () => {
+      const salidaVal = (pendingPaseSalida && pendingPaseSalida.salidaValue) || ahoraHoraISO();
+      if (salida) salida.value = salidaVal;
+      const fechaClave = fecha && fecha.value ? fecha.value : hoyISO();
+      ejecutarFinalizarJornada();
+      saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      cerrarModalPaseSalida();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+    });
+  }
   if (modalPaseSalida) {
     const backdropPase = modalPaseSalida.querySelector(".modal-extender-backdrop");
     if (backdropPase) backdropPase.addEventListener("click", cerrarModalPaseSalida);
@@ -935,6 +969,7 @@ function controlarNotificaciones() {
   function abrirModalPaseSalida(salidaValue) {
     if (!modalPaseSalida) return;
     pendingPaseSalida = { salidaValue: salidaValue || ahoraHoraISO() };
+    if (modalPaseFinJornada) modalPaseFinJornada.hidden = !esModoMinutosSemanal();
     modalPaseSalida.hidden = false;
   }
 
@@ -1033,13 +1068,13 @@ function controlarNotificaciones() {
     });
 
     var yaPaseSinJustificado = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
-    state.registros[fecha.value] = {
+    state.registros[fecha.value] = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
       entrada: entrada.value,
       salidaReal: salida.value || null,
       disfrutadasManualMin: Number(disfrutadas.value) || 0,
       vacaciones: false
-    };
+    }, fecha.value);
     if (yaPaseSinJustificado) state.registros[fecha.value].paseSinJustificado = true;
 
     saveState(state);
@@ -1263,13 +1298,13 @@ function controlarNotificaciones() {
     });
 
     var yaPaseSinJustificadoGuardar = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
-    state.registros[fecha.value] = {
+    state.registros[fecha.value] = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
       entrada: entrada.value,
       salidaReal: salida.value || null,
       disfrutadasManualMin: Number(disfrutadas.value)||0,
       vacaciones: false
-    };
+    }, fecha.value);
     if (yaPaseSinJustificadoGuardar) state.registros[fecha.value].paseSinJustificado = true;
 
     saveState(state);
@@ -2028,6 +2063,7 @@ if(festivos && festivos[fechaISO]){
   }
 
   function checkExtendPromptFromUrl() {
+    if (esModoMinutosSemanal()) return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("extend_prompt") !== "1") return;
     const hoy = getHoyISO();

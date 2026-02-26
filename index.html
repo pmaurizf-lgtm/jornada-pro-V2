@@ -52,6 +52,7 @@
     <div class="modal-extender-botones modal-pase-botones">
       <button type="button" id="modalPaseJustificado" class="modal-extender-btn modal-pase-justificado">Pase de salida justificado</button>
       <button type="button" id="modalPaseSinJustificar" class="modal-extender-btn modal-pase-sinjustificar">Pase de salida sin justificar</button>
+      <button type="button" id="modalPaseFinJornada" class="modal-extender-btn modal-pase-fin-jornada" hidden>Fin de jornada</button>
     </div>
   </div>
 </div>
@@ -375,7 +376,7 @@
       <strong id="rTrabajadoMin">--</strong>
     </div>
     <div class="resumen-line">
-      <span>Banco minutos (semana)</span>
+      <span class="resumen-label-bolsa">Bolsa de autorregulación <small class="bolsa-experimental">(implantación experimental)</small></span>
       <strong id="rBancoMinutosSemana">--</strong>
     </div>
     <div class="resumen-line">
@@ -417,12 +418,12 @@
     <button type="button" id="bankTabVacaciones" class="bank-tab" role="tab" aria-selected="false">Vacaciones/LD</button>
   </div>
 
-  <!-- Pestaña Horas TxT (GP3/GP4) o Banco minutos (GP1/GP2) -->
+  <!-- Pestaña Horas TxT (GP3/GP4) o Bolsa de autorregulación (GP1/GP2) -->
   <div id="bankPanelHoras" class="bank-panel bank-panel--active" role="tabpanel">
     <!-- Modo minutos semanal (GP1/GP2) -->
     <div id="bankPanelMinutosSemana" class="bank-panel-minutos" hidden>
       <div class="metric metric-total">
-        <span>Banco de minutos (esta semana)</span>
+        <span class="metric-label-bolsa">Bolsa de autorregulación <small class="bolsa-experimental">(implantación experimental)</small></span>
         <strong id="bBancoMinutosSemana">0h</strong>
       </div>
     </div>
