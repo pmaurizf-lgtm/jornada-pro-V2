@@ -280,6 +280,9 @@ function closeConfigPanel() {
 
 if (btnMenuConfig) btnMenuConfig.addEventListener("click", toggleConfigPanel);
 if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConfigPanel);
+
+const btnCerrarConfig = document.getElementById("btnCerrarConfig");
+if (btnCerrarConfig) btnCerrarConfig.addEventListener("click", closeConfigPanel);
   
   // ===============================
   // RESUMEN DEL DÍA
