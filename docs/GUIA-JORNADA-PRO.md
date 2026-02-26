@@ -11,7 +11,7 @@ Jornada Pro es una aplicación para el control de la jornada laboral: registrar 
 
 La aplicación ofrece **dos modos** en función del **grupo profesional** (GP1, GP2, GP3 o GP4):
 
-- **GP1 / GP2:** modo **banco de minutos semanal** (lunes a domingo).
+- **GP1 / GP2:** modo **Bolsa de autorregulación** (minutos semanales, lunes a domingo; en fase de implantación experimental).
 - **GP3 / GP4:** modo **Horas TxT** (banco de horas anual, con generadas, exceso, negativas, disfrutadas y reglas especiales para fines de semana y festivos).
 
 Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y restaurar desde el menú de configuración.
@@ -24,7 +24,7 @@ Al usar la aplicación por primera vez (o si no tienes grupo asignado), se muest
 
 | Grupo   | Modo                  | Banco principal              | Extender jornada | Gráfico | Disfrutadas / Disfr. TxT |
 |--------|------------------------|------------------------------|------------------|---------|---------------------------|
-| GP1/GP2| Minutos semanal        | Banco de minutos (esta semana)| No               | No      | No                        |
+| GP1/GP2| Minutos semanal        | Bolsa de autorregulación     | No               | No      | No                        |
 | GP3/GP4| Horas TxT              | Horas TxT (anual)            | Sí               | Sí      | Sí                        |
 
 Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración → Datos personales → Grupo Profesional**. Al cambiar, la interfaz se adapta de inmediato (panel de minutos semanal u Horas TxT, botones visibles, etc.).
@@ -39,10 +39,10 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 - **Barra de progreso:** indica el avance del día respecto a la jornada nominal (o horas extra en modo extensión para GP3/GP4).
 - **Resumen del día:**
   - **GP3/GP4:** horas trabajadas, extra, exceso jornada, negativa (en horas y minutos y en decimal).
-  - **GP1/GP2:** trabajado, banco de minutos (esta semana), hoy (delta).
+  - **GP1/GP2:** trabajado, Bolsa de autorregulación (esta semana), hoy (delta). La bolsa se indica en fase de «implantación experimental».
 - **Calendario:** vista mensual con registros, saldos y días festivos. En modo minutos semanal se muestra el saldo de la semana; en modo TxT, el saldo del día (+X.Xh / −X.Xh).
 - **Banco (pestañas):**
-  - **Horas TxT** (o **Banco minutos** en GP1/GP2): en GP3/GP4 muestra total disponible, generadas, exceso, negativas, disfrutadas, Disfr. h. extra, saldo anual y mensual; en GP1/GP2 solo el banco de minutos de la semana actual.
+  - **Horas TxT** (o **Bolsa de autorregulación** en GP1/GP2): en GP3/GP4 muestra total disponible, generadas, exceso, negativas, disfrutadas, Disfr. h. extra, saldo anual y mensual; en GP1/GP2 solo la Bolsa de autorregulación de la semana actual (implantación experimental).
   - **Vacaciones/LD:** días de vacaciones disponibles (año en curso y anterior) y días de Libre Disposición del año en curso.
 - **Gráfico:** evolución del banco de horas en el año seleccionado (**solo GP3/GP4**).
 
@@ -67,15 +67,20 @@ Solo puede haber una jornada «iniciada» al día. En **GP3/GP4**, si ya has fin
 
 El botón de finalizar solo está activo si hay una jornada en curso (día con entrada y sin salida guardada, o en «Continuar jornada» / «Extender jornada»).
 
+- **En GP1/GP2** no aparece el modal «¿Vas a extender la jornada?» (estos grupos no generan horas extra). Si deslizas para finalizar **después** del tiempo de jornada estipulado (por defecto 459 minutos), los minutos trabajados de más se añaden a la **Bolsa de autorregulación**. Si deslizas **antes** de completar la jornada, se abre el modal de pase de salida (ver siguiente apartado).
+
 ### 4.3 Pase de salida (salir antes de completar la jornada)
 
-Si intentas finalizar o guardar con una hora de salida **anterior al fin teórico** de la jornada, se abre un **modal de pase de salida** con dos opciones:
+Si intentas finalizar o guardar con una hora de salida **anterior al fin teórico** de la jornada, se abre un **modal de pase de salida** con las siguientes opciones:
 
 - **Pase de salida justificado**  
   La jornada se considera completada hasta el fin teórico y se cierra automáticamente. El botón principal pasará a «Continuar jornada» si quisieras volver a abrir el día.
 
 - **Pase de salida sin justificar**  
   Se registra la salida y se descuenta del banco el tiempo no trabajado. Puedes pulsar **«Continuar jornada»** más tarde para reanudar; solo se descontará el tiempo entre la salida sin justificar y el momento de continuar.
+
+- **Fin de jornada** *(solo GP1/GP2)*  
+  Se da por finalizada la jornada con la hora de salida actual. Se descuenta de la **Bolsa de autorregulación** la diferencia entre los minutos totales de la jornada y los minutos trabajados. El día queda cerrado sin opción de «Continuar jornada».
 
 ### 4.4 Continuar jornada
 
@@ -138,7 +143,7 @@ En **GP3/GP4**, si el día es **sábado, domingo o festivo**, al guardar se apli
 - **Indicadores en las celdas:**
   - **Triángulo verde con ✓:** jornada completada (entrada y salida registradas).
   - **+X.Xh / −X.Xh:** (modo TxT, GP3/GP4) saldo del día (positivo o negativo respecto a la jornada).
-  - En **modo minutos semanal (GP1/GP2):** se muestra el banco de minutos de la semana y el delta del día.
+  - En **modo minutos semanal (GP1/GP2):** se muestra la Bolsa de autorregulación de la semana y el delta del día.
   - **Disfr. X.Xh:** horas disfrutadas ese día (GP3/GP4).
   - **🏖️:** día marcado como vacaciones.
 - **Festivos:** se muestran resaltados (nacional, Galicia, Ferrol). Pulsar en un festivo muestra su nombre.
@@ -150,9 +155,32 @@ En **GP3/GP4**, si el día es **sábado, domingo o festivo**, al guardar se apli
 
 La sección de métricas tiene **dos pestañas**:
 
-### 6.1 Pestaña «Horas TxT» (o «Banco minutos» en GP1/GP2)
+### 6.1 Pestaña «Horas TxT» (o «Bolsa de autorregulación» en GP1/GP2)
 
-- **Si tu grupo es GP1 o GP2:** se muestra solo el **Banco de minutos (esta semana)** (lunes a domingo). No hay gráfico ni saldo anual de horas.
+- **Si tu grupo es GP1 o GP2:** se muestra la **Bolsa de autorregulación (esta semana)** (lunes a domingo), indicada en la aplicación como en fase de **implantación experimental**. No hay gráfico ni saldo anual de horas. Los minutos trabajados por encima de la jornada se suman a la bolsa; los trabajados por debajo se descuentan.
+
+  **¿Qué significa Bolsa de autorregulación según el Convenio Intercentros 2022-2029?**
+
+  1. **Es una prueba piloto.** No es un sistema totalmente desarrollado en el texto del convenio, sino una implantación experimental a nivel corporativo.
+
+  2. **Solo para GP1 y GP2.** No aplica a GP3 y GP4 (que funcionan con TxT y otros sistemas).
+
+  3. **Solo para excesos de lunes a viernes.** La bolsa se refiere a *«excesos de jornada que puedan ser realizados de lunes a viernes»* (BOE-A-2026-2706). Por tanto no menciona sábados ni domingos; no regula fines de semana dentro de esta bolsa.
+
+  4. **Genera descanso, no pago automático.** El objetivo es que el colectivo *«pueda disponer de los tiempos de descanso generados»* (BOE-A-2026-2706). Se acumulan horas, se compensan con descanso; las condiciones concretas deben acordarse entre empresa y parte social.
+
+  5. **Falta desarrollo concreto.** El propio texto indica que *«las condiciones se acordarán entre las partes firmantes»* (BOE-A-2026-2706). El convenio no fija límites máximos, caducidad, equivalencias económicas ni porcentaje de compensación; todo ello queda pendiente de acuerdo posterior.
+
+  **Resumen:**
+
+  | Aspecto | Regulación en el convenio |
+  |--------|----------------------------|
+  | ¿Existe bolsa de horas? | Sí (GP1–GP2) |
+  | ¿Es definitiva? | No, prueba piloto |
+  | ¿Aplica a sábados? | No se menciona |
+  | ¿Es descanso o dinero? | Descanso |
+  | ¿Está totalmente regulada? | No, pendiente de acuerdo |
+
 - **Si tu grupo es GP3 o GP4:** se muestra:
   - **Año:** selector para cambiar el año del banco.
   - **Total disponible (acumulado):** horas que tienes en el banco (según configuración y registros).

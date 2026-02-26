@@ -1001,24 +1001,26 @@ function controlarNotificaciones() {
     } catch (e) {}
   }
 
-  /** Para pruebas: deja el día en curso como si no se hubiera iniciado ni interactuado. */
-  function resetearDiaEnCurso() {
-    const hoy = getHoyISO();
-    delete state.registros[hoy];
-    if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === hoy) state.paseJustificadoHasta = null;
-    if (state.earlyExitState && state.earlyExitState.fecha === hoy) state.earlyExitState = null;
-    if (state.extensionJornada && state.extensionJornada.fecha === hoy) state.extensionJornada = null;
-    if (state.deduccionesPorAusencia && state.deduccionesPorAusencia[hoy] !== undefined) delete state.deduccionesPorAusencia[hoy];
-    limpiarBorradorSesion();
-    try { localStorage.removeItem(EXTEND_PROMPT_KEY + "_" + hoy); } catch (e) {}
+  /** Para pruebas del desarrollador: deja el día seleccionado (fecha.value) como si no se hubiera interactuado. */
+  function resetearDia() {
+    const fechaClave = (fecha && fecha.value) ? fecha.value : getHoyISO();
+    const reg = state.registros[fechaClave];
+    if (reg && reg.vacaciones) devolverDiaVacacion(state, fechaClave);
+    if (reg && reg.libreDisposicion) devolverDiaLD(state, fechaClave);
+    delete state.registros[fechaClave];
+    if (state.paseJustificadoHasta && state.paseJustificadoHasta.fecha === fechaClave) state.paseJustificadoHasta = null;
+    if (state.earlyExitState && state.earlyExitState.fecha === fechaClave) state.earlyExitState = null;
+    if (state.extensionJornada && state.extensionJornada.fecha === fechaClave) state.extensionJornada = null;
+    if (state.deduccionesPorAusencia && state.deduccionesPorAusencia[fechaClave] !== undefined) delete state.deduccionesPorAusencia[fechaClave];
+    if (fechaClave === getHoyISO()) limpiarBorradorSesion();
+    try { localStorage.removeItem(EXTEND_PROMPT_KEY + "_" + fechaClave); } catch (e) {}
     saveState(state);
-    if (fecha && fecha.value === hoy) {
+    if (fecha && fecha.value === fechaClave) {
       if (entrada) entrada.value = "";
       if (salida) salida.value = "";
       if (minAntes) minAntes.value = "0";
       if (disfrutadas) disfrutadas.value = "0";
     }
-    if (fecha) fecha.value = hoy;
     actualizarEstadoIniciarJornada();
     actualizarProgreso();
     actualizarBanco();
@@ -1577,7 +1579,7 @@ function controlarNotificaciones() {
   }
   if (btnResetDiaCurso) {
     btnResetDiaCurso.addEventListener("click", () => {
-      resetearDiaEnCurso();
+      resetearDia();
     });
   }
 
