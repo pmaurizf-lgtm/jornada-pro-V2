@@ -170,6 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const configAuthorTapTarget = document.getElementById("configAuthorTapTarget");
   const configDevMenu = document.getElementById("configDevMenu");
   const btnResetDiaCurso = document.getElementById("btnResetDiaCurso");
+  const plofTapTarget = document.getElementById("plofTapTarget");
   const headerTitle = document.getElementById("headerTitle");
   const plofWrap = document.getElementById("plofWrap");
   const plofAgendaBlock = document.getElementById("plofAgendaBlock");
@@ -182,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let plofSelectedHour = null;
   let plofSelectedDate = null;
+  let plofAudioEnReproduccion = null;
 
 // ===============================
 // CONFIGURACIÓN
@@ -229,6 +231,13 @@ function applyModoPlofUI(active) {
     plofSelectedDate = null;
     if (fecha && fecha.value) mostrarPlofAgenda(fecha.value);
   } else {
+    if (plofAudioEnReproduccion) {
+      try {
+        plofAudioEnReproduccion.pause();
+        plofAudioEnReproduccion.currentTime = 0;
+      } catch (e) {}
+      plofAudioEnReproduccion = null;
+    }
     document.body.classList.remove("modo-plof");
     if (headerTitle) headerTitle.textContent = "Jornada Pro NAVANTIA (Ferrol)";
     if (plofWrap) plofWrap.hidden = true;
@@ -279,9 +288,15 @@ function aplicarSimboloPlof(symbol) {
   const url = symbol === "💩" ? PLOF_SONIDO_CACA_URL : symbol === "🐓" ? PLOF_SONIDO_GALLO_URL : null;
   if (url) {
     try {
+      if (plofAudioEnReproduccion) {
+        plofAudioEnReproduccion.pause();
+        plofAudioEnReproduccion.currentTime = 0;
+      }
       const audio = new Audio(url);
       audio.volume = 0.6;
-      audio.play().catch(() => {});
+      plofAudioEnReproduccion = audio;
+      audio.addEventListener("ended", () => { plofAudioEnReproduccion = null; });
+      audio.play().catch(() => { plofAudioEnReproduccion = null; });
     } catch (e) {}
   }
 }
@@ -1656,12 +1671,14 @@ function controlarNotificaciones() {
       }
     });
   }
-  if (btnResetDiaCurso) {
+  if (btnResetDiaCurso) btnResetDiaCurso.addEventListener("click", () => resetearDia());
+  if (plofTapTarget) {
     let plofTapCount = 0;
-    let plofTapTimer = null;
-    btnResetDiaCurso.addEventListener("click", (e) => {
+    let plofTapResetTimer = null;
+    plofTapTarget.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (plofTapResetTimer) clearTimeout(plofTapResetTimer);
       plofTapCount++;
-      if (plofTapTimer) clearTimeout(plofTapTimer);
       if (plofTapCount >= 10) {
         state.modoPlof = !state.modoPlof;
         saveState(state);
@@ -1669,10 +1686,7 @@ function controlarNotificaciones() {
         plofTapCount = 0;
         return;
       }
-      plofTapTimer = setTimeout(() => {
-        resetearDia();
-        plofTapCount = 0;
-      }, 400);
+      plofTapResetTimer = setTimeout(() => { plofTapCount = 0; }, 1500);
     });
   }
   if (plofBtnCaca) plofBtnCaca.addEventListener("click", () => aplicarSimboloPlof("💩"));

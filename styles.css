@@ -459,6 +459,24 @@ body.dark .config-summary {
   margin: 0 0 0.5rem 0;
 }
 
+.config-dev-reset-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.plof-tap-target {
+  font-size: 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  line-height: 1;
+  padding: 0.25rem;
+}
+
+.plof-tap-target:hover {
+  opacity: 0.85;
+}
+
 .config-btn {
   padding: 0.6rem 1rem;
   font-size: 0.9375rem;
