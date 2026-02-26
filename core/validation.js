@@ -58,4 +58,6 @@ export function validateState(state) {
   if (!state.earlyExitState || typeof state.earlyExitState !== "object") state.earlyExitState = null;
   if (!state.deduccionesPorAusencia || typeof state.deduccionesPorAusencia !== "object") state.deduccionesPorAusencia = {};
   if (!state.extensionJornada || typeof state.extensionJornada !== "object") state.extensionJornada = null;
+  if (typeof state.modoPlof !== "boolean") state.modoPlof = false;
+  if (!state.plofAgenda || typeof state.plofAgenda !== "object") state.plofAgenda = {};
 }

@@ -170,8 +170,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const configAuthorTapTarget = document.getElementById("configAuthorTapTarget");
   const configDevMenu = document.getElementById("configDevMenu");
   const btnResetDiaCurso = document.getElementById("btnResetDiaCurso");
+  const headerTitle = document.getElementById("headerTitle");
+  const plofWrap = document.getElementById("plofWrap");
+  const plofAgendaBlock = document.getElementById("plofAgendaBlock");
+  const plofAgendaTitulo = document.getElementById("plofAgendaTitulo");
+  const plofAgendaGrid = document.getElementById("plofAgendaGrid");
+  const plofBtnCaca = document.getElementById("plofBtnCaca");
+  const plofBtnGallo = document.getElementById("plofBtnGallo");
 
   const chartCanvas = document.getElementById("chart");
+
+  let plofSelectedHour = null;
+  let plofSelectedDate = null;
 
 // ===============================
 // CONFIGURACIÓN
@@ -206,6 +216,75 @@ if (cfgTrabajoTurnos && configTurnoWrap) {
 
 // Aplicar tema al iniciar
 aplicarTheme(state.config.theme);
+if (state.modoPlof) applyModoPlofUI(true);
+
+function applyModoPlofUI(active) {
+  if (active) {
+    document.body.classList.add("modo-plof");
+    if (headerTitle) headerTitle.textContent = "Jornada Plof BAZÁN (El Ferrol del Caudillo)";
+    if (plofWrap) plofWrap.hidden = false;
+    if (plofAgendaBlock) plofAgendaBlock.hidden = true;
+    if (configDevMenu) configDevMenu.hidden = false;
+    plofSelectedHour = null;
+    plofSelectedDate = null;
+    if (fecha && fecha.value) mostrarPlofAgenda(fecha.value);
+  } else {
+    document.body.classList.remove("modo-plof");
+    if (headerTitle) headerTitle.textContent = "Jornada Pro NAVANTIA (Ferrol)";
+    if (plofWrap) plofWrap.hidden = true;
+    if (plofAgendaBlock) plofAgendaBlock.hidden = true;
+    if (configDevMenu) configDevMenu.hidden = true;
+    plofSelectedHour = null;
+    plofSelectedDate = null;
+  }
+}
+
+function mostrarPlofAgenda(fechaISO) {
+  if (!state.modoPlof || !plofAgendaBlock || !plofAgendaTitulo || !plofAgendaGrid) return;
+  plofSelectedDate = fechaISO;
+  plofAgendaBlock.hidden = false;
+  const d = new Date(fechaISO + "T12:00:00");
+  plofAgendaTitulo.textContent = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  renderPlofAgendaGrid(fechaISO);
+}
+
+function renderPlofAgendaGrid(fechaISO) {
+  if (!plofAgendaGrid) return;
+  plofAgendaGrid.innerHTML = "";
+  const agendaDia = state.plofAgenda[fechaISO] || {};
+  for (let h = 0; h < 24; h++) {
+    const slot = document.createElement("div");
+    slot.className = "plof-agenda-slot" + (plofSelectedHour === h ? " plof-slot-selected" : "");
+    slot.dataset.hour = String(h);
+    const timeLabel = String(h).padStart(2, "0") + ":00";
+    const sym = agendaDia[String(h)] || "";
+    slot.innerHTML = `<span class="plof-slot-time">${timeLabel}</span><span class="plof-slot-symbol">${sym}</span>`;
+    slot.addEventListener("click", () => {
+      plofSelectedHour = h;
+      renderPlofAgendaGrid(fechaISO);
+    });
+    plofAgendaGrid.appendChild(slot);
+  }
+}
+
+const PLOF_SONIDO_CACA_URL = "sounds/plof-caca.mp3";
+const PLOF_SONIDO_GALLO_URL = "sounds/plof-gallo.mp3";
+
+function aplicarSimboloPlof(symbol) {
+  if (plofSelectedDate == null || plofSelectedHour == null) return;
+  if (!state.plofAgenda[plofSelectedDate]) state.plofAgenda[plofSelectedDate] = {};
+  state.plofAgenda[plofSelectedDate][String(plofSelectedHour)] = symbol;
+  saveState(state);
+  renderPlofAgendaGrid(plofSelectedDate);
+  const url = symbol === "💩" ? PLOF_SONIDO_CACA_URL : symbol === "🐓" ? PLOF_SONIDO_GALLO_URL : null;
+  if (url) {
+    try {
+      const audio = new Audio(url);
+      audio.volume = 0.6;
+      audio.play().catch(() => {});
+    } catch (e) {}
+  }
+}
 
 // Guardar configuración
 if (guardarConfig) {
@@ -1578,10 +1657,26 @@ function controlarNotificaciones() {
     });
   }
   if (btnResetDiaCurso) {
-    btnResetDiaCurso.addEventListener("click", () => {
-      resetearDia();
+    let plofTapCount = 0;
+    let plofTapTimer = null;
+    btnResetDiaCurso.addEventListener("click", (e) => {
+      plofTapCount++;
+      if (plofTapTimer) clearTimeout(plofTapTimer);
+      if (plofTapCount >= 10) {
+        state.modoPlof = !state.modoPlof;
+        saveState(state);
+        applyModoPlofUI(state.modoPlof);
+        plofTapCount = 0;
+        return;
+      }
+      plofTapTimer = setTimeout(() => {
+        resetearDia();
+        plofTapCount = 0;
+      }, 400);
     });
   }
+  if (plofBtnCaca) plofBtnCaca.addEventListener("click", () => aplicarSimboloPlof("💩"));
+  if (plofBtnGallo) plofBtnGallo.addEventListener("click", () => aplicarSimboloPlof("🐓"));
 
   function actualizarEstadoEliminar() {
     if (!btnEliminar) return;
@@ -2012,6 +2107,7 @@ if(festivos && festivos[fechaISO]){
     actualizarEstadoEliminar();
     actualizarEstadoIniciarJornada();
     actualizarResumenDia();
+    if (state.modoPlof) mostrarPlofAgenda(fechaISO);
   }
 
   if (prevMes) prevMes.onclick = () => {

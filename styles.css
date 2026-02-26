@@ -2156,3 +2156,151 @@ body:not(.dark) .cal-day.festivo-ferrol small {
   font-weight: normal;
   opacity: 0.85;
 }
+
+/* ===============================
+   MODO PLOF (easter egg)
+   =============================== */
+@keyframes plof-rainbow {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 100%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+body.modo-plof {
+  position: relative;
+  min-height: 100vh;
+}
+
+body.modo-plof::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    124deg,
+    #ff0000,
+    #ff7300,
+    #fffb00,
+    #48ff00,
+    #00ffd5,
+    #002bff,
+    #7a00ff,
+    #ff00c8,
+    #ff0000
+  );
+  background-size: 1800% 1800%;
+  animation: plof-rainbow 12s ease infinite;
+  opacity: 0.35;
+}
+
+body.modo-plof #seccionRegistro,
+body.modo-plof #seccionMetrics,
+body.modo-plof #chartCard {
+  display: none !important;
+}
+
+body.modo-plof #plofWrap {
+  display: block !important;
+}
+
+body.modo-plof .config-panel .config-details,
+body.modo-plof .config-panel .config-actions-guardar,
+body.modo-plof .config-panel .config-guia-wrap,
+body.modo-plof .config-panel .config-app-info {
+  display: none !important;
+}
+
+.plof-wrap {
+  padding: 1rem;
+}
+
+.plof-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.plof-btn {
+  font-size: 2.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.plof-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.plof-btn:active {
+  transform: scale(0.98);
+}
+
+.plof-agenda-block {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-top: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+body.dark.modo-plof .plof-agenda-block {
+  background: rgba(30, 30, 30, 0.95);
+}
+
+.plof-agenda-titulo {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.1rem;
+}
+
+.plof-agenda-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.plof-agenda-slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.04);
+  transition: background 0.15s;
+}
+
+body.dark.modo-plof .plof-agenda-slot {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.plof-agenda-slot:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+body.dark.modo-plof .plof-agenda-slot:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.plof-agenda-slot.plof-slot-selected {
+  background: rgba(59, 130, 246, 0.35);
+  outline: 2px solid var(--accent, #3b82f6);
+}
+
+.plof-agenda-slot .plof-slot-time {
+  font-weight: 600;
+  min-width: 4ch;
+}
+
+.plof-agenda-slot .plof-slot-symbol {
+  font-size: 1.4rem;
+}

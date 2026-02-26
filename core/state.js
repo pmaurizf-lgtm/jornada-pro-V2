@@ -11,6 +11,9 @@ export function createInitialState() {
     vacacionesDiasPorAnio: {},
     /** Días de libre disposición por año (caducan 31 dic). Ej: { "2026": 5 } */
     ldDiasPorAnio: {},
+    modoPlof: false,
+    /** En modo Plof: por fecha y hora el símbolo. Ej: { "2025-02-22": { "10": "💩", "14": "🐓" } } */
+    plofAgenda: {},
     config: {
       nombreCompleto: "",
       numeroSAP: "",

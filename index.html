@@ -21,7 +21,7 @@
 <body>
 
 <header class="header">
-  <h1 class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
+  <h1 id="headerTitle" class="header-title">Jornada Pro NAVANTIA (Ferrol)</h1>
   <img src="icons/logo-navantia.png" alt="NAVANTIA" class="header-logo">
   <button type="button" id="btnMenuConfig" class="header-menu-btn" aria-label="Menú configuración">
     <span class="hamburger-line"></span>
@@ -249,7 +249,7 @@
 </div>
 
 <!-- REGISTRO DIARIO -->
-<section class="card registro">
+<section id="seccionRegistro" class="card registro">
 
   <!-- FORMULARIO REGISTRO -->
   <div class="form-card registro-card">
@@ -404,6 +404,18 @@
 
   </div>
 
+  <!-- MODO PLOF: botones y agenda del día (oculto por defecto) -->
+  <div id="plofWrap" class="plof-wrap" hidden>
+    <div class="plof-buttons">
+      <button type="button" id="plofBtnCaca" class="plof-btn plof-btn-caca" title="Poner caca en la hora seleccionada">💩</button>
+      <button type="button" id="plofBtnGallo" class="plof-btn plof-btn-gallo" title="Poner gallo en la hora seleccionada">🐓</button>
+    </div>
+    <div id="plofAgendaBlock" class="plof-agenda-block" hidden>
+      <h3 id="plofAgendaTitulo" class="plof-agenda-titulo">Día</h3>
+      <div id="plofAgendaGrid" class="plof-agenda-grid"></div>
+    </div>
+  </div>
+
   <!-- GRÁFICO LATERAL -->
   <div id="chartCard" class="card chart-card">
     <canvas id="chart"></canvas>
@@ -412,7 +424,7 @@
 </section>
 
 <!-- MÉTRICAS BANCO (pestañas Horas TxT / Vacaciones) -->
-<section class="card metrics">
+<section id="seccionMetrics" class="card metrics">
   <div class="bank-tabs" role="tablist">
     <button type="button" id="bankTabHoras" class="bank-tab bank-tab--active" role="tab" aria-selected="true">Horas TxT</button>
     <button type="button" id="bankTabVacaciones" class="bank-tab" role="tab" aria-selected="false">Vacaciones/LD</button>
