@@ -407,6 +407,21 @@ body.dark .config-summary {
   margin-bottom: 1.25rem;
 }
 
+.config-guia-wrap {
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.config-btn-guia {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--border);
+}
+
+.config-btn-guia:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 /* Información de la app en el panel de configuración */
 .config-app-info {
   margin-top: 1.5rem;

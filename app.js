@@ -283,6 +283,11 @@ if (configPanelBackdrop) configPanelBackdrop.addEventListener("click", closeConf
 
 const btnCerrarConfig = document.getElementById("btnCerrarConfig");
 if (btnCerrarConfig) btnCerrarConfig.addEventListener("click", closeConfigPanel);
+
+const btnAbrirGuia = document.getElementById("btnAbrirGuia");
+if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
+  window.open("./docs/GUIA-JORNADA-PRO.html", "_blank", "noopener,noreferrer");
+});
   
   // ===============================
   // RESUMEN DEL DÍA
