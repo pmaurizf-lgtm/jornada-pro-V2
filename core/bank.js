@@ -14,6 +14,9 @@ export function calcularSaldoDia(registro) {
   if (registro.disfruteHorasExtra) {
     return -(registro.disfruteHorasExtraMin || 0);
   }
+  if (registro.disfruteExcesoJornada) {
+    return -(registro.disfruteExcesoJornadaMin || 0);
+  }
 
   const generadas = registro.extraGeneradaMin || 0;
   const exceso = registro.excesoJornadaMin || 0;
@@ -23,12 +26,18 @@ export function calcularSaldoDia(registro) {
   return generadas + exceso - negativas - disfrutadas;
 }
 
+/** Minutos por día de jornada para expresar saldo en días (459 = 7h 39min). */
+export const MINUTOS_POR_DIA_JORNADA = 459;
+
 export function calcularResumenPeriodo(registros, filtroFn) {
   let generadas = 0;
   let exceso = 0;
   let negativas = 0;
   let disfrutadas = 0;
   let disfruteHorasExtraMin = 0;
+  let disfruteExcesoJornadaMin = 0;
+  let negativasTxT = 0;
+  let negativasExceso = 0;
   let saldo = 0;
 
   Object.entries(registros)
@@ -43,15 +52,28 @@ export function calcularResumenPeriodo(registros, filtroFn) {
         return;
       }
 
+      if (r.disfruteExcesoJornada) {
+        const min = r.disfruteExcesoJornadaMin || 0;
+        disfruteExcesoJornadaMin += min;
+        saldo -= min;
+        return;
+      }
+
       const g = r.extraGeneradaMin || 0;
       const e = r.excesoJornadaMin || 0;
       const n = r.negativaMin || 0;
       const d = r.disfrutadasManualMin || 0;
+      const descuentoDe = r.descuentoDe === "excesoJornada" ? "excesoJornada" : "TxT";
 
       generadas += g;
       exceso += e;
       negativas += n;
       disfrutadas += d;
+      if (descuentoDe === "excesoJornada") {
+        negativasExceso += n;
+      } else {
+        negativasTxT += n;
+      }
       saldo += g + e - n - d;
     });
 
@@ -61,6 +83,9 @@ export function calcularResumenPeriodo(registros, filtroFn) {
     negativas,
     disfrutadas,
     disfruteHorasExtraMin,
+    disfruteExcesoJornadaMin,
+    negativasTxT,
+    negativasExceso,
     saldo
   };
 }

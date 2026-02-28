@@ -5,7 +5,7 @@
 import { loadState, saveState, exportBackup, importBackup } from "./core/storage.js";
 import { createInitialState } from "./core/state.js";
 import { calcularJornada, minutesToTime, timeToMinutes, extraEnBloques15, calcularTxTFinDeSemanaYFestivos } from "./core/calculations.js";
-import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal } from "./core/bank.js";
+import { calcularResumenAnual, calcularResumenMensual, calcularResumenTotal, MINUTOS_POR_DIA_JORNADA } from "./core/bank.js";
 import { obtenerFestivos } from "./core/holidays.js";
 import { solicitarPermisoNotificaciones, notificarUnaVez } from "./core/notifications.js";
 import {
@@ -79,14 +79,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextMes = document.getElementById("nextMes");
 
   const selectBankYear = document.getElementById("selectBankYear");
-  const bTotalDisponible = document.getElementById("bTotalDisponible");
+  const bTotalDisponibleTxT = document.getElementById("bTotalDisponibleTxT");
+  const bTotalDisponibleTxTDias = document.getElementById("bTotalDisponibleTxTDias");
+  const bTotalDisponibleExceso = document.getElementById("bTotalDisponibleExceso");
+  const bTotalDisponibleExcesoDias = document.getElementById("bTotalDisponibleExcesoDias");
   const bGeneradas = document.getElementById("bGeneradas");
+  const bGeneradasDias = document.getElementById("bGeneradasDias");
   const bExceso = document.getElementById("bExceso");
+  const bExcesoDias = document.getElementById("bExcesoDias");
   const bNegativas = document.getElementById("bNegativas");
   const bDisfrutadas = document.getElementById("bDisfrutadas");
+  const bDisfrutadasDias = document.getElementById("bDisfrutadasDias");
+  const bDisfruteExceso = document.getElementById("bDisfruteExceso");
+  const bDisfruteExcesoDias = document.getElementById("bDisfruteExcesoDias");
   const bDisfruteHorasExtra = document.getElementById("bDisfruteHorasExtra");
   const bSaldoAnual = document.getElementById("bSaldoAnual");
   const bSaldo = document.getElementById("bSaldo");
+  const btnDisfruteExcesoJornada = document.getElementById("disfruteExcesoJornada");
+  const modalDescuentoDe = document.getElementById("modalDescuentoDe");
+  const modalDescuentoDeTxT = document.getElementById("modalDescuentoDeTxT");
+  const modalDescuentoDeExceso = document.getElementById("modalDescuentoDeExceso");
 
   const bankTabHoras = document.getElementById("bankTabHoras");
   const bankTabVacaciones = document.getElementById("bankTabVacaciones");
@@ -200,8 +212,8 @@ function aplicarEstadoConfigAUI() {
   if (cfgNotificaciones) cfgNotificaciones.checked = state.config.notificationsEnabled !== false;
   if (cfgTrabajoTurnos) cfgTrabajoTurnos.checked = state.config.trabajoATurnos === true;
   if (cfgTurno) cfgTurno.value = state.config.turno || "06-14";
-  if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
-  if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(/\.?0+$/, "") || "0";
+  if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = ((state.config.horasExtraInicialMin || 0) / 60).toFixed(2).replace(".", ",");
+  if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(".", ",");
   if (cfgVacacionesDiasPrevio) cfgVacacionesDiasPrevio.value = String(state.config.vacacionesDiasPrevio ?? 0);
   if (labelVacacionesDiasPrevio) labelVacacionesDiasPrevio.textContent = "Días de vacaciones previos (" + (new Date().getFullYear() - 1) + ")";
   if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
@@ -322,8 +334,9 @@ if (guardarConfig) {
     state.config.notificationsEnabled = cfgNotificaciones ? cfgNotificaciones.checked : true;
     state.config.trabajoATurnos = cfgTrabajoTurnos ? cfgTrabajoTurnos.checked : false;
     state.config.turno = cfgTurno ? cfgTurno.value : "06-14";
-    state.config.horasExtraInicialMin = Math.round((parseFloat(cfgHorasExtraPrevias?.value) || 0) * 60);
-    state.config.excesoJornadaInicialMin = Math.round((parseFloat(cfgExcesoJornadaPrevias?.value) || 0) * 60);
+    const parseDecimal = (v) => parseFloat(String(v || "").replace(",", ".")) || 0;
+    state.config.horasExtraInicialMin = Math.round(parseDecimal(cfgHorasExtraPrevias?.value) * 60);
+    state.config.excesoJornadaInicialMin = Math.round(parseDecimal(cfgExcesoJornadaPrevias?.value) * 60);
     state.config.vacacionesDiasPrevio = Math.max(0, parseInt(cfgVacacionesDiasPrevio?.value, 10) || 0);
     if (state.vacacionesDiasPorAnio) {
       state.vacacionesDiasPorAnio = { ...state.vacacionesDiasPorAnio, "2025": state.config.vacacionesDiasPrevio };
@@ -352,8 +365,8 @@ if (guardarConfig) {
       state.config.horasExtraInicialMin = 0;
       state.config.excesoJornadaInicialMin = 0;
       saveState(state);
-      if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = "0";
-      if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = "0";
+      if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = "0,00";
+      if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = "0,00";
       actualizarBanco();
     });
   }
@@ -461,6 +474,17 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     return sign + h + "h " + m + "m";
   }
 
+  /** Formato para banco: horas con 2 decimales + h m + días (459 min = 1 día). */
+  function formatoHorasConDias(min, minPorDia) {
+    const m = Math.abs(min);
+    const sign = min < 0 ? "−" : "";
+    const decimal = sign + (m / 60).toFixed(2).replace(".", ",") + "h";
+    const hm = minutosAHorasMinutos(min);
+    const diasNum = m / (minPorDia || MINUTOS_POR_DIA_JORNADA);
+    const dias = (min < 0 ? "−" : "") + diasNum.toFixed(2).replace(".", ",") + " días";
+    return { principal: decimal + "  " + hm, dias };
+  }
+
   function esModoMinutosSemanal() {
     const gp = state.config.grupoProfesional || "";
     return gp === "GP1" || gp === "GP2";
@@ -526,6 +550,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (wrapMinAntes) wrapMinAntes.style.display = modoMin ? "none" : "";
     if (wrapDisfrutadas) wrapDisfrutadas.style.display = modoMin ? "none" : "";
     if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.style.display = modoMin ? "none" : "";
+    if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.style.display = modoMin ? "none" : "";
     if (chartCard) chartCard.style.display = modoMin ? "none" : "";
     if (mainGrid) mainGrid.classList.toggle("main-grid--full", modoMin);
     if (bankTabHoras) bankTabHoras.textContent = modoMin ? "Tiempo Exceso Jornada" : "Horas TxT";
@@ -572,20 +597,44 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
 
     const inicialExtra = state.config.horasExtraInicialMin || 0;
     const inicialExceso = state.config.excesoJornadaInicialMin || 0;
-    const saldoTotalConInicial = total.saldo + inicialExtra + inicialExceso - deduccionTotalMin;
+    const saldoTxT = total.generadas - total.disfrutadas - (total.disfruteHorasExtraMin || 0) - total.negativasTxT + inicialExtra;
+    const saldoExceso = total.exceso - (total.disfruteExcesoJornadaMin || 0) - total.negativasExceso + inicialExceso;
+    const saldoTotalConInicial = saldoTxT + saldoExceso - deduccionTotalMin;
     const anual = calcularResumenAnual(state.registros, bankYear);
     anual.saldo -= deduccionAnualMin;
     const mensual = calcularResumenMensual(state.registros, currentMonth, bankYear);
     mensual.saldo -= deduccionMensualMin;
+    const gastadasTxTAnual = anual.disfrutadas + (anual.disfruteHorasExtraMin || 0) + anual.negativasTxT;
+    const gastadasExcesoAnual = (anual.disfruteExcesoJornadaMin || 0) + anual.negativasExceso;
 
-    if (bTotalDisponible) {
-      bTotalDisponible.innerText = minutosAHorasMinutos(saldoTotalConInicial);
-      bTotalDisponible.style.color = saldoTotalConInicial >= 0 ? "var(--positive)" : "var(--negative)";
+    const fmtTxT = formatoHorasConDias(saldoTxT);
+    const fmtExceso = formatoHorasConDias(saldoExceso);
+    if (bTotalDisponibleTxT) {
+      bTotalDisponibleTxT.innerText = fmtTxT.principal;
+      bTotalDisponibleTxT.style.color = saldoTxT >= 0 ? "var(--positive)" : "var(--negative)";
     }
-    if (bGeneradas) bGeneradas.innerText = minutosAHorasMinutos(anual.generadas);
-    if (bExceso) bExceso.innerText = minutosAHorasMinutos(anual.exceso || 0);
+    if (bTotalDisponibleTxTDias) bTotalDisponibleTxTDias.textContent = fmtTxT.dias;
+    if (bTotalDisponibleExceso) {
+      bTotalDisponibleExceso.innerText = fmtExceso.principal;
+      bTotalDisponibleExceso.style.color = saldoExceso >= 0 ? "var(--positive)" : "var(--negative)";
+    }
+    if (bTotalDisponibleExcesoDias) bTotalDisponibleExcesoDias.textContent = fmtExceso.dias;
+
+    const fmtGen = formatoHorasConDias(anual.generadas);
+    if (bGeneradas) bGeneradas.innerText = fmtGen.principal;
+    if (bGeneradasDias) bGeneradasDias.textContent = fmtGen.dias;
+    const fmtExcAnual = formatoHorasConDias(anual.exceso || 0);
+    if (bExceso) bExceso.innerText = fmtExcAnual.principal;
+    if (bExcesoDias) bExcesoDias.textContent = fmtExcAnual.dias;
+
+    const fmtGastTxT = formatoHorasConDias(gastadasTxTAnual);
+    if (bDisfrutadas) bDisfrutadas.innerText = fmtGastTxT.principal;
+    if (bDisfrutadasDias) bDisfrutadasDias.textContent = fmtGastTxT.dias;
+    const fmtGastExc = formatoHorasConDias(gastadasExcesoAnual);
+    if (bDisfruteExceso) bDisfruteExceso.innerText = fmtGastExc.principal;
+    if (bDisfruteExcesoDias) bDisfruteExcesoDias.textContent = fmtGastExc.dias;
+
     if (bNegativas) bNegativas.innerText = minutosAHorasMinutos(anual.negativas);
-    if (bDisfrutadas) bDisfrutadas.innerText = minutosAHorasMinutos(anual.disfrutadas);
     if (bDisfruteHorasExtra) {
       const dhe = anual.disfruteHorasExtraMin ?? 0;
       bDisfruteHorasExtra.innerText = dhe === 0 ? "0h" : "\u2212" + minutosAHorasMinutos(dhe);
@@ -955,11 +1004,52 @@ function controlarNotificaciones() {
       actualizarResumenDia();
     });
   }
+  function ejecutarDescuentoDe(descuentoDe) {
+    if (!pendingDescuento) return;
+    const salidaVal = pendingDescuento.salidaValue || ahoraHoraISO();
+    const fechaClave = pendingDescuento.fechaClave || (fecha && fecha.value) || hoyISO();
+    if (fecha && fecha.value !== fechaClave) fecha.value = fechaClave;
+    if (salida) salida.value = salidaVal;
+    ejecutarFinalizarJornada(undefined, descuentoDe);
+    if (pendingDescuento.accion === "sinJustificar") {
+      if (state.registros[fechaClave]) state.registros[fechaClave].paseSinJustificado = true;
+      const fin = calcularFinTeorico();
+      const hoy = hoyISO();
+      state.earlyExitState = {
+        fecha: hoy,
+        salidaAt: salidaVal,
+        entrada: entrada.value,
+        hastaTime: fin.time,
+        endDate: fin.nextDay ? nextDayISO(hoy) : hoy
+      };
+      saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoIniciarJornada();
+    } else if (pendingDescuento.accion === "finJornada") {
+      saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+    }
+    pendingDescuento = null;
+    if (modalDescuentoDe) modalDescuentoDe.hidden = true;
+  }
+
   if (modalPaseSinJustificar) {
     modalPaseSinJustificar.addEventListener("click", () => {
       const salidaVal = (pendingPaseSalida && pendingPaseSalida.salidaValue) || ahoraHoraISO();
-      if (salida) salida.value = salidaVal;
       const fechaClave = fecha && fecha.value ? fecha.value : hoyISO();
+      if (!esModoMinutosSemanal()) {
+        pendingDescuento = { accion: "sinJustificar", salidaValue: salidaVal, fechaClave };
+        cerrarModalPaseSalida();
+        if (modalDescuentoDe) modalDescuentoDe.hidden = false;
+        return;
+      }
+      if (salida) salida.value = salidaVal;
       ejecutarFinalizarJornada();
       if (state.registros[fechaClave]) state.registros[fechaClave].paseSinJustificado = true;
       const fin = calcularFinTeorico();
@@ -982,21 +1072,28 @@ function controlarNotificaciones() {
   if (modalPaseFinJornada) {
     modalPaseFinJornada.addEventListener("click", () => {
       const salidaVal = (pendingPaseSalida && pendingPaseSalida.salidaValue) || ahoraHoraISO();
-      if (salida) salida.value = salidaVal;
       const fechaClave = fecha && fecha.value ? fecha.value : hoyISO();
-      ejecutarFinalizarJornada();
-      saveState(state);
-      renderCalendario();
-      actualizarBanco();
-      actualizarGrafico();
+      pendingDescuento = { accion: "finJornada", salidaValue: salidaVal, fechaClave };
       cerrarModalPaseSalida();
-      actualizarEstadoIniciarJornada();
-      actualizarResumenDia();
+      if (modalDescuentoDe) modalDescuentoDe.hidden = false;
     });
+  }
+  if (modalDescuentoDeTxT) {
+    modalDescuentoDeTxT.addEventListener("click", () => ejecutarDescuentoDe("TxT"));
+  }
+  if (modalDescuentoDeExceso) {
+    modalDescuentoDeExceso.addEventListener("click", () => ejecutarDescuentoDe("excesoJornada"));
   }
   if (modalPaseSalida) {
     const backdropPase = modalPaseSalida.querySelector(".modal-extender-backdrop");
     if (backdropPase) backdropPase.addEventListener("click", cerrarModalPaseSalida);
+  }
+  if (modalDescuentoDe) {
+    const backdropDescuento = modalDescuentoDe.querySelector(".modal-extender-backdrop");
+    if (backdropDescuento) backdropDescuento.addEventListener("click", () => {
+      modalDescuentoDe.hidden = true;
+      pendingDescuento = null;
+    });
   }
 
   setInterval(() => {
@@ -1059,6 +1156,8 @@ function controlarNotificaciones() {
   }
 
   let pendingPaseSalida = null;
+  /** Cuando se abre el modal "¿De qué saldo se descuenta?": { accion: "sinJustificar"|"finJornada", salidaValue, fechaClave } */
+  let pendingDescuento = null;
 
   function abrirModalPaseSalida(salidaValue) {
     if (!modalPaseSalida) return;
@@ -1134,7 +1233,7 @@ function controlarNotificaciones() {
     return ahoraHoraISO();
   }
 
-  function ejecutarFinalizarJornada(sinExtra) {
+  function ejecutarFinalizarJornada(sinExtra, descuentoDe) {
     const hoy = hoyISO();
     if (!fecha || !fecha.value) {
       if (fecha) fecha.value = hoy;
@@ -1164,14 +1263,16 @@ function controlarNotificaciones() {
     });
 
     var yaPaseSinJustificado = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
-    state.registros[fecha.value] = aplicarTxTSiFinDeSemanaOFestivo({
+    var reg = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
       entrada: entrada.value,
       salidaReal: salida.value || null,
       disfrutadasManualMin: Number(disfrutadas.value) || 0,
       vacaciones: false
     }, fecha.value);
-    if (yaPaseSinJustificado) state.registros[fecha.value].paseSinJustificado = true;
+    if (yaPaseSinJustificado) reg.paseSinJustificado = true;
+    if (descuentoDe === "TxT" || descuentoDe === "excesoJornada") reg.descuentoDe = descuentoDe;
+    state.registros[fecha.value] = reg;
 
     saveState(state);
     limpiarBorradorSesion();
@@ -1528,6 +1629,36 @@ function controlarNotificaciones() {
     actualizarResumenDia();
   };
 
+  if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.onclick = () => {
+    if (!fecha || !fecha.value) return;
+    if (state.registros[fecha.value]?.vacaciones || state.registros[fecha.value]?.libreDisposicion) return;
+    if (state.registros[fecha.value]?.disfruteHorasExtra || state.registros[fecha.value]?.disfruteExcesoJornada) return;
+
+    const jornadaMin = state.config.trabajoATurnos ? 8 * 60 : (state.config.jornadaMin || 480);
+    state.registros[fecha.value] = {
+      entrada: null,
+      salidaReal: null,
+      trabajadosMin: 0,
+      salidaTeoricaMin: 0,
+      salidaAjustadaMin: 0,
+      extraGeneradaMin: 0,
+      negativaMin: 0,
+      excesoJornadaMin: 0,
+      disfrutadasManualMin: 0,
+      disfruteExcesoJornada: true,
+      disfruteExcesoJornadaMin: jornadaMin,
+      vacaciones: false
+    };
+
+    saveState(state);
+    renderCalendario();
+    actualizarBanco();
+    actualizarGrafico();
+    actualizarEstadoEliminar();
+    actualizarEstadoIniciarJornada();
+    actualizarResumenDia();
+  };
+
   if (modalLDAceptar) {
     modalLDAceptar.addEventListener("click", () => {
       const anioRaw = modalLDAnioLabel ? parseInt(modalLDAnioLabel.textContent, 10) : NaN;
@@ -1711,7 +1842,8 @@ function controlarNotificaciones() {
     const esVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
     const esLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
     const esDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
-    if (esVacaciones || esLD || esDisfruteHorasExtra) {
+    const esDisfruteExcesoJornada = !!(fecha && state.registros[fecha.value]?.disfruteExcesoJornada);
+    if (esVacaciones || esLD || esDisfruteHorasExtra || esDisfruteExcesoJornada) {
       finalizarJornadaWrap.classList.add("finalizar-slider-wrap--disabled");
       finalizarJornadaWrap.setAttribute("aria-disabled", "true");
       return;
@@ -1725,15 +1857,17 @@ function controlarNotificaciones() {
     const esDiaVacaciones = !!(fecha && state.registros[fecha.value]?.vacaciones);
     const esDiaLD = !!(fecha && state.registros[fecha.value]?.libreDisposicion);
     const esDiaDisfruteHorasExtra = !!(fecha && state.registros[fecha.value]?.disfruteHorasExtra);
-    const esDiaNoTrabajable = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra;
+    const esDiaDisfruteExcesoJornada = !!(fecha && state.registros[fecha.value]?.disfruteExcesoJornada);
+    const esDiaNoTrabajable = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
     if (entrada) entrada.disabled = esDiaNoTrabajable;
     if (salida) salida.disabled = esDiaNoTrabajable;
     if (minAntes) minAntes.disabled = esDiaNoTrabajable;
     if (disfrutadas) disfrutadas.disabled = esDiaNoTrabajable;
     if (btnGuardar) btnGuardar.disabled = esDiaNoTrabajable;
-    if (btnVacaciones) btnVacaciones.disabled = esDiaLD || esDiaDisfruteHorasExtra;
-    if (btnLD) btnLD.disabled = esDiaVacaciones || esDiaDisfruteHorasExtra;
-    if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.disabled = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra;
+    if (btnVacaciones) btnVacaciones.disabled = esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
+    if (btnLD) btnLD.disabled = esDiaVacaciones || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
+    if (btnDisfruteHorasExtra) btnDisfruteHorasExtra.disabled = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
+    if (btnDisfruteExcesoJornada) btnDisfruteExcesoJornada.disabled = esDiaVacaciones || esDiaLD || esDiaDisfruteHorasExtra || esDiaDisfruteExcesoJornada;
 
     if (esDiaNoTrabajable) {
       if (btnIniciarJornada) btnIniciarJornada.disabled = true;
@@ -2034,6 +2168,10 @@ if(festivos && festivos[fechaISO]){
 
         div.innerHTML += `<span class="cal-day-disfrute-horas" aria-label="Disfrute horas extra">⏳</span>`;
 
+      } else if (registro.disfruteExcesoJornada) {
+
+        div.innerHTML += `<span class="cal-day-disfrute-exceso" aria-label="Disfrute exceso de jornada">🔋</span>`;
+
       } else {
 
         var saldoHtml = "";
@@ -2052,7 +2190,7 @@ if(festivos && festivos[fechaISO]){
         if (saldoDiaMin !== 0) {
           var sign = saldoDiaMin > 0 ? "+" : "\u2212";
           var absMin = Math.abs(saldoDiaMin);
-          var decimalH = (absMin / 60).toFixed(1).replace(".", ",");
+          var decimalH = (absMin / 60).toFixed(2).replace(".", ",");
           var hm = (saldoDiaMin >= 0 ? "+" : "") + minutosAHorasMinutos(saldoDiaMin);
           var cls = saldoDiaMin > 0 ? "cal-saldo-pos" : "cal-saldo-neg";
           saldoHtml += "<small class=\"cal-saldo " + cls + "\">" + sign + decimalH + "h</small>";
@@ -2060,7 +2198,7 @@ if(festivos && festivos[fechaISO]){
         }
 
         if (registro.disfrutadasManualMin > 0) {
-          saldoHtml += "<small class=\"cal-disfrutadas\">Disfr. " + (registro.disfrutadasManualMin / 60).toFixed(1) + "h</small>";
+          saldoHtml += "<small class=\"cal-disfrutadas\">Disfr. " + (registro.disfrutadasManualMin / 60).toFixed(2).replace(".", ",") + "h</small>";
         }
         }
 
@@ -2075,7 +2213,7 @@ if(festivos && festivos[fechaISO]){
         div.innerHTML += saldoHtml;
       }
     } else if (deduccionDia > 0) {
-      var decimalH = (deduccionDia / 60).toFixed(1).replace(".", ",");
+      var decimalH = (deduccionDia / 60).toFixed(2).replace(".", ",");
       var hm = "\u2212" + minutosAHorasMinutos(-deduccionDia);
       div.innerHTML += "<small class=\"cal-saldo cal-saldo-neg\">\u2212" + decimalH + "h</small>";
       div.innerHTML += "<small class=\"cal-saldo cal-saldo-hm cal-saldo-neg\">" + hm + "</small>";
@@ -2098,7 +2236,7 @@ if(festivos && festivos[fechaISO]){
     const registro = state.registros[fechaISO];
     const set = (el, val) => { if (el) el.value = val; };
     if (registro) {
-      if (registro.vacaciones || registro.libreDisposicion || registro.disfruteHorasExtra) {
+      if (registro.vacaciones || registro.libreDisposicion || registro.disfruteHorasExtra || registro.disfruteExcesoJornada) {
         set(entrada, ""); set(salida, ""); set(disfrutadas, "0"); set(minAntes, "0");
       } else {
         set(entrada, registro.entrada || "");

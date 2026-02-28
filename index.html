@@ -57,6 +57,19 @@
   </div>
 </div>
 
+<!-- Modal: ¿De qué saldo se descuenta el tiempo no trabajado? (al salir antes / pase sin justificar / fin de jornada) -->
+<div id="modalDescuentoDe" class="modal-extender" role="dialog" aria-labelledby="modalDescuentoDeTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalDescuentoDeTitulo" class="modal-extender-titulo">¿De qué saldo se descuenta?</h3>
+    <p class="modal-extender-texto">El tiempo no trabajado se descontará del saldo que elijas:</p>
+    <div class="modal-extender-botones modal-pase-botones">
+      <button type="button" id="modalDescuentoDeTxT" class="modal-extender-btn modal-pase-justificado">TxT</button>
+      <button type="button" id="modalDescuentoDeExceso" class="modal-extender-btn modal-desc-exceso">Exceso de jornada</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Confirmar restaurar valores de fábrica -->
 <div id="modalConfirmarFabrica" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarFabricaTitulo" aria-modal="true" hidden>
   <div class="modal-extender-backdrop"></div>
@@ -323,8 +336,12 @@
         LD
       </button>
 
-      <button type="button" id="disfruteHorasExtra" class="btn-disfrute-horas" title="Disfrutar este día como horas extra (se descontarán del banco de horas)" data-solo-gp34>
+      <button type="button" id="disfruteHorasExtra" class="btn-disfrute-horas" title="Disfrutar este día como horas TxT (se descontarán del banco TxT)" data-solo-gp34>
         Disfr. TxT
+      </button>
+
+      <button type="button" id="disfruteExcesoJornada" class="btn-disfrute-exceso" title="Disfrutar este día descontando exceso de jornada" data-solo-gp34>
+        Disfr. exceso
       </button>
 
       <button type="button" id="eliminar" class="btn-danger">
@@ -450,33 +467,49 @@
       </div>
 
       <div class="metric metric-total">
-        <span>Total disponible (acumulado)</span>
-        <strong id="bTotalDisponible"></strong>
+        <span>Total disponible TxT (Acumulado)</span>
+        <strong id="bTotalDisponibleTxT"></strong>
+        <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
+      </div>
+
+      <div class="metric metric-total">
+        <span>Total disponible exc. jornada (Acumulado)</span>
+        <strong id="bTotalDisponibleExceso"></strong>
+        <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
       </div>
 
       <div class="metric">
-        <span>Extra (Anual)</span>
+        <span>TxT generado (Anual)</span>
         <strong id="bGeneradas"></strong>
+        <small id="bGeneradasDias" class="metric-dias"></small>
       </div>
 
       <div class="metric">
-        <span>Exceso jornada (Anual)</span>
+        <span>Exceso de jornada (Anual)</span>
         <strong id="bExceso"></strong>
+        <small id="bExcesoDias" class="metric-dias"></small>
       </div>
 
       <div class="metric">
-        <span>Negativas (Anual)</span>
-        <strong id="bNegativas"></strong>
-      </div>
-
-      <div class="metric">
-        <span>Disfrutadas (Anual)</span>
+        <span>Horas TxT gastadas (Anual)</span>
         <strong id="bDisfrutadas"></strong>
+        <small id="bDisfrutadasDias" class="metric-dias"></small>
+      </div>
+
+      <div class="metric">
+        <span>Horas exceso jornada gastadas (Anual)</span>
+        <strong id="bDisfruteExceso"></strong>
+        <small id="bDisfruteExcesoDias" class="metric-dias"></small>
       </div>
 
       <div class="metric">
         <span>Disfr. h. extra (Anual)</span>
         <strong id="bDisfruteHorasExtra"></strong>
+      </div>
+
+      <div class="metric">
+        <span>Negativas (Anual)</span>
+        <strong id="bNegativas"></strong>
       </div>
 
       <div class="metric saldo">

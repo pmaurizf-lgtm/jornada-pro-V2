@@ -1347,6 +1347,39 @@ body.dark .btn-disfrute-horas {
   color: #ffffff;
 }
 
+.btn-disfrute-exceso {
+  background: #0d9488;
+  color: #ffffff;
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn-disfrute-exceso:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-disfrute-exceso:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+body.dark .btn-disfrute-exceso {
+  background: #14b8a6;
+  color: #ffffff;
+}
+
+.cal-day-disfrute-exceso {
+  font-size: 1.1em;
+  display: inline-block;
+  line-height: 1;
+}
+
 /* ============================= */
 /* PROGRESS BAR ELITE           */
 /* ============================= */
@@ -2166,6 +2199,17 @@ body:not(.dark) .cal-day.festivo-ferrol small {
   color: var(--text);
   border: 1px solid var(--accent, #3b82f6);
   width: 100%;
+}
+
+.modal-desc-exceso {
+  background: #0d9488;
+  color: #fff;
+  width: 100%;
+}
+
+body.dark .modal-desc-exceso {
+  background: #14b8a6;
+  color: #fff;
 }
 
 .bolsa-experimental {
