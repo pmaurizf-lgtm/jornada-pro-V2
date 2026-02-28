@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const calendarGrid = document.getElementById("calendarGrid");
   const mesAnioLabel = document.getElementById("mesAnioLabel");
+  const calendarLegend = document.getElementById("calendarLegend");
   const prevMes = document.getElementById("prevMes");
   const nextMes = document.getElementById("nextMes");
 
@@ -2424,6 +2425,8 @@ function renderCalendario() {
     fragment.appendChild(empty);
   }
 
+  const legendActive = { ld: false, vacaciones: false, disfruteHorasExtra: false, disfruteExceso: false, licencia: false, jornadaCompletada: false, paseSinJustificar: false };
+
   for(let d=1; d<=totalDias; d++){
 
     const fechaISO =
@@ -2481,23 +2484,28 @@ if(festivos && festivos[fechaISO]){
 
       if (registro.libreDisposicion) {
 
+        legendActive.ld = true;
         div.innerHTML += `<span class="cal-day-vacaciones" aria-label="Libre disposición">🕶️</span>`;
 
       } else if (registro.vacaciones) {
 
+        legendActive.vacaciones = true;
         div.innerHTML += `<span class="cal-day-vacaciones" aria-label="Vacaciones">🏖️</span>`;
 
       } else if (registro.disfruteHorasExtra) {
 
+        legendActive.disfruteHorasExtra = true;
         div.innerHTML += `<span class="cal-day-disfrute-horas" aria-label="Disfrute horas extra">⏳</span>`;
 
       } else if (registro.disfruteExcesoJornada) {
 
+        legendActive.disfruteExceso = true;
         div.classList.add("cal-day--disfrute-exceso");
         div.innerHTML += `<span class="cal-day-disfrute-exceso" aria-label="Disfrute exceso de jornada (pila gastada)">🪫</span>`;
 
       } else if (registro.licenciaRetribuida) {
 
+        legendActive.licencia = true;
         div.classList.add("cal-day--licencia");
         div.innerHTML += `<span class="cal-day-licencia" aria-label="Licencia retribuida">🎫</span>`;
 
@@ -2534,8 +2542,10 @@ if(festivos && festivos[fechaISO]){
         if (registro.entrada && registro.salidaReal != null) {
           var esPaseSinJustificar = registro.paseSinJustificado === true || (state.earlyExitState && state.earlyExitState.fecha === fechaISO);
           if (esPaseSinJustificar) {
+            legendActive.paseSinJustificar = true;
             saldoHtml += "<span class=\"cal-day-especial\" aria-hidden=\"true\"><span class=\"cal-day-especial-symbol\">*</span></span>";
           } else {
+            legendActive.jornadaCompletada = true;
             saldoHtml += "<span class=\"cal-day-completed\" aria-hidden=\"true\"><span class=\"cal-day-completed-check\">\u2713</span></span>";
           }
         }
@@ -2559,6 +2569,31 @@ if(festivos && festivos[fechaISO]){
 
   if (mesAnioLabel) mesAnioLabel.innerText =
     `${nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1)} ${currentYear}`;
+
+  if (calendarLegend) {
+    const items = [];
+    if (legendActive.ld) items.push({ icon: "🕶️", text: "Libre disposición" });
+    if (legendActive.vacaciones) items.push({ icon: "🏖️", text: "Vacaciones" });
+    if (legendActive.disfruteHorasExtra) items.push({ icon: "⏳", text: "Disfr. TxT" });
+    if (legendActive.disfruteExceso) items.push({ icon: "🪫", text: "Disfr. exceso" });
+    if (legendActive.licencia) items.push({ icon: "🎫", text: "Licencia retribuida" });
+    if (legendActive.jornadaCompletada) items.push({ icon: "leyenda-check", text: "Jornada completada" });
+    if (legendActive.paseSinJustificar) items.push({ icon: "leyenda-asterisco", text: "Jornada no completa (pase)" });
+    if (items.length === 0) {
+      calendarLegend.innerHTML = "";
+      calendarLegend.hidden = true;
+    } else {
+      calendarLegend.hidden = false;
+      calendarLegend.innerHTML = items.map((it) => {
+        const iconHtml = it.icon === "leyenda-check"
+          ? "<span class=\"cal-leyenda-icon cal-leyenda-check\">✓</span>"
+          : it.icon === "leyenda-asterisco"
+            ? "<span class=\"cal-leyenda-icon cal-leyenda-asterisco\">*</span>"
+            : "<span class=\"cal-leyenda-emoji\">" + it.icon + "</span>";
+        return "<span class=\"cal-leyenda-item\">" + iconHtml + "<span class=\"cal-leyenda-texto\">" + it.text + "</span></span>";
+      }).join("");
+    }
+  }
 
   actualizarBanco();
   actualizarGrafico();

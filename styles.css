@@ -941,6 +941,54 @@ body.dark .metric {
   margin-top: 15px;
 }
 
+/* Leyenda del calendario (solo símbolos presentes en el mes visible) */
+.cal-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--text);
+}
+.cal-leyenda:empty,
+.cal-leyenda[hidden] {
+  display: none;
+}
+.cal-leyenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.cal-leyenda-emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.cal-leyenda-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.cal-leyenda-check {
+  background: #22c55e;
+  color: #fff;
+}
+.cal-leyenda-asterisco {
+  background: #d97706;
+  color: #fff;
+}
+.cal-leyenda-texto {
+  white-space: nowrap;
+}
+
 .cal-nav {
   display: flex;
   justify-content: space-between;
