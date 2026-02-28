@@ -314,12 +314,7 @@
       </div>
 
     </div>
-
-    <!-- DISFRUTADAS (solo GP3/GP4) -->
-    <div class="floating-group" id="wrapDisfrutadas">
-      <input type="number" id="disfrutadas" min="0">
-      <label for="disfrutadas">Horas disfrutadas (min)</label>
-    </div>
+    <input type="hidden" id="disfrutadas" value="0">
 
     <!-- BOTONES -->
     <div class="acciones-row">
@@ -460,67 +455,76 @@
       </div>
     </div>
     <!-- Modo horas TxT (GP3/GP4) -->
-    <div id="bankPanelHorasTxT">
-      <div class="metrics-header">
-        <label class="metrics-year-label" for="selectBankYear">Año</label>
-        <select id="selectBankYear" class="metrics-year-select" aria-label="Año del banco de horas"></select>
-      </div>
-
+    <div id="bankPanelHorasTxT" class="bank-txt-wrap">
+      <!-- Totales siempre visibles -->
       <div class="metric metric-total">
         <span>Total disponible TxT (Acumulado)</span>
         <strong id="bTotalDisponibleTxT"></strong>
         <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
       </div>
-
       <div class="metric metric-total">
         <span>Total disponible exc. jornada (Acumulado)</span>
         <strong id="bTotalDisponibleExceso"></strong>
         <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
       </div>
 
-      <div class="metric">
-        <span>TxT generado (Anual)</span>
-        <strong id="bGeneradas"></strong>
-        <small id="bGeneradasDias" class="metric-dias"></small>
-      </div>
+      <!-- Desglose anual (desplegable) -->
+      <details class="bank-desplegable" id="bankDesgloseAnual">
+        <summary class="bank-desplegable-summary">
+          <span>Desglose anual</span>
+          <label class="metrics-year-label bank-desplegable-year" for="selectBankYear">Año</label>
+          <select id="selectBankYear" class="metrics-year-select" aria-label="Año del banco de horas"></select>
+        </summary>
+        <div class="bank-desplegable-content">
+          <div class="metric">
+            <span>TxT generado (Anual)</span>
+            <strong id="bGeneradas"></strong>
+            <small id="bGeneradasDias" class="metric-dias"></small>
+          </div>
+          <div class="metric">
+            <span>Exceso de jornada (Anual)</span>
+            <strong id="bExceso"></strong>
+            <small id="bExcesoDias" class="metric-dias"></small>
+          </div>
+          <div class="metric">
+            <span>Horas TxT gastadas (Anual)</span>
+            <strong id="bDisfrutadas"></strong>
+            <small id="bDisfrutadasDias" class="metric-dias"></small>
+          </div>
+          <div class="metric">
+            <span>Horas exceso jornada gastadas (Anual)</span>
+            <strong id="bDisfruteExceso"></strong>
+            <small id="bDisfruteExcesoDias" class="metric-dias"></small>
+          </div>
+        </div>
+      </details>
 
-      <div class="metric">
-        <span>Exceso de jornada (Anual)</span>
-        <strong id="bExceso"></strong>
-        <small id="bExcesoDias" class="metric-dias"></small>
-      </div>
-
-      <div class="metric">
-        <span>Horas TxT gastadas (Anual)</span>
-        <strong id="bDisfrutadas"></strong>
-        <small id="bDisfrutadasDias" class="metric-dias"></small>
-      </div>
-
-      <div class="metric">
-        <span>Horas exceso jornada gastadas (Anual)</span>
-        <strong id="bDisfruteExceso"></strong>
-        <small id="bDisfruteExcesoDias" class="metric-dias"></small>
-      </div>
-
-      <div class="metric">
-        <span>Disfr. h. extra (Anual)</span>
-        <strong id="bDisfruteHorasExtra"></strong>
-      </div>
-
-      <div class="metric">
-        <span>Negativas (Anual)</span>
-        <strong id="bNegativas"></strong>
-      </div>
-
-      <div class="metric saldo">
-        <span>Saldo Anual</span>
-        <strong id="bSaldoAnual"></strong>
-      </div>
-
-      <div class="metric saldo">
-        <span>Saldo Mensual</span>
-        <strong id="bSaldo"></strong>
-      </div>
+      <!-- Desglose mes en curso (desplegable) -->
+      <details class="bank-desplegable" id="bankDesgloseMes">
+        <summary class="bank-desplegable-summary">Desglose mes en curso</summary>
+        <div class="bank-desplegable-content">
+          <div class="metric">
+            <span>TxT generado (Mes en curso)</span>
+            <strong id="bGeneradasMes"></strong>
+            <small id="bGeneradasMesDias" class="metric-dias"></small>
+          </div>
+          <div class="metric">
+            <span>Exceso de jornada (Mes en curso)</span>
+            <strong id="bExcesoMes"></strong>
+            <small id="bExcesoMesDias" class="metric-dias"></small>
+          </div>
+          <div class="metric">
+            <span>Horas TxT gastadas (Mes en curso)</span>
+            <strong id="bDisfrutadasMes"></strong>
+            <small id="bDisfrutadasMesDias" class="metric-dias"></small>
+          </div>
+          <div class="metric">
+            <span>Horas exceso jornada gastadas (Mes en curso)</span>
+            <strong id="bDisfruteExcesoMes"></strong>
+            <small id="bDisfruteExcesoMesDias" class="metric-dias"></small>
+          </div>
+        </div>
+      </details>
     </div>
   </div>
 

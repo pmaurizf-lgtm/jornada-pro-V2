@@ -662,6 +662,90 @@ body.dark .bank-tab.bank-tab--active {
   width: 100%;
 }
 
+/* Banco TxT: contenedor y desplegables */
+#bankPanelHorasTxT {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.bank-txt-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.bank-desplegable {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+}
+
+body.dark .bank-desplegable {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.bank-desplegable-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  list-style: none;
+  user-select: none;
+}
+
+.bank-desplegable-summary::-webkit-details-marker {
+  display: none;
+}
+
+.bank-desplegable-summary::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid currentColor;
+  margin-right: 4px;
+  opacity: 0.8;
+  transition: transform 0.2s ease;
+}
+
+.bank-desplegable[open] .bank-desplegable-summary::before {
+  transform: rotate(180deg);
+}
+
+.bank-desplegable-year {
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.bank-desplegable .metrics-year-select {
+  min-width: 80px;
+}
+
+.bank-desplegable-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--border);
+}
+
+body.dark .bank-desplegable-content {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+.bank-desplegable-content .metric {
+  min-width: 0;
+}
+
 #bankPanelHoras #bankPanelHorasTxT .metrics-header {
   flex-basis: 100%;
   width: 100%;
@@ -1374,10 +1458,24 @@ body.dark .btn-disfrute-exceso {
   color: #ffffff;
 }
 
+/* Día con disfrute exceso de jornada: icono pila gastada centrado y grande */
+.cal-day.cal-day--disfrute-exceso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cal-day.cal-day--disfrute-exceso > div:first-child {
+  align-self: flex-start;
+}
+
 .cal-day-disfrute-exceso {
-  font-size: 1.1em;
-  display: inline-block;
+  font-size: 2.5rem;
   line-height: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ============================= */
