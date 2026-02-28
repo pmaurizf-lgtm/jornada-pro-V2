@@ -106,6 +106,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalDescuentoDe = document.getElementById("modalDescuentoDe");
   const modalDescuentoDeTxT = document.getElementById("modalDescuentoDeTxT");
   const modalDescuentoDeExceso = document.getElementById("modalDescuentoDeExceso");
+  const modalIniciarOtroPeriodo = document.getElementById("modalIniciarOtroPeriodo");
+  const modalIniciarOtroPeriodoNo = document.getElementById("modalIniciarOtroPeriodoNo");
+  const modalIniciarOtroPeriodoSi = document.getElementById("modalIniciarOtroPeriodoSi");
+
+  const btnLicenciasRetribuidas = document.getElementById("btnLicenciasRetribuidas");
+  const modalLicenciasRetribuidas = document.getElementById("modalLicenciasRetribuidas");
+  const modalLicenciasLista = document.getElementById("modalLicenciasLista");
+  const modalLicenciasCerrar = document.getElementById("modalLicenciasCerrar");
+  const modalLicenciaDesplazamiento = document.getElementById("modalLicenciaDesplazamiento");
+  const modalLicenciaDesplazamientoNo = document.getElementById("modalLicenciaDesplazamientoNo");
+  const modalLicenciaDesplazamientoSi = document.getElementById("modalLicenciaDesplazamientoSi");
+  const modalLicenciaTiempoNecesario = document.getElementById("modalLicenciaTiempoNecesario");
+  const inputLicenciaDiasNecesarios = document.getElementById("inputLicenciaDiasNecesarios");
+  const modalLicenciaTiempoCancelar = document.getElementById("modalLicenciaTiempoCancelar");
+  const modalLicenciaTiempoAplicar = document.getElementById("modalLicenciaTiempoAplicar");
 
   const bankTabHoras = document.getElementById("bankTabHoras");
   const bankTabVacaciones = document.getElementById("bankTabVacaciones");
@@ -1008,6 +1023,110 @@ function controlarNotificaciones() {
     return d.toISOString().slice(0, 10);
   }
 
+  function esLaborable(fechaISO) {
+    const [y, mo, d] = fechaISO.split("-").map(Number);
+    const dow = new Date(y, mo - 1, d).getDay();
+    if (dow === 0 || dow === 6) return false;
+    const festivos = obtenerFestivos(y);
+    return !(festivos && festivos[fechaISO]);
+  }
+
+  /** Devuelve un array de N fechas laborables a partir de startISO (incluida). */
+  function getLaborableDaysFrom(startISO, n) {
+    const out = [];
+    let cur = startISO;
+    const maxIter = 400;
+    let iter = 0;
+    while (out.length < n && iter++ < maxIter) {
+      if (esLaborable(cur)) out.push(cur);
+      cur = nextDayISO(cur);
+    }
+    return out;
+  }
+
+  /** Devuelve un array de N días naturales consecutivos a partir de startISO (incluida). */
+  function getNaturalDaysFrom(startISO, n) {
+    const out = [];
+    let cur = startISO;
+    for (let i = 0; i < n; i++) {
+      out.push(cur);
+      cur = nextDayISO(cur);
+    }
+    return out;
+  }
+
+  const LICENCIAS_RETRIBUIDAS_OPCIONES = [
+    { id: "fal_1", titulo: "Fallecimiento: cónyuge, pareja, hijo, familiar 1º grado", dias: 5, laborables: true, diasLabel: "5 días laborables" },
+    { id: "fal_2", titulo: "Fallecimiento: familiares hasta 2º grado", dias: 3, diasSiDesplazamiento: 4, laborables: true, desplazamiento: true, diasLabel: "3 laborables (4 si desplazamiento)" },
+    { id: "fal_3", titulo: "Fallecimiento: familiares 3º grado y primos hermanos", dias: 1, laborables: true, diasLabel: "1 día laborable" },
+    { id: "enf", titulo: "Enfermedad grave / hospitalización (cónyuge, pareja, 2º grado, etc.)", dias: 5, laborables: true, diasLabel: "5 días laborables" },
+    { id: "mat_celeb", titulo: "Matrimonio o pareja de hecho (hijos, hermanos, padres)", dias: 1, laborables: false, diasLabel: "1 día natural (día ceremonia)" },
+    { id: "com_baut", titulo: "Primera comunión o bautizo (hijos o nietos)", dias: 1, laborables: false, diasLabel: "1 día natural" },
+    { id: "nac_hijo", titulo: "Nacimiento de hijo", dias: 3, laborables: true, diasLabel: "3 días laborables" },
+    { id: "nac_nietos", titulo: "Nacimiento de nietos", dias: 2, diasSiDesplazamiento: 4, laborables: false, desplazamiento: true, diasLabel: "2 naturales (4 si desplazamiento)" },
+    { id: "mat_propio", titulo: "Matrimonio propio", laborables: true, tiempoNecesario: true, diasLabel: "Tiempo necesario (dentro del año siguiente)" },
+    { id: "emb_adop", titulo: "Embarazo / adopción (exámenes prenatales, acogimiento)", laborables: true, tiempoNecesario: true, diasLabel: "Tiempo necesario" },
+    { id: "traslado", titulo: "Traslado de domicilio habitual", dias: 2, laborables: true, diasLabel: "2 días (pueden ser alternos)" },
+    { id: "func_pub", titulo: "Funciones municipales o autonómicas no retribuidas", laborables: true, tiempoNecesario: true, diasLabel: "Tiempo necesario (con convocatoria)" },
+    { id: "deber_pub", titulo: "Deber inexcusable (cita judicial, Hacienda, DNI/Pasaporte)", laborables: true, tiempoNecesario: true, diasLabel: "Tiempo necesario" },
+    { id: "lactancia", titulo: "Lactancia y guarda legal (horas o reducción, no días completos)", dias: 0, diasLabel: "No aplica días en calendario" }
+  ];
+
+  let pendingLicenciaOpcion = null;
+
+  function aplicarLicenciaRetribuida(fechas, tipoId) {
+    if (!fechas || fechas.length === 0) return;
+    fechas.forEach((f) => {
+      state.registros[f] = {
+        licenciaRetribuida: true,
+        licenciaRetribuidaTipo: tipoId
+      };
+    });
+    saveState(state);
+    renderCalendario();
+    actualizarResumenDia();
+    actualizarEstadoEliminar();
+  }
+
+  function abrirModalLicenciasRetribuidas() {
+    if (!modalLicenciasLista) return;
+    modalLicenciasLista.innerHTML = "";
+    LICENCIAS_RETRIBUIDAS_OPCIONES.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "modal-licencia-opcion";
+      btn.dataset.id = opt.id;
+      btn.innerHTML = "<span class=\"licencia-titulo\">" + (opt.titulo || "").replace(/</g, "&lt;") + "</span><span class=\"licencia-dias\">" + (opt.diasLabel || "").replace(/</g, "&lt;") + "</span>";
+      btn.addEventListener("click", () => elegirOpcionLicencia(opt));
+      modalLicenciasLista.appendChild(btn);
+    });
+    if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = false;
+  }
+
+  function elegirOpcionLicencia(opt) {
+    const fechaInicio = (fecha && fecha.value) ? fecha.value : getHoyISO();
+    if (opt.dias === 0) {
+      alert("Esta licencia no implica días completos en el calendario (horas o reducción de jornada).");
+      return;
+    }
+    if (opt.desplazamiento) {
+      pendingLicenciaOpcion = { opt, fechaInicio };
+      if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = true;
+      if (modalLicenciaDesplazamiento) modalLicenciaDesplazamiento.hidden = false;
+      return;
+    }
+    if (opt.tiempoNecesario) {
+      pendingLicenciaOpcion = { opt, fechaInicio };
+      if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = true;
+      if (inputLicenciaDiasNecesarios) inputLicenciaDiasNecesarios.value = "1";
+      if (modalLicenciaTiempoNecesario) modalLicenciaTiempoNecesario.hidden = false;
+      return;
+    }
+    const fechas = opt.laborables ? getLaborableDaysFrom(fechaInicio, opt.dias) : getNaturalDaysFrom(fechaInicio, opt.dias);
+    aplicarLicenciaRetribuida(fechas, opt.id);
+    if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = true;
+  }
+
   function pasadoFinTeorico(early) {
     if (!early || !early.endDate) return true;
     const hoy = getHoyISO();
@@ -1123,6 +1242,111 @@ function controlarNotificaciones() {
     });
   }
 
+  if (modalIniciarOtroPeriodoNo) {
+    modalIniciarOtroPeriodoNo.addEventListener("click", () => {
+      if (modalIniciarOtroPeriodo) modalIniciarOtroPeriodo.hidden = true;
+      pendingIniciarOtroPeriodoDia = null;
+    });
+  }
+  if (modalIniciarOtroPeriodoSi) {
+    modalIniciarOtroPeriodoSi.addEventListener("click", () => {
+      const dia = pendingIniciarOtroPeriodoDia;
+      if (!dia || !state.registros[dia]) {
+        if (modalIniciarOtroPeriodo) modalIniciarOtroPeriodo.hidden = true;
+        pendingIniciarOtroPeriodoDia = null;
+        return;
+      }
+      const registro = state.registros[dia];
+      registro.entradaPrimera = registro.entrada;
+      registro.trabajadosMinAcumulado = registro.trabajadosMin != null ? registro.trabajadosMin : 0;
+      registro.entrada = horaInicioJornada();
+      registro.salidaReal = null;
+      if ("extraGeneradaMin" in registro) registro.extraGeneradaMin = 0;
+      if ("negativaMin" in registro) registro.negativaMin = 0;
+      if ("excesoJornadaMin" in registro) registro.excesoJornadaMin = 0;
+      if (fecha) fecha.value = dia;
+      if (entrada) entrada.value = registro.entrada;
+      if (salida) salida.value = "";
+      if (minAntes) minAntes.value = "0";
+      if (disfrutadas) disfrutadas.value = "0";
+      saveState(state);
+      renderCalendario();
+      actualizarResumenDia();
+      actualizarEstadoIniciarJornada();
+      actualizarEstadoEliminar();
+      if (modalIniciarOtroPeriodo) modalIniciarOtroPeriodo.hidden = true;
+      pendingIniciarOtroPeriodoDia = null;
+    });
+  }
+  if (modalIniciarOtroPeriodo) {
+    const backdropOtroPeriodo = modalIniciarOtroPeriodo.querySelector(".modal-extender-backdrop");
+    if (backdropOtroPeriodo) backdropOtroPeriodo.addEventListener("click", () => {
+      modalIniciarOtroPeriodo.hidden = true;
+      pendingIniciarOtroPeriodoDia = null;
+    });
+  }
+
+  if (btnLicenciasRetribuidas) btnLicenciasRetribuidas.addEventListener("click", abrirModalLicenciasRetribuidas);
+  if (modalLicenciasCerrar) modalLicenciasCerrar.addEventListener("click", () => { if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = true; });
+  if (modalLicenciasRetribuidas) {
+    const backdropLic = modalLicenciasRetribuidas.querySelector(".modal-extender-backdrop");
+    if (backdropLic) backdropLic.addEventListener("click", () => { modalLicenciasRetribuidas.hidden = true; });
+  }
+
+  if (modalLicenciaDesplazamientoNo) {
+    modalLicenciaDesplazamientoNo.addEventListener("click", () => {
+      if (!pendingLicenciaOpcion) { if (modalLicenciaDesplazamiento) modalLicenciaDesplazamiento.hidden = true; return; }
+      const { opt, fechaInicio } = pendingLicenciaOpcion;
+      const fechas = opt.laborables ? getLaborableDaysFrom(fechaInicio, opt.dias) : getNaturalDaysFrom(fechaInicio, opt.dias);
+      aplicarLicenciaRetribuida(fechas, opt.id);
+      pendingLicenciaOpcion = null;
+      if (modalLicenciaDesplazamiento) modalLicenciaDesplazamiento.hidden = true;
+    });
+  }
+  if (modalLicenciaDesplazamientoSi) {
+    modalLicenciaDesplazamientoSi.addEventListener("click", () => {
+      if (!pendingLicenciaOpcion) { if (modalLicenciaDesplazamiento) modalLicenciaDesplazamiento.hidden = true; return; }
+      const { opt, fechaInicio } = pendingLicenciaOpcion;
+      const numDias = opt.diasSiDesplazamiento != null ? opt.diasSiDesplazamiento : opt.dias;
+      const fechas = opt.laborables ? getLaborableDaysFrom(fechaInicio, numDias) : getNaturalDaysFrom(fechaInicio, numDias);
+      aplicarLicenciaRetribuida(fechas, opt.id);
+      pendingLicenciaOpcion = null;
+      if (modalLicenciaDesplazamiento) modalLicenciaDesplazamiento.hidden = true;
+    });
+  }
+  if (modalLicenciaDesplazamiento) {
+    const backdropDesp = modalLicenciaDesplazamiento.querySelector(".modal-extender-backdrop");
+    if (backdropDesp) backdropDesp.addEventListener("click", () => { modalLicenciaDesplazamiento.hidden = true; pendingLicenciaOpcion = null; });
+  }
+
+  if (modalLicenciaTiempoCancelar) {
+    modalLicenciaTiempoCancelar.addEventListener("click", () => {
+      if (modalLicenciaTiempoNecesario) modalLicenciaTiempoNecesario.hidden = true;
+      pendingLicenciaOpcion = null;
+      if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = false;
+    });
+  }
+  if (modalLicenciaTiempoAplicar) {
+    modalLicenciaTiempoAplicar.addEventListener("click", () => {
+      if (!pendingLicenciaOpcion) { if (modalLicenciaTiempoNecesario) modalLicenciaTiempoNecesario.hidden = true; return; }
+      const n = Math.max(1, Math.min(365, parseInt(inputLicenciaDiasNecesarios?.value, 10) || 1));
+      const { opt, fechaInicio } = pendingLicenciaOpcion;
+      const fechas = getLaborableDaysFrom(fechaInicio, n);
+      aplicarLicenciaRetribuida(fechas, opt.id);
+      pendingLicenciaOpcion = null;
+      if (modalLicenciaTiempoNecesario) modalLicenciaTiempoNecesario.hidden = true;
+      if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = true;
+    });
+  }
+  if (modalLicenciaTiempoNecesario) {
+    const backdropTn = modalLicenciaTiempoNecesario.querySelector(".modal-extender-backdrop");
+    if (backdropTn) backdropTn.addEventListener("click", () => {
+      modalLicenciaTiempoNecesario.hidden = true;
+      pendingLicenciaOpcion = null;
+      if (modalLicenciasRetribuidas) modalLicenciasRetribuidas.hidden = false;
+    });
+  }
+
   let tickIntervalMs = 1000;
   let tickTimer = null;
   function programarTick() {
@@ -1197,9 +1421,22 @@ function controlarNotificaciones() {
     return { time: String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0"), nextDay };
   }
 
+  /** True si la fecha es sábado, domingo o festivo (no jornada regular; no se muestran pases de salida). */
+  function esDiaNoLaborable(fechaISO) {
+    if (!fechaISO) return false;
+    const [y, m, d] = fechaISO.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    const dow = date.getDay();
+    if (dow === 0 || dow === 6) return true;
+    const festivos = obtenerFestivos(y);
+    return !!(festivos && festivos[fechaISO]);
+  }
+
   let pendingPaseSalida = null;
   /** Cuando se abre el modal "¿De qué saldo se descuenta?": { accion: "sinJustificar"|"finJornada", salidaValue, fechaClave } */
   let pendingDescuento = null;
+  /** Día (YYYY-MM-DD) cuando se abre el modal "Iniciar otro periodo" en sábado/domingo/festivo */
+  let pendingIniciarOtroPeriodoDia = null;
 
   function abrirModalPaseSalida(salidaValue) {
     if (!modalPaseSalida) return;
@@ -1310,14 +1547,25 @@ function controlarNotificaciones() {
       trabajoATurnos: state.config.trabajoATurnos === true
     });
 
+    const prev = state.registros[fecha.value];
+    let entradaParaReg = entrada.value;
+    let trabajadosParaReg = resultado.trabajadosMin || 0;
+    if (prev && prev.trabajadosMinAcumulado != null) {
+      entradaParaReg = prev.entradaPrimera != null ? prev.entradaPrimera : entrada.value;
+      trabajadosParaReg = (prev.trabajadosMinAcumulado || 0) + (resultado.trabajadosMin || 0);
+    }
+
     var yaPaseSinJustificado = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
     var reg = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
-      entrada: entrada.value,
+      entrada: entradaParaReg,
       salidaReal: salida.value || null,
+      trabajadosMin: trabajadosParaReg,
       disfrutadasManualMin: Number(disfrutadas.value) || 0,
       vacaciones: false
     }, fecha.value);
+    delete reg.entradaPrimera;
+    delete reg.trabajadosMinAcumulado;
     if (yaPaseSinJustificado) reg.paseSinJustificado = true;
     if (descuentoDe === "TxT" || descuentoDe === "excesoJornada") reg.descuentoDe = descuentoDe;
     state.registros[fecha.value] = reg;
@@ -1405,7 +1653,10 @@ function controlarNotificaciones() {
         }
         const deduccion = Math.min(elapsedMin, Math.max(0, rangeMin));
         state.deduccionesPorAusencia[hoy] = (state.deduccionesPorAusencia[hoy] || 0) + deduccion;
-        delete state.registros[hoy];
+        if (state.registros[hoy]) {
+          state.registros[hoy].salidaReal = null;
+          state.registros[hoy].paseSinJustificado = true;
+        }
         state.earlyExitState = null;
         if (fecha) fecha.value = hoy;
         if (entrada) entrada.value = early.entrada;
@@ -1419,6 +1670,13 @@ function controlarNotificaciones() {
         actualizarEstadoEliminar();
         actualizarEstadoIniciarJornada();
         actualizarResumenDia();
+        return;
+      }
+
+      const diaSel = (fecha && fecha.value) ? fecha.value : hoy;
+      if (esDiaNoLaborable(diaSel) && state.registros[diaSel] && state.registros[diaSel].salidaReal != null && modalIniciarOtroPeriodo) {
+        pendingIniciarOtroPeriodoDia = diaSel;
+        modalIniciarOtroPeriodo.hidden = false;
         return;
       }
 
@@ -1480,8 +1738,13 @@ function controlarNotificaciones() {
         }
         const salidaAhora = ahoraHoraISO();
         if (esSalidaAnticipada(salidaAhora)) {
-          abrirModalPaseSalida(salidaAhora);
-          setThumbPosition(0);
+          if (esDiaNoLaborable(fecha.value)) {
+            ejecutarFinalizarJornada();
+            setThumbPosition(0);
+          } else {
+            abrirModalPaseSalida(salidaAhora);
+            setThumbPosition(0);
+          }
         } else {
           ejecutarFinalizarJornada();
           setThumbPosition(0);
@@ -1529,7 +1792,7 @@ function controlarNotificaciones() {
     if (!fecha.value || !entrada.value) return;
 
     const salidaParaGuardar = salida.value || null;
-    if (fecha.value === getHoyISO() && salidaParaGuardar && esSalidaAnticipada(salidaParaGuardar)) {
+    if (fecha.value === getHoyISO() && salidaParaGuardar && esSalidaAnticipada(salidaParaGuardar) && !esDiaNoLaborable(fecha.value)) {
       abrirModalPaseSalida(salidaParaGuardar);
       return;
     }
@@ -1542,14 +1805,26 @@ function controlarNotificaciones() {
       trabajoATurnos: state.config.trabajoATurnos === true
     });
 
+    const prevGuardar = state.registros[fecha.value];
+    let entradaParaGuardar = entrada.value;
+    let trabajadosParaGuardar = resultado.trabajadosMin || 0;
+    if (prevGuardar && prevGuardar.trabajadosMinAcumulado != null) {
+      entradaParaGuardar = prevGuardar.entradaPrimera != null ? prevGuardar.entradaPrimera : entrada.value;
+      trabajadosParaGuardar = (prevGuardar.trabajadosMinAcumulado || 0) + (resultado.trabajadosMin || 0);
+    }
+
     var yaPaseSinJustificadoGuardar = state.registros[fecha.value] && state.registros[fecha.value].paseSinJustificado === true;
-    state.registros[fecha.value] = aplicarTxTSiFinDeSemanaOFestivo({
+    var regGuardar = aplicarTxTSiFinDeSemanaOFestivo({
       ...resultado,
-      entrada: entrada.value,
+      entrada: entradaParaGuardar,
       salidaReal: salida.value || null,
+      trabajadosMin: trabajadosParaGuardar,
       disfrutadasManualMin: Number(disfrutadas.value)||0,
       vacaciones: false
     }, fecha.value);
+    delete regGuardar.entradaPrimera;
+    delete regGuardar.trabajadosMinAcumulado;
+    state.registros[fecha.value] = regGuardar;
     if (yaPaseSinJustificadoGuardar) state.registros[fecha.value].paseSinJustificado = true;
 
     saveState(state);
@@ -2221,6 +2496,11 @@ if(festivos && festivos[fechaISO]){
         div.classList.add("cal-day--disfrute-exceso");
         div.innerHTML += `<span class="cal-day-disfrute-exceso" aria-label="Disfrute exceso de jornada (pila gastada)">🪫</span>`;
 
+      } else if (registro.licenciaRetribuida) {
+
+        div.classList.add("cal-day--licencia");
+        div.innerHTML += `<span class="cal-day-licencia" aria-label="Licencia retribuida">📋</span>`;
+
       } else {
 
         var saldoHtml = "";
@@ -2288,7 +2568,7 @@ if(festivos && festivos[fechaISO]){
     const registro = state.registros[fechaISO];
     const set = (el, val) => { if (el) el.value = val; };
     if (registro) {
-      if (registro.vacaciones || registro.libreDisposicion || registro.disfruteHorasExtra || registro.disfruteExcesoJornada) {
+      if (registro.vacaciones || registro.libreDisposicion || registro.disfruteHorasExtra || registro.disfruteExcesoJornada || registro.licenciaRetribuida) {
         set(entrada, ""); set(salida, ""); set(disfrutadas, "0"); set(minAntes, "0");
       } else {
         set(entrada, registro.entrada || "");

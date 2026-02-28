@@ -8,7 +8,7 @@ function parseFechaLocal(isoStr) {
 }
 
 export function calcularSaldoDia(registro) {
-  if (!registro || registro.vacaciones || registro.libreDisposicion) {
+  if (!registro || registro.vacaciones || registro.libreDisposicion || registro.licenciaRetribuida) {
     return 0;
   }
   if (registro.disfruteHorasExtra) {
@@ -43,7 +43,7 @@ export function calcularResumenPeriodo(registros, filtroFn) {
   Object.entries(registros)
     .filter(([fecha]) => filtroFn(parseFechaLocal(fecha)))
     .forEach(([_, r]) => {
-      if (r.vacaciones || r.libreDisposicion) return;
+      if (r.vacaciones || r.libreDisposicion || r.licenciaRetribuida) return;
 
       if (r.disfruteHorasExtra) {
         const min = r.disfruteHorasExtraMin || 0;

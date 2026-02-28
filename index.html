@@ -70,6 +70,62 @@
   </div>
 </div>
 
+<!-- Modal: Iniciar otro periodo (sábado/domingo/festivo) -->
+<div id="modalIniciarOtroPeriodo" class="modal-extender" role="dialog" aria-labelledby="modalIniciarOtroPeriodoTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalIniciarOtroPeriodoTitulo" class="modal-extender-titulo">Ya se ha iniciado y cerrado la jornada</h3>
+    <p class="modal-extender-texto">En este día ya se registró un periodo de trabajo. ¿Desea iniciar otro periodo? El tiempo trabajado se sumará al ya registrado.</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalIniciarOtroPeriodoNo" class="modal-extender-btn modal-extender-no">No</button>
+      <button type="button" id="modalIniciarOtroPeriodoSi" class="modal-extender-btn modal-extender-si">Sí, iniciar otro periodo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Licencias Retribuidas -->
+<div id="modalLicenciasRetribuidas" class="modal-extender modal-licencias" role="dialog" aria-labelledby="modalLicenciasTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box modal-licencias-box">
+    <h3 id="modalLicenciasTitulo" class="modal-extender-titulo">Licencias Retribuidas</h3>
+    <p class="modal-extender-texto modal-licencias-intro">Selecciona el tipo de licencia. Los días se aplicarán desde la fecha actualmente seleccionada en el calendario. Puedes eliminar cualquier día con el botón Eliminar.</p>
+    <div id="modalLicenciasLista" class="modal-licencias-lista"></div>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalLicenciasCerrar" class="modal-extender-btn modal-extender-no">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Desplazamiento fuera de provincia (licencias) -->
+<div id="modalLicenciaDesplazamiento" class="modal-extender" role="dialog" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 class="modal-extender-titulo">Desplazamiento fuera de la provincia</h3>
+    <p class="modal-extender-texto" id="modalLicenciaDesplazamientoTexto">¿Hay desplazamiento fuera de la provincia?</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalLicenciaDesplazamientoNo" class="modal-extender-btn modal-extender-no">No</button>
+      <button type="button" id="modalLicenciaDesplazamientoSi" class="modal-extender-btn modal-extender-si">Sí</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Tiempo necesario (licencias) -->
+<div id="modalLicenciaTiempoNecesario" class="modal-extender" role="dialog" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 class="modal-extender-titulo">Días necesarios</h3>
+    <p class="modal-extender-texto" id="modalLicenciaTiempoNecesarioTexto">Indica el número de días laborables necesarios:</p>
+    <label class="config-row" style="margin: 0.75rem 0;">
+      <input type="number" id="inputLicenciaDiasNecesarios" min="1" max="365" value="1" class="config-input" style="width: 5rem;">
+      <span>días</span>
+    </label>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalLicenciaTiempoCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalLicenciaTiempoAplicar" class="modal-extender-btn modal-extender-si">Aplicar</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Confirmar restaurar valores de fábrica -->
 <div id="modalConfirmarFabrica" class="modal-extender" role="dialog" aria-labelledby="modalConfirmarFabricaTitulo" aria-modal="true" hidden>
   <div class="modal-extender-backdrop"></div>
@@ -337,6 +393,10 @@
 
       <button type="button" id="disfruteExcesoJornada" class="btn-disfrute-exceso" title="Disfrutar este día descontando exceso de jornada" data-solo-gp34>
         Disfr. exceso
+      </button>
+
+      <button type="button" id="btnLicenciasRetribuidas" class="btn-licencias-retribuidas" title="Licencias retribuidas">
+        Licencias Retribuidas
       </button>
 
       <button type="button" id="eliminar" class="btn-danger">

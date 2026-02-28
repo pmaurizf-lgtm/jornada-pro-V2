@@ -1458,6 +1458,101 @@ body.dark .btn-disfrute-exceso {
   color: #ffffff;
 }
 
+/* Licencias Retribuidas: color que destaca */
+.btn-licencias-retribuidas {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
+}
+.btn-licencias-retribuidas:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.5);
+}
+.btn-licencias-retribuidas:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+body.dark .btn-licencias-retribuidas {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+/* Modal Licencias Retribuidas */
+.modal-licencias-box {
+  max-width: 28rem;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+.modal-licencias-intro {
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+.modal-licencias-lista {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 12rem;
+  margin-bottom: 1rem;
+  padding-right: 0.25rem;
+}
+.modal-licencia-opcion {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  background: var(--card-bg, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.modal-licencia-opcion:hover {
+  background: var(--hover-bg, #e2e8f0);
+  border-color: var(--primary, #2563eb);
+  transform: translateX(2px);
+}
+.modal-licencia-opcion .licencia-titulo {
+  font-weight: 600;
+  color: var(--text, #1e293b);
+}
+.modal-licencia-opcion .licencia-dias {
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  margin-top: 0.15rem;
+}
+body.dark .modal-licencia-opcion {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.1);
+}
+body.dark .modal-licencia-opcion:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--primary);
+}
+
+/* Día con licencia retribuida en calendario */
+.cal-day-licencia {
+  font-size: 1.4rem;
+  line-height: 1;
+  margin-top: 0.15rem;
+}
+.cal-day.cal-day--licencia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* Día con disfrute exceso de jornada: icono pila gastada centrado y grande */
 .cal-day.cal-day--disfrute-exceso {
   display: flex;
