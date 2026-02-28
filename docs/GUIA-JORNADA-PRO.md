@@ -34,7 +34,7 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 ## 3. Pantalla principal
 
 - **Cabecera:** título de la app, logo y botón de menú (☰) para abrir **Configuración**.
-- **Registro diario:** formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT**, **Disfr. exceso** (solo GP3/GP4), **Eliminar**.
+- **Registro diario:** formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT**, **Disfr. exceso** (solo GP3/GP4), **Licencias Retribuidas**, **Eliminar**.
 - **Salidas teórica y ajustada:** se calculan en función de la jornada configurada.
 - **Barra de progreso:** indica el avance del día respecto a la jornada nominal (o horas extra en modo extensión para GP3/GP4).
 - **Resumen del día:**
@@ -129,13 +129,88 @@ En **GP3/GP4**, si el día es **sábado, domingo o festivo**, al guardar se apli
 - Se descuenta del banco de exceso de jornada una **jornada completa**. En el calendario ese día muestra el icono de **pila gastada** (🪫), centrado y destacado.  
 - No se puede usar en un día ya marcado como vacaciones, LD, disfrute TxT o disfrute exceso. El botón tiene un color distinto al de «Disfr. TxT» para diferenciarlo.
 
-### 4.11 Eliminar registro del día
+### 4.11 Licencias Retribuidas
+
+- Con el día seleccionado (o con la fecha por defecto), pulsa **«Licencias Retribuidas»** (botón verde destacado junto a «Disfr. exceso»). Se abre un **modal** con las opciones de licencia retribuida según el convenio.
+- Los días se aplican **desde la fecha actualmente seleccionada** en el calendario. Se tienen en cuenta los **días laborables** (excluyendo sábados, domingos y festivos) cuando la licencia sea en días laborables, o **días naturales** consecutivos cuando corresponda.
+- En los tipos que indican **desplazamiento fuera de la provincia**, la app pregunta si hay o no desplazamiento y asigna los días que correspondan (p. ej. 3 o 4 días laborables para fallecimiento de familiar hasta 2º grado; 2 o 4 días naturales para nacimiento de nietos).
+- En los tipos que indican **«tiempo necesario»**, la app pide el **número de días** necesarios y aplica esa cantidad de días laborables desde la fecha seleccionada.
+- Cualquier día marcado como licencia retribuida puede **eliminarse** con el botón **«Eliminar»** (seleccionando ese día y confirmando). En el calendario, los días de licencia retribuida se muestran con el icono **🎫** (ticket/permiso), bien visible.
+
+**Esquema de licencias retribuidas** (referencia según convenio):
+
+**1️⃣ Fallecimiento**
+
+- **Cónyuge, pareja, hijo o familiar de 1º grado de consanguinidad**  
+  ➜ 5 días laborables.
+
+- **Familiares hasta 2º grado de consanguinidad o afinidad**  
+  ➜ 3 días laborables (4 días laborables si hay desplazamiento fuera de la provincia).
+
+- **Familiares de 3º grado y primos hermanos (consanguinidad o afinidad)**  
+  ➜ 1 día laborable.
+
+**2️⃣ Enfermedad grave / hospitalización**
+
+- Accidente o enfermedad grave, hospitalización o intervención quirúrgica sin hospitalización que requiera reposo domiciliario del: cónyuge, pareja de hecho, familiares hasta 2º grado, familiar consanguíneo de la pareja, persona conviviente que requiera cuidado efectivo.  
+  ➜ 5 días laborables.
+
+**3️⃣ Matrimonio y celebraciones familiares**
+
+- **Matrimonio o inscripción como pareja de hecho** de hijos, hermanos o padres  
+  ➜ 1 día natural (día de la ceremonia).
+
+- **Primera comunión o bautizo** de hijos o nietos (u otra ceremonia religiosa similar)  
+  ➜ 1 día (día de la ceremonia).
+
+**4️⃣ Nacimiento**
+
+- **Nacimiento de hijo**  
+  ➜ 3 días laborables (prorrogables en caso de complicaciones médicas graves; si ocurre en vacaciones, interrumpe las vacaciones).
+
+- **Nacimiento de nietos**  
+  ➜ 2 días naturales (4 días naturales si hay desplazamiento fuera de la provincia).
+
+**5️⃣ Matrimonio propio**
+
+- Permiso por matrimonio propio.  
+  ➜ Puede disfrutarse dentro del año siguiente a la celebración; no es obligatorio que coincida con la fecha del evento. En la app se indica el tiempo necesario (número de días).
+
+**6️⃣ Embarazo / adopción**
+
+- **Exámenes prenatales y técnicas de preparación al parto**  
+  ➜ Por el tiempo necesario. También aplica para adopción, guarda con fines de adopción y acogimiento (sesiones informativas e informes previos). En la app se indica el número de días necesarios.
+
+**7️⃣ Traslado**
+
+- **Traslado de domicilio habitual**  
+  ➜ 2 días (pueden disfrutarse en días alternos).
+
+**8️⃣ Funciones públicas**
+
+- **Funciones municipales o autonómicas no retribuidas**  
+  ➜ Tiempo necesario (con convocatoria y justificación). En la app se indica el número de días.
+
+- **Deber inexcusable de carácter público y personal** (ej. citación judicial, Hacienda, renovación DNI/Pasaporte si no puede hacerse fuera del horario laboral)  
+  ➜ Tiempo necesario. En la app se indica el número de días.
+
+**9️⃣ Lactancia y guarda legal**
+
+- **Cuidado de hijos menores de 12 meses (lactancia)**  
+  ➜ 2 horas de ausencia diaria (divisible en dos fracciones), o reducción de jornada de 1 hora, o acumulación en 21 días laborables.
+
+- **Guarda legal de menor de 12 años o persona con discapacidad**  
+  ➜ Reducción de jornada (entre 1/8 y 1/2), con reducción proporcional del salario.
+
+Estas dos últimas (lactancia y guarda legal) no implican días completos en el calendario; la app muestra un aviso informativo al seleccionarlas.
+
+### 4.12 Eliminar registro del día
 
 - Con el día seleccionado, pulsa **«Eliminar»**.  
 - Aparece un mensaje de confirmación. Si confirmas, se borra todo el registro de ese día (entrada, salida, extra, negativa, vacaciones, LD, disfrute TxT, disfrute exceso, etc.).  
 - El día vuelve a estar «vacío» para poder registrarlo de nuevo si quieres. Si eliminabas un día de vacaciones o LD, el día correspondiente se devuelve al banco de vacaciones o LD.
 
-### 4.12 Otros campos
+### 4.13 Otros campos
 
 - **Salir antes (minutos):** (solo GP3/GP4) minutos que sales antes de la salida teórica (reduce tiempo trabajado / puede generar negativa).
 
@@ -151,6 +226,7 @@ En **GP3/GP4**, si el día es **sábado, domingo o festivo**, al guardar se apli
   - En **modo minutos semanal (GP1/GP2):** se muestra la Bolsa de autorregulación de la semana y el delta del día.
   - **Disfr. X.Xh:** horas disfrutadas ese día (GP3/GP4).
   - **🪫 (pila gastada):** día marcado como disfrute de exceso de jornada (Disfr. exceso); el icono aparece centrado y destacado en la celda.
+  - **🎫:** día marcado como licencia retribuida (Licencias Retribuidas); el icono aparece centrado y destacado en la celda.
   - **🏖️:** día marcado como vacaciones.
   - **🕶️:** día de Libre Disposición.
 - **Festivos:** se muestran resaltados (nacional, Galicia, Ferrol). Pulsar en un festivo muestra su nombre.
@@ -300,6 +376,7 @@ Estas reglas se aplican **automáticamente** al guardar o finalizar la jornada e
 | Marcar Libre Disposición | LD (indicar días LD del año si es la primera vez) |
 | Disfrutar horas TxT (GP3/GP4) | Disfr. TxT |
 | Disfrutar exceso de jornada (GP3/GP4) | Disfr. exceso |
+| Marcar días de licencia retribuida | Licencias Retribuidas (modal con opciones) |
 | Borrar el día | Eliminar (con confirmación) |
 | Cambiar grupo, tema, notificaciones, jornada | Menú ☰ → Configuración |
 | Exportar datos | Configuración → Exportar Excel / Backup |

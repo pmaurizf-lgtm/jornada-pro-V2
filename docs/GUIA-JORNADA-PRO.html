@@ -87,7 +87,7 @@
   <h2>3. Pantalla principal</h2>
   <ul>
     <li><strong>Cabecera:</strong> título, logo y menú (☰) para Configuración.</li>
-    <li><strong>Registro diario:</strong> fecha, entrada, salida; acciones: Iniciar jornada, Finalizar, Guardar, Vacaciones, LD, Disfr. TxT, Disfr. exceso (solo GP3/GP4), Eliminar.</li>
+    <li><strong>Registro diario:</strong> fecha, entrada, salida; acciones: Iniciar jornada, Finalizar, Guardar, Vacaciones, LD, Disfr. TxT, Disfr. exceso (solo GP3/GP4), Licencias Retribuidas, Eliminar.</li>
     <li><strong>Salidas teórica y ajustada</strong> y <strong>barra de progreso</strong> (en GP3/GP4 en extensión muestra horas extra).</li>
     <li><strong>Resumen del día:</strong> GP3/GP4 = trabajado, extra, exceso, negativa; GP1/GP2 = trabajado, Bolsa de autorregulación (semana), hoy (delta).</li>
     <li><strong>Calendario:</strong> vista mensual; indicadores según modo (saldos día o semana).</li>
@@ -108,11 +108,34 @@
   <p>Fecha, entrada, salida (y «Salir antes» en GP3/GP4) → <strong>«Guardar»</strong>. En GP3/GP4, si el día es sábado, domingo o festivo, se aplican las reglas de TxT (ver sección 10).</p>
   <h3>4.7 Vacaciones / 4.8 Libre Disposición (LD) / 4.9 Disfr. TxT / 4.10 Disfr. exceso (solo GP3/GP4)</h3>
   <p><strong>Vacaciones:</strong> marca el día (icono playa); se descuenta del banco de vacaciones. <strong>LD:</strong> marca día de Libre Disposición; la primera vez en un año pide el número de días LD. <strong>Disfr. TxT:</strong> descuenta una jornada completa del banco TxT. <strong>Disfr. exceso:</strong> descuenta una jornada completa del banco de exceso de jornada; en el calendario el día muestra el icono de pila gastada (🪫).</p>
-  <h3>4.11 Eliminar / 4.12 Otros campos</h3>
+  <h3>4.11 Licencias Retribuidas</h3>
+  <p>Pulsa <strong>«Licencias Retribuidas»</strong> (botón verde destacado) para abrir un modal con las opciones de licencia retribuida. Los días se aplican desde la fecha seleccionada (laborables o naturales según el tipo). En opciones con <strong>desplazamiento fuera de la provincia</strong> la app pregunta sí/no y asigna los días correspondientes. En opciones de <strong>tiempo necesario</strong> se indica el número de días. Cualquier día de licencia puede eliminarse con <strong>Eliminar</strong>. En el calendario los días de licencia se muestran con el icono <strong>🎫</strong> (ticket/permiso).</p>
+  <p><strong>Esquema de licencias retribuidas (referencia):</strong></p>
+  <ul>
+    <li><strong>1️⃣ Fallecimiento</strong><br>
+      Cónyuge, pareja, hijo o familiar 1º grado → 5 días laborables. Familiares hasta 2º grado → 3 días laborables (4 si desplazamiento fuera de provincia). Familiares 3º grado y primos hermanos → 1 día laborable.</li>
+    <li><strong>2️⃣ Enfermedad grave / hospitalización</strong><br>
+      Cónyuge, pareja, familiares hasta 2º grado, familiar de la pareja, persona conviviente que requiera cuidado → 5 días laborables.</li>
+    <li><strong>3️⃣ Matrimonio y celebraciones familiares</strong><br>
+      Matrimonio o pareja de hecho (hijos, hermanos, padres) → 1 día natural (día ceremonia). Primera comunión o bautizo (hijos o nietos) → 1 día (día ceremonia).</li>
+    <li><strong>4️⃣ Nacimiento</strong><br>
+      Hijo → 3 días laborables (prorrogables si complicaciones; interrumpe vacaciones). Nietos → 2 días naturales (4 si desplazamiento fuera de provincia).</li>
+    <li><strong>5️⃣ Matrimonio propio</strong><br>
+      Puede disfrutarse dentro del año siguiente; no obligatorio que coincida con la fecha. En la app: tiempo necesario (número de días).</li>
+    <li><strong>6️⃣ Embarazo / adopción</strong><br>
+      Exámenes prenatales, preparación al parto; también adopción, guarda, acogimiento (sesiones e informes) → tiempo necesario. En la app: número de días.</li>
+    <li><strong>7️⃣ Traslado</strong><br>
+      Traslado de domicilio habitual → 2 días (pueden ser en días alternos).</li>
+    <li><strong>8️⃣ Funciones públicas</strong><br>
+      Funciones municipales o autonómicas no retribuidas → tiempo necesario (con convocatoria). Deber inexcusable (cita judicial, Hacienda, DNI/Pasaporte) → tiempo necesario. En la app: número de días.</li>
+    <li><strong>9️⃣ Lactancia y guarda legal</strong><br>
+      Lactancia: 2 h ausencia diaria (o reducción 1 h o acumulación 21 días laborables). Guarda legal menor 12 años o persona con discapacidad: reducción de jornada (1/8 a 1/2) con reducción proporcional del salario. No son días completos en calendario; la app muestra aviso informativo.</li>
+  </ul>
+  <h3>4.12 Eliminar / 4.13 Otros campos</h3>
   <p><strong>Eliminar</strong> borra el registro (si era vacaciones/LD, se devuelve el día al banco). <strong>Salir antes (min)</strong> solo GP3/GP4.</p>
 
   <h2>5. Calendario</h2>
-  <p>Mes con celdas por día. Indicadores: ✓ = completada; +X.Xh / −X.Xh (TxT) o banco semana/delta (minutos); Disfr. X.Xh; 🪫 = disfrute exceso de jornada (centrado y destacado); 🏖️ = vacaciones; 🕶️ = Libre Disposición. Festivos resaltados; pulsar muestra el nombre.</p>
+  <p>Mes con celdas por día. Indicadores: ✓ = completada; +X.Xh / −X.Xh (TxT) o banco semana/delta (minutos); Disfr. X.Xh; 🪫 = disfrute exceso de jornada (centrado y destacado); 🎫 = licencia retribuida (centrado y destacado); 🏖️ = vacaciones; 🕶️ = Libre Disposición. Festivos resaltados; pulsar muestra el nombre.</p>
 
   <h2>6. Banco de horas / Bolsa de autorregulación</h2>
   <p><strong>Pestaña Horas TxT (o Bolsa de autorregulación en GP1/GP2):</strong> GP1/GP2 = Bolsa de autorregulación (esta semana), en fase de <em>implantación experimental</em>. GP3/GP4 = <strong>Total disponible TxT (acumulado)</strong> y <strong>Total disponible exceso de jornada (acumulado)</strong> (horas con 2 decimales, h+m y días; 1 día = 459 min); dos desplegables cerrados por defecto: <strong>Desglose anual</strong> (selector de año; TxT generado, exceso, horas TxT gastadas, horas exceso gastadas) y <strong>Desglose mes</strong> (selector de mes del año en curso; mismas métricas por mes). Saldo previo y «Resetear saldo previo» en Configuración de jornada (GP3/GP4). <strong>Pestaña Vacaciones/LD:</strong> días de vacaciones (año curso y anterior) y días LD del año en curso.</p>
@@ -170,6 +193,7 @@
       <tr><td>Marcar Libre Disposición</td><td>LD</td></tr>
       <tr><td>Disfrutar horas TxT (GP3/GP4)</td><td>Disfr. TxT</td></tr>
       <tr><td>Disfrutar exceso de jornada (GP3/GP4)</td><td>Disfr. exceso</td></tr>
+      <tr><td>Marcar días de licencia retribuida</td><td>Licencias Retribuidas (modal con opciones)</td></tr>
       <tr><td>Borrar el día</td><td>Eliminar (con confirmación)</td></tr>
       <tr><td>Cambiar grupo, tema, notificaciones, jornada</td><td>Menú ☰ → Configuración</td></tr>
       <tr><td>Exportar datos</td><td>Configuración → Exportar Excel / Backup</td></tr>

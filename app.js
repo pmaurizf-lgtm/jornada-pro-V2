@@ -2499,7 +2499,7 @@ if(festivos && festivos[fechaISO]){
       } else if (registro.licenciaRetribuida) {
 
         div.classList.add("cal-day--licencia");
-        div.innerHTML += `<span class="cal-day-licencia" aria-label="Licencia retribuida">📋</span>`;
+        div.innerHTML += `<span class="cal-day-licencia" aria-label="Licencia retribuida">🎫</span>`;
 
       } else {
 
