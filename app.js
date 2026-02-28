@@ -2278,6 +2278,10 @@ if (btnExcel) {
           tipoDia = "Libre disposición";
         } else if (r.disfruteHorasExtra) {
           tipoDia = "Disfr. h. extra";
+        } else if (r.disfruteExcesoJornada) {
+          tipoDia = "Disfr. exceso";
+        } else if (r.licenciaRetribuida) {
+          tipoDia = "Licencia retribuida";
         } else {
           horaEntrada = r.entrada || "";
           horaSalida = r.salidaReal != null ? r.salidaReal : "";
@@ -2300,13 +2304,21 @@ if (btnExcel) {
           }
         }
 
+        const trabajadosMin = r.trabajadosMin != null ? r.trabajadosMin : 0;
+        const salidaTeoricaStr = r.salidaTeoricaMin != null ? minutesToTime(r.salidaTeoricaMin) : "";
+        const salidaAjustadaStr = r.salidaAjustadaMin != null ? minutesToTime(r.salidaAjustadaMin) : "";
+
         return {
           Fecha: f,
           "Tipo día": tipoDia,
           "Hora entrada": horaEntrada,
           "Hora salida": horaSalida,
+          "Salida teórica": salidaTeoricaStr,
+          "Salida ajustada": salidaAjustadaStr,
+          "Trabajados (h)": trabajadosMin > 0 ? Math.round(trabajadosMin / 60 * 100) / 100 : "",
           "Hora pase salida": horaPaseSalida,
           "Tipo pase": tipoPase,
+          "Pase sin justificar": r.paseSinJustificado === true ? "Sí" : "No",
           "Continuación jornada": continuacionJornada,
           Generadas: (r.extraGeneradaMin || 0) / 60,
           "Exceso jornada": (r.excesoJornadaMin || 0) / 60,
@@ -2314,7 +2326,10 @@ if (btnExcel) {
           Disfrutadas: (r.disfrutadasManualMin || 0) / 60,
           Vacaciones: r.vacaciones ? "Sí" : "No",
           "Libre disposición": r.libreDisposicion ? "Sí" : "No",
-          "Disfr. h. extra": r.disfruteHorasExtra ? "Sí" : "No"
+          "Disfr. h. extra": r.disfruteHorasExtra ? "Sí" : "No",
+          "Disfr. exceso": r.disfruteExcesoJornada ? "Sí" : "No",
+          "Licencia retribuida": r.licenciaRetribuida ? "Sí" : "No",
+          "Tipo licencia": (r.licenciaRetribuida && r.licenciaRetribuidaTipo) ? r.licenciaRetribuidaTipo : ""
         };
       });
 
@@ -2334,6 +2349,25 @@ if (btnExcel) {
 
 if (btnBackup) {
   btnBackup.addEventListener("click", () => {
+
+    // Sincronizar formulario de configuración al estado para incluir todo (nombre, SAP, etc.) aunque no se haya pulsado "Guardar configuración"
+    if (state.config) {
+      state.config.nombreCompleto = (cfgNombreCompleto && cfgNombreCompleto.value) ? String(cfgNombreCompleto.value).trim() : (state.config.nombreCompleto || "");
+      state.config.numeroSAP = (cfgNumeroSAP && cfgNumeroSAP.value) ? String(cfgNumeroSAP.value).replace(/\D/g, "").slice(0, 8) : (state.config.numeroSAP || "");
+      state.config.centroCoste = (cfgCentroCoste && cfgCentroCoste.value) ? String(cfgCentroCoste.value).trim() : (state.config.centroCoste || "");
+      state.config.grupoProfesional = (cfgGrupoProfesional && cfgGrupoProfesional.value && ["GP1", "GP2", "GP3", "GP4"].includes(cfgGrupoProfesional.value)) ? cfgGrupoProfesional.value : (state.config.grupoProfesional || "GP1");
+      state.config.jornadaMin = Number(cfgJornada?.value) || state.config.jornadaMin || 459;
+      state.config.avisoMin = Number(cfgAviso?.value) ?? state.config.avisoMin ?? 10;
+      state.config.theme = (cfgTheme && cfgTheme.value) ? cfgTheme.value : (state.config.theme || "light");
+      state.config.notificationsEnabled = cfgNotificaciones ? cfgNotificaciones.checked : state.config.notificationsEnabled !== false;
+      state.config.trabajoATurnos = cfgTrabajoTurnos ? cfgTrabajoTurnos.checked : !!state.config.trabajoATurnos;
+      state.config.turno = (cfgTurno && cfgTurno.value) ? cfgTurno.value : (state.config.turno || "06-14");
+      const parseDecimal = (v) => parseFloat(String(v || "").replace(",", ".")) || 0;
+      state.config.horasExtraInicialMin = Math.round(parseDecimal(cfgHorasExtraPrevias?.value) * 60) || (state.config.horasExtraInicialMin || 0);
+      state.config.excesoJornadaInicialMin = Math.round(parseDecimal(cfgExcesoJornadaPrevias?.value) * 60) || (state.config.excesoJornadaInicialMin || 0);
+      const vp = parseInt(cfgVacacionesDiasPrevio?.value, 10);
+      state.config.vacacionesDiasPrevio = Math.max(0, !isNaN(vp) ? vp : (state.config.vacacionesDiasPrevio || 0));
+    }
 
     const json = exportBackup(state);
 
