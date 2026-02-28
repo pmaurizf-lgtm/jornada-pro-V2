@@ -501,7 +501,11 @@
 
       <!-- Desglose mes en curso (desplegable) -->
       <details class="bank-desplegable" id="bankDesgloseMes">
-        <summary class="bank-desplegable-summary">Desglose mes en curso</summary>
+        <summary class="bank-desplegable-summary">
+          <span>Desglose mes</span>
+          <label class="metrics-year-label bank-desplegable-year" for="selectBankMonth">Mes</label>
+          <select id="selectBankMonth" class="metrics-year-select" aria-label="Mes del desglose (año en curso)"></select>
+        </summary>
         <div class="bank-desplegable-content">
           <div class="metric">
             <span>TxT generado (Mes en curso)</span>

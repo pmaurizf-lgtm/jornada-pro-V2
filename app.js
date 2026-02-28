@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
   let bankYear = currentYear;
+  let bankMonth = currentDate.getMonth();
 
   // ===============================
   // NOTIFICACIONES (solo con la app abierta; sin servicios externos)
@@ -80,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextMes = document.getElementById("nextMes");
 
   const selectBankYear = document.getElementById("selectBankYear");
+  const selectBankMonth = document.getElementById("selectBankMonth");
   const bTotalDisponibleTxT = document.getElementById("bTotalDisponibleTxT");
   const bTotalDisponibleTxTDias = document.getElementById("bTotalDisponibleTxTDias");
   const bTotalDisponibleExceso = document.getElementById("bTotalDisponibleExceso");
@@ -633,10 +635,23 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     if (bDisfruteExceso) bDisfruteExceso.innerText = fmtGastExc.principal;
     if (bDisfruteExcesoDias) bDisfruteExcesoDias.textContent = fmtGastExc.dias;
 
-    const hoy = new Date();
-    const mesCurso = hoy.getMonth();
-    const anioCurso = hoy.getFullYear();
-    const mensualCurso = calcularResumenMensual(state.registros, mesCurso, anioCurso);
+    const anioCurso = new Date().getFullYear();
+    if (selectBankMonth) {
+      const nombresMes = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      if (selectBankMonth.options.length === 0) {
+        nombresMes.forEach((nombre, i) => {
+          const opt = document.createElement("option");
+          opt.value = String(i);
+          opt.textContent = nombre;
+          selectBankMonth.appendChild(opt);
+        });
+        selectBankMonth.value = String(bankMonth);
+      }
+      bankMonth = parseInt(selectBankMonth.value, 10);
+      if (Number.isNaN(bankMonth) || bankMonth < 0 || bankMonth > 11) bankMonth = new Date().getMonth();
+      selectBankMonth.value = String(bankMonth);
+    }
+    const mensualCurso = calcularResumenMensual(state.registros, bankMonth, anioCurso);
     const gastadasTxTMes = (mensualCurso.disfrutadas || 0) + (mensualCurso.disfruteHorasExtraMin || 0) + (mensualCurso.negativasTxT || 0);
     const gastadasExcesoMes = (mensualCurso.disfruteExcesoJornadaMin || 0) + (mensualCurso.negativasExceso || 0);
 
@@ -695,6 +710,14 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
       bankYear = parseInt(selectBankYear.value, 10) || currentYear;
       actualizarBanco();
       actualizarGrafico();
+    });
+  }
+  if (selectBankMonth) {
+    selectBankMonth.addEventListener("click", (e) => e.stopPropagation());
+    selectBankMonth.addEventListener("change", () => {
+      bankMonth = parseInt(selectBankMonth.value, 10);
+      if (Number.isNaN(bankMonth) || bankMonth < 0 || bankMonth > 11) bankMonth = new Date().getMonth();
+      actualizarBanco();
     });
   }
 
