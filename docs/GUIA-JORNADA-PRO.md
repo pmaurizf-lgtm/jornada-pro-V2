@@ -14,7 +14,7 @@ La aplicación ofrece **dos modos** en función del **grupo profesional** (GP1, 
 - **GP1 / GP2:** modo **Bolsa de autorregulación** (minutos semanales, lunes a domingo; en fase de implantación experimental).
 - **GP3 / GP4:** modo **Horas TxT** (banco de horas anual, con generadas, exceso, negativas, disfrutadas y reglas especiales para fines de semana y festivos).
 
-Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y restaurar desde el menú de configuración.
+Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y restaurar desde el menú de configuración. En móvil, la aplicación optimiza el consumo (por ejemplo, espaciando las actualizaciones cuando la pestaña está en segundo plano).
 
 ---
 
@@ -22,10 +22,10 @@ Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y
 
 Al usar la aplicación por primera vez (o si no tienes grupo asignado), se muestra un **modal para elegir tu grupo profesional**: GP1, GP2, GP3 o GP4. Esta elección determina qué pantallas y funciones verás:
 
-| Grupo   | Modo                  | Banco principal              | Extender jornada | Gráfico | Disfrutadas / Disfr. TxT |
-|--------|------------------------|------------------------------|------------------|---------|---------------------------|
-| GP1/GP2| Minutos semanal        | Bolsa de autorregulación     | No               | No      | No                        |
-| GP3/GP4| Horas TxT              | Horas TxT (anual)            | Sí               | Sí      | Sí                        |
+| Grupo   | Modo                  | Banco principal              | Extender jornada | Gráfico | Disfr. TxT / Disfr. exceso |
+|--------|------------------------|------------------------------|------------------|---------|----------------------------|
+| GP1/GP2| Minutos semanal        | Bolsa de autorregulación     | No               | No      | No                         |
+| GP3/GP4| Horas TxT              | Horas TxT (anual)            | Sí               | Sí      | Sí                         |
 
 Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración → Datos personales → Grupo Profesional**. Al cambiar, la interfaz se adapta de inmediato (panel de minutos semanal u Horas TxT, botones visibles, etc.).
 
@@ -34,7 +34,7 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 ## 3. Pantalla principal
 
 - **Cabecera:** título de la app, logo y botón de menú (☰) para abrir **Configuración**.
-- **Registro diario:** formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT** (solo GP3/GP4), **Eliminar**.
+- **Registro diario:** formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT**, **Disfr. exceso** (solo GP3/GP4), **Eliminar**.
 - **Salidas teórica y ajustada:** se calculan en función de la jornada configurada.
 - **Barra de progreso:** indica el avance del día respecto a la jornada nominal (o horas extra en modo extensión para GP3/GP4).
 - **Resumen del día:**
@@ -42,7 +42,7 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
   - **GP1/GP2:** trabajado, Bolsa de autorregulación (esta semana), hoy (delta). La bolsa se indica en fase de «implantación experimental».
 - **Calendario:** vista mensual con registros, saldos y días festivos. En modo minutos semanal se muestra el saldo de la semana; en modo TxT, el saldo del día (+X.Xh / −X.Xh).
 - **Banco (pestañas):**
-  - **Horas TxT** (o **Bolsa de autorregulación** en GP1/GP2): en GP3/GP4 muestra total disponible, generadas, exceso, negativas, disfrutadas, Disfr. h. extra, saldo anual y mensual; en GP1/GP2 solo la Bolsa de autorregulación de la semana actual (implantación experimental).
+  - **Horas TxT** (o **Bolsa de autorregulación** en GP1/GP2): en GP3/GP4 muestra **Total disponible TxT (acumulado)** y **Total disponible exceso de jornada (acumulado)** (horas con 2 decimales, h+m y días; 1 día = 459 min), y dos desplegables cerrados por defecto: **Desglose anual** (selector de año; TxT generado, exceso, horas TxT gastadas, horas exceso gastadas) y **Desglose mes** (selector de mes del año en curso; mismas métricas por mes). En GP1/GP2 solo la Bolsa de autorregulación de la semana actual (implantación experimental).
   - **Vacaciones/LD:** días de vacaciones disponibles (año en curso y anterior) y días de Libre Disposición del año en curso.
 - **Gráfico:** evolución del banco de horas en el año seleccionado (**solo GP3/GP4**).
 
@@ -77,10 +77,10 @@ Si intentas finalizar o guardar con una hora de salida **anterior al fin teóric
   La jornada se considera completada hasta el fin teórico y se cierra automáticamente. El botón principal pasará a «Continuar jornada» si quisieras volver a abrir el día.
 
 - **Pase de salida sin justificar**  
-  Se registra la salida y se descuenta del banco el tiempo no trabajado. Puedes pulsar **«Continuar jornada»** más tarde para reanudar; solo se descontará el tiempo entre la salida sin justificar y el momento de continuar.
+  Se registra la salida y se descuenta del banco el tiempo no trabajado. En **GP3/GP4** se abre un segundo modal: **«¿De qué saldo se descuenta?»**, con dos botones (**TxT** o **Exceso de jornada**); el tiempo no trabajado se descuenta del saldo que elijas. Puedes pulsar **«Continuar jornada»** más tarde para reanudar.
 
-- **Fin de jornada** *(solo GP1/GP2)*  
-  Se da por finalizada la jornada con la hora de salida actual. Se descuenta de la **Bolsa de autorregulación** la diferencia entre los minutos totales de la jornada y los minutos trabajados. El día queda cerrado sin opción de «Continuar jornada».
+- **Fin de jornada** *(solo GP3/GP4 en el modal; en GP1/GP2 la opción aparece en el mismo modal de pase)*  
+  Se da por finalizada la jornada con la hora de salida actual. En **GP3/GP4** se abre el modal **«¿De qué saldo se descuenta?»** (TxT o Exceso de jornada) y la diferencia entre jornada y minutos trabajados se descuenta del saldo elegido. En **GP1/GP2** se descuenta de la **Bolsa de autorregulación**. El día queda cerrado sin opción de «Continuar jornada».
 
 ### 4.4 Continuar jornada
 
@@ -117,22 +117,27 @@ En **GP3/GP4**, si el día es **sábado, domingo o festivo**, al guardar se apli
 - Se descuenta un día del **banco de días LD** del año correspondiente. Si es la primera vez que usas LD en ese año, la app te pedirá que indiques **cuántos días de LD tienes** para ese año (modal «Días de Libre Disposición»).  
 - Los días LD se configuran por año en la pestaña **Vacaciones/LD** del panel de métricas (o al pulsar LD el primer día del año). Los días LD caducan el 31 de diciembre del año en curso.
 
-### 4.9 Disfrute de horas extra (Disfr. TxT) – solo GP3/GP4
+### 4.9 Disfrute de horas TxT (Disfr. TxT) – solo GP3/GP4
 
 - Con el día seleccionado, pulsa **«Disfr. TxT»** para marcar ese día como **día de disfrute de horas del banco TxT**.  
-- Se descuenta del banco de horas una **jornada completa** (la duración configurada de tu jornada o 8 h si trabajas a turnos).  
-- No se puede usar en un día ya marcado como vacaciones o LD.
+- Se descuenta del banco TxT una **jornada completa** (la duración configurada de tu jornada o 8 h si trabajas a turnos).  
+- No se puede usar en un día ya marcado como vacaciones, LD, disfrute TxT o disfrute exceso.
 
-### 4.10 Eliminar registro del día
+### 4.10 Disfrute de exceso de jornada (Disfr. exceso) – solo GP3/GP4
+
+- Con el día seleccionado, pulsa **«Disfr. exceso»** para marcar ese día como **día de disfrute descontando del saldo de exceso de jornada**.  
+- Se descuenta del banco de exceso de jornada una **jornada completa**. En el calendario ese día muestra el icono de **pila gastada** (🪫), centrado y destacado.  
+- No se puede usar en un día ya marcado como vacaciones, LD, disfrute TxT o disfrute exceso. El botón tiene un color distinto al de «Disfr. TxT» para diferenciarlo.
+
+### 4.11 Eliminar registro del día
 
 - Con el día seleccionado, pulsa **«Eliminar»**.  
-- Aparece un mensaje de confirmación. Si confirmas, se borra todo el registro de ese día (entrada, salida, extra, negativa, vacaciones, LD, disfrute TxT, etc.).  
+- Aparece un mensaje de confirmación. Si confirmas, se borra todo el registro de ese día (entrada, salida, extra, negativa, vacaciones, LD, disfrute TxT, disfrute exceso, etc.).  
 - El día vuelve a estar «vacío» para poder registrarlo de nuevo si quieres. Si eliminabas un día de vacaciones o LD, el día correspondiente se devuelve al banco de vacaciones o LD.
 
-### 4.11 Otros campos
+### 4.12 Otros campos
 
 - **Salir antes (minutos):** (solo GP3/GP4) minutos que sales antes de la salida teórica (reduce tiempo trabajado / puede generar negativa).
-- **Horas disfrutadas (min):** (solo GP3/GP4) horas de banco que disfrutas ese día; se restan del banco en el resumen.
 
 ---
 
@@ -145,7 +150,9 @@ En **GP3/GP4**, si el día es **sábado, domingo o festivo**, al guardar se apli
   - **+X.Xh / −X.Xh:** (modo TxT, GP3/GP4) saldo del día (positivo o negativo respecto a la jornada).
   - En **modo minutos semanal (GP1/GP2):** se muestra la Bolsa de autorregulación de la semana y el delta del día.
   - **Disfr. X.Xh:** horas disfrutadas ese día (GP3/GP4).
+  - **🪫 (pila gastada):** día marcado como disfrute de exceso de jornada (Disfr. exceso); el icono aparece centrado y destacado en la celda.
   - **🏖️:** día marcado como vacaciones.
+  - **🕶️:** día de Libre Disposición.
 - **Festivos:** se muestran resaltados (nacional, Galicia, Ferrol). Pulsar en un festivo muestra su nombre.
 - Sábados y domingos tienen un estilo diferenciado.
 
@@ -181,11 +188,12 @@ La sección de métricas tiene **dos pestañas**:
   | ¿Es descanso o dinero? | Descanso |
   | ¿Está totalmente regulada? | No, pendiente de acuerdo |
 
-- **Si tu grupo es GP3 o GP4:** se muestra:
-  - **Año:** selector para cambiar el año del banco.
-  - **Total disponible (acumulado):** horas que tienes en el banco (según configuración y registros).
-  - **Extra (Anual) / Exceso jornada (Anual) / Negativas (Anual) / Disfrutadas (Anual) / Disfr. h. extra (Anual):** desglose del año seleccionado.
-  - **Saldo Anual / Saldo Mensual:** resultado del año y del mes.
+- **Si tu grupo es GP3 o GP4:** se muestra el panel **Horas TxT** con:
+  - **Siempre visibles:**  
+    **Total disponible TxT (Acumulado)** y **Total disponible exceso de jornada (Acumulado)**. Cada uno muestra las horas con dos decimales, horas y minutos, y **días disponibles** (1 día = 459 minutos de jornada).
+  - **Desplegable «Desglose anual»** (cerrado por defecto): selector de **Año** y, al abrirlo, **TxT generado (Anual)**, **Exceso de jornada (Anual)**, **Horas TxT gastadas (Anual)** y **Horas exceso jornada gastadas (Anual)**. Todas las métricas en horas (2 decimales), h+m y días.
+  - **Desplegable «Desglose mes»** (cerrado por defecto): selector de **Mes** (Enero a Diciembre) del **año en curso**. Al abrirlo: **TxT generado**, **Exceso de jornada**, **Horas TxT gastadas** y **Horas exceso jornada gastadas** correspondientes al mes elegido (mismo formato: horas, h+m, días).
+  - Los saldos TxT y exceso se calculan por separado: las negativas al salir antes o fin de jornada se asignan a TxT o a exceso según lo que elijas en el modal «¿De qué saldo se descuenta?».
 
 El saldo inicial (horas extra previas, exceso previo) se configura en **Configuración → Configuración de jornada** (solo aplicable en GP3/GP4). El botón **«Resetear saldo previo»** pone a cero esos valores.
 
@@ -290,7 +298,8 @@ Estas reglas se aplican **automáticamente** al guardar o finalizar la jornada e
 | Guardar a mano un día | Rellenar fecha, entrada, salida → Guardar |
 | Marcar vacaciones | Vacaciones |
 | Marcar Libre Disposición | LD (indicar días LD del año si es la primera vez) |
-| Disfrutar horas del banco (GP3/GP4) | Disfr. TxT |
+| Disfrutar horas TxT (GP3/GP4) | Disfr. TxT |
+| Disfrutar exceso de jornada (GP3/GP4) | Disfr. exceso |
 | Borrar el día | Eliminar (con confirmación) |
 | Cambiar grupo, tema, notificaciones, jornada | Menú ☰ → Configuración |
 | Exportar datos | Configuración → Exportar Excel / Backup |

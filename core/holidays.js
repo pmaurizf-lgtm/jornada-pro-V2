@@ -87,13 +87,17 @@ export function obtenerFestivos(año) {
   // GALICIA
   // -------------------------------
 
+  añadir(fechaLocal(año, 2, 19), "San José, Día del Padre (Galicia)", "galicia");
+  añadir(fechaLocal(año, 4, 17), "Día das Letras Galegas (Galicia)", "galicia");
+  añadir(fechaLocal(año, 5, 24), "San Juan (Galicia)", "galicia");
   añadir(fechaLocal(año, 6, 25), "Día Nacional de Galicia", "galicia");
 
   // -------------------------------
-  // FERROL
+  // FERROL / NAVANTIA
   // -------------------------------
 
   añadir(fechaLocal(año, 0, 7), "San Julián (Ferrol)", "ferrol");
+  añadir(fechaLocal(año, 6, 16), "Nuestra Señora del Carmen (Navantia)", "ferrol");
   añadir(fechaLocal(año, 7, 22), "Fiestas de Ferrol", "ferrol");
 
   return festivos;
