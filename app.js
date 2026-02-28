@@ -415,8 +415,11 @@ const btnCerrarConfig = document.getElementById("btnCerrarConfig");
 if (btnCerrarConfig) btnCerrarConfig.addEventListener("click", closeConfigPanel);
 
 const btnAbrirGuia = document.getElementById("btnAbrirGuia");
+const GUIA_VERSION = "2";
 if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
-  window.open("./docs/GUIA-JORNADA-PRO.html", "_blank", "noopener,noreferrer");
+  const url = new URL("docs/GUIA-JORNADA-PRO.html", window.location.href);
+  url.searchParams.set("v", GUIA_VERSION);
+  window.open(url.toString(), "_blank", "noopener,noreferrer");
 });
   
   // ===============================
