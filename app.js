@@ -64,6 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const barra = document.getElementById("barra");
   const progresoTxt = document.getElementById("progresoTxt");
+  const progresoInside = document.getElementById("progresoInside");
 
   // 🔥 RESUMEN
   const resumenDia = document.getElementById("resumenDia");
@@ -753,7 +754,6 @@ function recalcularEnVivo() {
 
 function actualizarProgreso() {
 
-  const progresoInside = document.getElementById("progresoInside");
   const hoy = getHoyISO();
 
   // Jornada ya finalizada (registro con salida): barra a 0 y no contar
@@ -1100,19 +1100,34 @@ function controlarNotificaciones() {
     });
   }
 
-  setInterval(() => {
-    actualizarProgreso();
-    controlarNotificaciones();
-    comprobarExtenderJornada();
-    comprobarPaseJustificadoAutoFinalizar();
-    limpiarEarlyExitStateSiPasado();
-    limpiarExtensionSiCambioDia();
-  }, 1000);
+  let tickIntervalMs = 1000;
+  let tickTimer = null;
+  function programarTick() {
+    if (tickTimer) clearInterval(tickTimer);
+    tickTimer = setInterval(() => {
+      actualizarProgreso();
+      controlarNotificaciones();
+      comprobarExtenderJornada();
+      comprobarPaseJustificadoAutoFinalizar();
+      limpiarEarlyExitStateSiPasado();
+      limpiarExtensionSiCambioDia();
+    }, tickIntervalMs);
+  }
+  programarTick();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      tickIntervalMs = 5000;
+      programarTick();
+    } else {
+      tickIntervalMs = 1000;
+      programarTick();
+    }
+  });
 
   if (entrada) entrada.addEventListener("input", () => {
     recalcularEnVivo();
     actualizarProgreso();
-    if (fecha && fecha.value === getHoyISO() && entrada.value) guardarBorradorSesion();
+    if (fecha && fecha.value === getHoyISO() && entrada.value) guardarBorradorSesionDebounced();
     actualizarEstadoIniciarJornada();
   });
   if (salida) salida.addEventListener("input", recalcularEnVivo);
@@ -1190,6 +1205,12 @@ function controlarNotificaciones() {
         localStorage.setItem(SESSION_DRAFT_KEY, JSON.stringify({ fecha: hoy, entrada: ent }));
       } catch (e) {}
     }
+  }
+
+  let borradorSesionTimer = null;
+  function guardarBorradorSesionDebounced() {
+    if (borradorSesionTimer) clearTimeout(borradorSesionTimer);
+    borradorSesionTimer = setTimeout(guardarBorradorSesion, 400);
   }
 
   function limpiarBorradorSesion() {
@@ -2078,7 +2099,6 @@ function renderCalendario() {
 
   const festivos = obtenerFestivos(currentYear);
   if (!calendarGrid) return;
-  calendarGrid.innerHTML = "";
 
   const fechaSeleccionada = fecha.value;
 
@@ -2090,19 +2110,20 @@ function renderCalendario() {
   const totalDias = new Date(currentYear,currentMonth+1,0).getDate();
   const offset = (primerDia.getDay()+6)%7;
 
+  const fragment = document.createDocumentFragment();
   const cabecera = ["L","M","X","J","V","S","D"];
 
   cabecera.forEach(d=>{
     const el=document.createElement("div");
     el.className="cal-header";
     el.innerText=d;
-    calendarGrid.appendChild(el);
+    fragment.appendChild(el);
   });
 
   for (let i = 0; i < offset; i++) {
     const empty = document.createElement("div");
     empty.className = "cal-empty";
-    calendarGrid.appendChild(empty);
+    fragment.appendChild(empty);
   }
 
   for(let d=1; d<=totalDias; d++){
@@ -2224,8 +2245,11 @@ if(festivos && festivos[fechaISO]){
       div.innerHTML += "<small class=\"cal-saldo cal-saldo-hm cal-saldo-neg\">" + hm + "</small>";
     }
 
-    calendarGrid.appendChild(div);
+    fragment.appendChild(div);
   }
+
+  calendarGrid.innerHTML = "";
+  calendarGrid.appendChild(fragment);
 
   const nombreMes = new Date(currentYear, currentMonth)
     .toLocaleString("es-ES", { month: "long" });
