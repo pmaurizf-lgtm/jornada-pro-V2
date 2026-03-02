@@ -104,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bDisfruteExcesoMes = document.getElementById("bDisfruteExcesoMes");
   const bDisfruteExcesoMesDias = document.getElementById("bDisfruteExcesoMesDias");
   const btnDisfruteExcesoJornada = document.getElementById("disfruteExcesoJornada");
+  const btnExtManual = document.getElementById("btnExtManual");
   const modalDescuentoDe = document.getElementById("modalDescuentoDe");
   const modalDescuentoDeTxT = document.getElementById("modalDescuentoDeTxT");
   const modalDescuentoDeExceso = document.getElementById("modalDescuentoDeExceso");
@@ -122,6 +123,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputLicenciaDiasNecesarios = document.getElementById("inputLicenciaDiasNecesarios");
   const modalLicenciaTiempoCancelar = document.getElementById("modalLicenciaTiempoCancelar");
   const modalLicenciaTiempoAplicar = document.getElementById("modalLicenciaTiempoAplicar");
+  const modalExtManual = document.getElementById("modalExtManual");
+  const modalExtManualFechaLabel = document.getElementById("modalExtManualFechaLabel");
+  const extManualInicio = document.getElementById("extManualInicio");
+  const extManualFin = document.getElementById("extManualFin");
+  const modalExtManualCancelar = document.getElementById("modalExtManualCancelar");
+  const modalExtManualGuardar = document.getElementById("modalExtManualGuardar");
 
   const bankTabHoras = document.getElementById("bankTabHoras");
   const bankTabVacaciones = document.getElementById("bankTabVacaciones");
@@ -2000,6 +2007,104 @@ function controlarNotificaciones() {
   if (modalLDAnio) {
     const backdropLD = modalLDAnio.querySelector(".modal-extender-backdrop");
     if (backdropLD) backdropLD.addEventListener("click", cerrarModalLDAnio);
+  }
+
+  // Extensión manual de jornada (TxT)
+  function abrirModalExtManual() {
+    if (!fecha || !fecha.value) {
+      alert("Selecciona primero un día en el calendario.");
+      return;
+    }
+    const f = fecha.value;
+    const reg = state.registros[f];
+    if (reg && (reg.vacaciones || reg.libreDisposicion || reg.disfruteHorasExtra || reg.disfruteExcesoJornada || reg.licenciaRetribuida)) {
+      alert("No se puede registrar extensión manual en un día marcado como Vacaciones, LD, Disfrute o Licencia retribuida.");
+      return;
+    }
+    if (modalExtManualFechaLabel) {
+      modalExtManualFechaLabel.textContent = "Día seleccionado: " + f;
+    }
+    if (extManualInicio) extManualInicio.value = "";
+    if (extManualFin) extManualFin.value = "";
+    if (modalExtManual) modalExtManual.hidden = false;
+  }
+
+  function cerrarModalExtManual() {
+    if (modalExtManual) modalExtManual.hidden = true;
+  }
+
+  if (btnExtManual) {
+    btnExtManual.addEventListener("click", abrirModalExtManual);
+  }
+  if (modalExtManualCancelar) {
+    modalExtManualCancelar.addEventListener("click", cerrarModalExtManual);
+  }
+  if (modalExtManual) {
+    const backdropExt = modalExtManual.querySelector(".modal-extender-backdrop");
+    if (backdropExt) backdropExt.addEventListener("click", cerrarModalExtManual);
+  }
+  if (modalExtManualGuardar) {
+    modalExtManualGuardar.addEventListener("click", () => {
+      if (!fecha || !fecha.value) {
+        alert("Selecciona primero un día en el calendario.");
+        return;
+      }
+      const f = fecha.value;
+      if (!extManualInicio || !extManualFin) return;
+      const ini = extManualInicio.value;
+      const fin = extManualFin.value;
+      if (!ini || !fin) {
+        alert("Indica hora de inicio y fin de la extensión.");
+        return;
+      }
+      let iniMin = timeToMinutes(ini);
+      let finMin = timeToMinutes(fin);
+      if (isNaN(iniMin) || isNaN(finMin)) {
+        alert("Horas no válidas.");
+        return;
+      }
+      if (finMin <= iniMin) finMin += 24 * 60;
+      let extra = finMin - iniMin;
+      if (extra <= 0) {
+        alert("El tramo de extensión debe tener duración positiva.");
+        return;
+      }
+      extra = extraEnBloques15(extra);
+      if (extra <= 0) {
+        alert("El tramo es demasiado corto (menos de 15 minutos efectivos).");
+        return;
+      }
+
+      const regBase = state.registros[f] || {
+        entrada: null,
+        salidaReal: null,
+        trabajadosMin: 0,
+        salidaTeoricaMin: 0,
+        salidaAjustadaMin: 0,
+        extraGeneradaMin: 0,
+        negativaMin: 0,
+        excesoJornadaMin: 0,
+        disfrutadasManualMin: 0,
+        vacaciones: false
+      };
+      const reg = { ...regBase };
+      reg.extraGeneradaMin = (reg.extraGeneradaMin || 0) + extra;
+      if (state.config.trabajoATurnos && extra > 0) {
+        const EXCESO_JORNADA_TURNOS_MIN = 21;
+        reg.excesoJornadaMin = (reg.excesoJornadaMin || 0) + Math.min(extra, EXCESO_JORNADA_TURNOS_MIN);
+      }
+
+      state.registros[f] = reg;
+      saveState(state);
+      renderCalendario();
+      actualizarBanco();
+      actualizarGrafico();
+      actualizarEstadoEliminar();
+      actualizarEstadoIniciarJornada();
+      actualizarResumenDia();
+      actualizarProgreso();
+      cerrarModalExtManual();
+    });
   }
 
   function ejecutarEliminarRegistroDia() {
