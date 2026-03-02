@@ -100,23 +100,39 @@
 <div id="modalExtManual" class="modal-extender" role="dialog" aria-labelledby="modalExtManualTitulo" aria-modal="true" hidden>
   <div class="modal-extender-backdrop"></div>
   <div class="modal-extender-box">
-    <h3 id="modalExtManualTitulo" class="modal-extender-titulo">Extensión manual de jornada</h3>
-    <p class="modal-extender-texto">Indica el tramo adicional de trabajo que quieres registrar como horas TxT para este día. Se contabilizará en bloques de 15 minutos.</p>
+    <h3 id="modalExtManualTitulo" class="modal-extender-titulo">Edición manual de jornada</h3>
+    <p class="modal-extender-texto">Selecciona el tipo de evento y, según el caso, la hora o tramo que quieres registrar para este día.</p>
     <p class="modal-extender-texto" id="modalExtManualFechaLabel" style="font-weight:600;"></p>
+    <div class="config-row" style="margin:0.5rem 0 0.75rem;">
+      <select id="extManualTipo" class="config-input">
+        <option value="inicio">Ajustar inicio de jornada</option>
+        <option value="fin">Ajustar fin de jornada</option>
+        <option value="paseJust">Pase de salida justificado (tramo ausencia)</option>
+        <option value="paseSin">Pase de salida sin justificar (tramo ausencia)</option>
+        <option value="ext">Extensión de jornada (TxT)</option>
+      </select>
+    </div>
+    <div class="config-row" style="margin:0 0 0.5rem;">
+      <label class="config-label" for="extManualSaldoPase" style="font-size:0.8rem;">Saldo para pase sin justificar:</label>
+      <select id="extManualSaldoPase" class="config-input">
+        <option value="TxT">TxT</option>
+        <option value="excesoJornada">Exceso de jornada</option>
+      </select>
+    </div>
     <div class="grid-2" style="margin: 0.75rem 0 0.25rem;">
       <div class="floating-group">
         <input type="time" id="extManualInicio">
-        <label for="extManualInicio">Hora inicio extensión</label>
+        <label for="extManualInicio">Hora inicio / hora única</label>
       </div>
       <div class="floating-group">
         <input type="time" id="extManualFin">
-        <label for="extManualFin">Hora fin extensión</label>
+        <label for="extManualFin">Hora fin (si aplica)</label>
       </div>
     </div>
-    <p class="modal-extender-texto" style="font-size:0.8rem;">Ejemplo: de 15:00 a 16:34 se computarán 1,5 horas TxT (90 minutos).</p>
+    <p class="modal-extender-texto" style="font-size:0.8rem;">Ejemplos: inicio 07:00; fin 15:12; pase 10:00–11:20; extensión 15:00–16:34 (1,5 h TxT).</p>
     <div class="modal-extender-botones">
       <button type="button" id="modalExtManualCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
-      <button type="button" id="modalExtManualGuardar" class="modal-extender-btn modal-extender-si">Guardar extensión</button>
+      <button type="button" id="modalExtManualGuardar" class="modal-extender-btn modal-extender-si">Guardar cambios</button>
     </div>
   </div>
 </div>
