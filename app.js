@@ -2211,6 +2211,7 @@ function controlarNotificaciones() {
     const enEarlyExit = state.earlyExitState && state.earlyExitState.fecha === hoy && !pasadoFinTeorico(state.earlyExitState);
     const enExtension = state.extensionJornada && state.extensionJornada.fecha === hoy;
     const mostrarContinuar = enPaseJustificado || enEarlyExit;
+    const esDiaFinDeSemanaOFestivo = fecha && fecha.value ? esDiaNoLaborable(fecha.value) : false;
 
     if (mostrarContinuar) {
       btnIniciarJornada.textContent = "Continuar jornada";
@@ -2222,7 +2223,13 @@ function controlarNotificaciones() {
       btnIniciarJornada.textContent = "Extender jornada";
       btnIniciarJornada.disabled = false;
     } else {
-      btnIniciarJornada.textContent = "Iniciar jornada";
+      // En sábados, domingos y festivos (GP3/GP4), el botón se muestra como "Iniciar TxT"
+      // porque todo el tiempo trabajado computa como horas TxT.
+      if (!esModoMinutosSemanal() && esDiaFinDeSemanaOFestivo) {
+        btnIniciarJornada.textContent = "Iniciar TxT";
+      } else {
+        btnIniciarJornada.textContent = "Iniciar jornada";
+      }
       btnIniciarJornada.disabled = !!(esHoy && tieneEntrada && !yaFinalizado);
     }
     actualizarEstadoFinalizarJornada();
