@@ -1506,6 +1506,33 @@ body.dark .btn-disfrute-exceso {
   color: #ffffff;
 }
 
+/* Botón extensión manual (similar estilo destacado) */
+.btn-ext-manual {
+  background: #1d4ed8;
+  color: #ffffff;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.45);
+}
+.btn-ext-manual:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.55);
+}
+.btn-ext-manual:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+body.dark .btn-ext-manual {
+  background: #2563eb;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.6);
+}
+
 /* Licencias Retribuidas: color que destaca */
 .btn-licencias-retribuidas {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);

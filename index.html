@@ -96,6 +96,31 @@
   </div>
 </div>
 
+<!-- Modal: Extensión de jornada manual -->
+<div id="modalExtManual" class="modal-extender" role="dialog" aria-labelledby="modalExtManualTitulo" aria-modal="true" hidden>
+  <div class="modal-extender-backdrop"></div>
+  <div class="modal-extender-box">
+    <h3 id="modalExtManualTitulo" class="modal-extender-titulo">Extensión manual de jornada</h3>
+    <p class="modal-extender-texto">Indica el tramo adicional de trabajo que quieres registrar como horas TxT para este día. Se contabilizará en bloques de 15 minutos.</p>
+    <p class="modal-extender-texto" id="modalExtManualFechaLabel" style="font-weight:600;"></p>
+    <div class="grid-2" style="margin: 0.75rem 0 0.25rem;">
+      <div class="floating-group">
+        <input type="time" id="extManualInicio">
+        <label for="extManualInicio">Hora inicio extensión</label>
+      </div>
+      <div class="floating-group">
+        <input type="time" id="extManualFin">
+        <label for="extManualFin">Hora fin extensión</label>
+      </div>
+    </div>
+    <p class="modal-extender-texto" style="font-size:0.8rem;">Ejemplo: de 15:00 a 16:34 se computarán 1,5 horas TxT (90 minutos).</p>
+    <div class="modal-extender-botones">
+      <button type="button" id="modalExtManualCancelar" class="modal-extender-btn modal-extender-no">Cancelar</button>
+      <button type="button" id="modalExtManualGuardar" class="modal-extender-btn modal-extender-si">Guardar extensión</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Desplazamiento fuera de provincia (licencias) -->
 <div id="modalLicenciaDesplazamiento" class="modal-extender" role="dialog" aria-modal="true" hidden>
   <div class="modal-extender-backdrop"></div>
@@ -397,6 +422,10 @@
 
       <button type="button" id="btnLicenciasRetribuidas" class="btn-licencias-retribuidas" title="Licencias retribuidas">
         Licencias Retribuidas
+      </button>
+
+      <button type="button" id="btnExtManual" class="btn-ext-manual" title="Registrar manualmente extensión de jornada (TxT)">
+        Extensión manual
       </button>
 
       <button type="button" id="eliminar" class="btn-danger">
