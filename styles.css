@@ -1705,7 +1705,7 @@ body.dark .progress-wrapper {
   100% { left: 120%; }
 }
 
-/* texto centrado dentro */
+/* texto centrado dentro: por defecto oscuro para verse sobre la pista vacía */
 .progress-text-inside {
   position: absolute;
   width: 100%;
@@ -1723,7 +1723,13 @@ body.dark .progress-wrapper {
   z-index: 2;
   pointer-events: none;
 
-  color: var(--text); /* SIEMPRE oscuro por defecto */
+  color: #1e293b;
+  text-shadow: 0 0 1px rgba(255,255,255,0.9), 0 1px 2px rgba(255,255,255,0.8);
+}
+
+body.dark .progress-text-inside {
+  color: #e2e8f0;
+  text-shadow: 0 0 1px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.6);
 }
 
 .progress-wrapper {
@@ -1734,9 +1740,15 @@ body.dark .progress-wrapper {
   mix-blend-mode: multiply;
 }
 
-.progress-text-inside {
-  color: white;
-  mix-blend-mode: difference;
+/* cuando la barra cubre buena parte, texto claro sobre la barra */
+.progress-text-inside.light-text {
+  color: #fff;
+  text-shadow: 0 0 2px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.6);
+}
+
+body.dark .progress-text-inside.light-text {
+  color: #fff;
+  text-shadow: 0 0 2px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8);
 }
 
 /* animación cuando completa */

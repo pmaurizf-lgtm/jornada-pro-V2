@@ -874,11 +874,16 @@ function actualizarProgreso() {
 
   const horas = Math.floor(trabajado / 60);
   const minutos = trabajado % 60;
+  const restanteMin = Math.max(0, jornadaRef - trabajado);
+  const hRest = Math.floor(restanteMin / 60);
+  const mRest = restanteMin % 60;
+  const textoRestante = "Quedan " + hRest + "h " + String(mRest).padStart(2, "0") + "m";
 
   const texto =
     horas + "h " +
     String(minutos).padStart(2, "0") + "m • " +
-    Math.round(porcentaje) + "%";
+    Math.round(porcentaje) + "% · " +
+    textoRestante;
 
   if (progresoInside) {
     progresoInside.innerText = texto;
