@@ -893,6 +893,32 @@ body.dark .metric {
   letter-spacing: -0.02em;
 }
 
+/* Decimal, minutos (hm) y días cada uno en su propia fila */
+.metric-value-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.metric-value-rows .metric-decimal,
+.metric-value-rows strong.metric-decimal {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.metric-hm {
+  display: block;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.metric-value-rows .metric-dias {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
 .metric.saldo strong {
   font-size: 1.1rem;
 }
@@ -1141,6 +1167,13 @@ body.dark .cal-day.festivo-nacional {
 .cal-day small {
   display: block;
   color: var(--text);
+  line-height: 1.25;
+}
+
+/* En calendario: decimal y minutos (hm) en filas separadas */
+.cal-day small.cal-saldo,
+.cal-day small.cal-saldo-hm {
+  display: block;
 }
 
 .cal-day small.cal-disfrutadas {
@@ -1823,6 +1856,21 @@ body.dark .progress-text-inside.light-text {
     overflow-x: hidden;
   }
 
+  /* Grupos (registro, calendario, métricas) mismo ancho y anchos */
+  #seccionRegistro,
+  #mainGrid,
+  #seccionMetrics {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .main-grid .card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
   header.header {
     padding: 12px 16px;
     padding-top: max(12px, var(--safe-top));
@@ -1895,6 +1943,7 @@ body.dark .progress-text-inside.light-text {
   }
 
   .salidas-card {
+    flex-direction: column;
     gap: 12px;
     margin-top: 12px;
     margin-bottom: 8px;
@@ -1903,6 +1952,12 @@ body.dark .progress-text-inside.light-text {
   .salida-box {
     padding: 12px;
     min-height: 52px;
+  }
+
+  .resumen-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
   }
 
   .progress-wrapper {
@@ -1934,20 +1989,39 @@ body.dark .progress-text-inside.light-text {
     padding: 8px;
   }
 
+  /* Celdas de día tamaño fijo: no cambian con/sin contenido */
+  .calendar-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .cal-day,
+  .cal-empty {
+    width: 100%;
+    aspect-ratio: 1;
+    min-height: 44px;
+    max-height: 999px;
+    overflow: hidden;
+    padding: 4px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+  }
+
+  .cal-empty {
+    min-height: 44px;
+  }
+
   .cal-day {
-    min-height: 56px;
-    padding: 6px;
-    font-size: 13px;
+    min-height: 44px;
   }
 
   .cal-header {
     font-size: 0.75rem;
     padding: 6px 0;
-  }
-
-  .calendar-grid {
-    gap: 6px;
-    margin-top: 10px;
   }
 
   .metrics {
@@ -1987,14 +2061,23 @@ body.dark .progress-text-inside.light-text {
     grid-template-columns: 1fr;
   }
 
-  .acciones-row button {
-    flex: 1 1 100%;
-    max-width: none;
+  /* Botones en filas de a dos también en móvil pequeño */
+  .acciones-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .cal-day {
-    min-height: 52px;
-    font-size: 12px;
+  .acciones-row button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    max-width: calc(50% - 4px);
+  }
+
+  .cal-day,
+  .cal-empty {
+    min-height: 40px;
+    font-size: 11px;
   }
 }
 

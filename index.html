@@ -566,13 +566,19 @@
       <!-- Totales siempre visibles -->
       <div class="metric metric-total">
         <span>Total disponible TxT (Acumulado)</span>
-        <strong id="bTotalDisponibleTxT"></strong>
-        <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
+        <div class="metric-value-rows">
+          <strong id="bTotalDisponibleTxT" class="metric-decimal"></strong>
+          <span id="bTotalDisponibleTxTHm" class="metric-hm"></span>
+          <small id="bTotalDisponibleTxTDias" class="metric-dias"></small>
+        </div>
       </div>
       <div class="metric metric-total">
         <span>Total disponible exc. jornada (Acumulado)</span>
-        <strong id="bTotalDisponibleExceso"></strong>
-        <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
+        <div class="metric-value-rows">
+          <strong id="bTotalDisponibleExceso" class="metric-decimal"></strong>
+          <span id="bTotalDisponibleExcesoHm" class="metric-hm"></span>
+          <small id="bTotalDisponibleExcesoDias" class="metric-dias"></small>
+        </div>
       </div>
 
       <!-- Desglose anual (desplegable) -->
@@ -585,23 +591,35 @@
         <div class="bank-desplegable-content">
           <div class="metric">
             <span>TxT generado (Anual)</span>
-            <strong id="bGeneradas"></strong>
-            <small id="bGeneradasDias" class="metric-dias"></small>
+            <div class="metric-value-rows">
+              <strong id="bGeneradas" class="metric-decimal"></strong>
+              <span id="bGeneradasHm" class="metric-hm"></span>
+              <small id="bGeneradasDias" class="metric-dias"></small>
+            </div>
           </div>
           <div class="metric">
             <span>Exceso de jornada (Anual)</span>
-            <strong id="bExceso"></strong>
-            <small id="bExcesoDias" class="metric-dias"></small>
+            <div class="metric-value-rows">
+              <strong id="bExceso" class="metric-decimal"></strong>
+              <span id="bExcesoHm" class="metric-hm"></span>
+              <small id="bExcesoDias" class="metric-dias"></small>
+            </div>
           </div>
           <div class="metric">
             <span>Horas TxT gastadas (Anual)</span>
-            <strong id="bDisfrutadas"></strong>
-            <small id="bDisfrutadasDias" class="metric-dias"></small>
+            <div class="metric-value-rows">
+              <strong id="bDisfrutadas" class="metric-decimal"></strong>
+              <span id="bDisfrutadasHm" class="metric-hm"></span>
+              <small id="bDisfrutadasDias" class="metric-dias"></small>
+            </div>
           </div>
           <div class="metric">
             <span>Horas exceso jornada gastadas (Anual)</span>
-            <strong id="bDisfruteExceso"></strong>
-            <small id="bDisfruteExcesoDias" class="metric-dias"></small>
+            <div class="metric-value-rows">
+              <strong id="bDisfruteExceso" class="metric-decimal"></strong>
+              <span id="bDisfruteExcesoHm" class="metric-hm"></span>
+              <small id="bDisfruteExcesoDias" class="metric-dias"></small>
+            </div>
           </div>
         </div>
       </details>
@@ -616,23 +634,35 @@
         <div class="bank-desplegable-content">
           <div class="metric">
             <span>TxT generado (Mes en curso)</span>
-            <strong id="bGeneradasMes"></strong>
-            <small id="bGeneradasMesDias" class="metric-dias"></small>
+            <div class="metric-value-rows">
+              <strong id="bGeneradasMes" class="metric-decimal"></strong>
+              <span id="bGeneradasMesHm" class="metric-hm"></span>
+              <small id="bGeneradasMesDias" class="metric-dias"></small>
+            </div>
           </div>
           <div class="metric">
             <span>Exceso de jornada (Mes en curso)</span>
-            <strong id="bExcesoMes"></strong>
-            <small id="bExcesoMesDias" class="metric-dias"></small>
+            <div class="metric-value-rows">
+              <strong id="bExcesoMes" class="metric-decimal"></strong>
+              <span id="bExcesoMesHm" class="metric-hm"></span>
+              <small id="bExcesoMesDias" class="metric-dias"></small>
+            </div>
           </div>
           <div class="metric">
             <span>Horas TxT gastadas (Mes en curso)</span>
-            <strong id="bDisfrutadasMes"></strong>
-            <small id="bDisfrutadasMesDias" class="metric-dias"></small>
+            <div class="metric-value-rows">
+              <strong id="bDisfrutadasMes" class="metric-decimal"></strong>
+              <span id="bDisfrutadasMesHm" class="metric-hm"></span>
+              <small id="bDisfrutadasMesDias" class="metric-dias"></small>
+            </div>
           </div>
           <div class="metric">
             <span>Horas exceso jornada gastadas (Mes en curso)</span>
-            <strong id="bDisfruteExcesoMes"></strong>
-            <small id="bDisfruteExcesoMesDias" class="metric-dias"></small>
+            <div class="metric-value-rows">
+              <strong id="bDisfruteExcesoMes" class="metric-decimal"></strong>
+              <span id="bDisfruteExcesoMesHm" class="metric-hm"></span>
+              <small id="bDisfruteExcesoMesDias" class="metric-dias"></small>
+            </div>
           </div>
         </div>
       </details>

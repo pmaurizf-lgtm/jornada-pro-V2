@@ -84,24 +84,34 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectBankYear = document.getElementById("selectBankYear");
   const selectBankMonth = document.getElementById("selectBankMonth");
   const bTotalDisponibleTxT = document.getElementById("bTotalDisponibleTxT");
+  const bTotalDisponibleTxTHm = document.getElementById("bTotalDisponibleTxTHm");
   const bTotalDisponibleTxTDias = document.getElementById("bTotalDisponibleTxTDias");
   const bTotalDisponibleExceso = document.getElementById("bTotalDisponibleExceso");
+  const bTotalDisponibleExcesoHm = document.getElementById("bTotalDisponibleExcesoHm");
   const bTotalDisponibleExcesoDias = document.getElementById("bTotalDisponibleExcesoDias");
   const bGeneradas = document.getElementById("bGeneradas");
+  const bGeneradasHm = document.getElementById("bGeneradasHm");
   const bGeneradasDias = document.getElementById("bGeneradasDias");
   const bExceso = document.getElementById("bExceso");
+  const bExcesoHm = document.getElementById("bExcesoHm");
   const bExcesoDias = document.getElementById("bExcesoDias");
   const bDisfrutadas = document.getElementById("bDisfrutadas");
+  const bDisfrutadasHm = document.getElementById("bDisfrutadasHm");
   const bDisfrutadasDias = document.getElementById("bDisfrutadasDias");
   const bDisfruteExceso = document.getElementById("bDisfruteExceso");
+  const bDisfruteExcesoHm = document.getElementById("bDisfruteExcesoHm");
   const bDisfruteExcesoDias = document.getElementById("bDisfruteExcesoDias");
   const bGeneradasMes = document.getElementById("bGeneradasMes");
+  const bGeneradasMesHm = document.getElementById("bGeneradasMesHm");
   const bGeneradasMesDias = document.getElementById("bGeneradasMesDias");
   const bExcesoMes = document.getElementById("bExcesoMes");
+  const bExcesoMesHm = document.getElementById("bExcesoMesHm");
   const bExcesoMesDias = document.getElementById("bExcesoMesDias");
   const bDisfrutadasMes = document.getElementById("bDisfrutadasMes");
+  const bDisfrutadasMesHm = document.getElementById("bDisfrutadasMesHm");
   const bDisfrutadasMesDias = document.getElementById("bDisfrutadasMesDias");
   const bDisfruteExcesoMes = document.getElementById("bDisfruteExcesoMes");
+  const bDisfruteExcesoMesHm = document.getElementById("bDisfruteExcesoMesHm");
   const bDisfruteExcesoMesDias = document.getElementById("bDisfruteExcesoMesDias");
   const btnDisfruteExcesoJornada = document.getElementById("disfruteExcesoJornada");
   const btnExtManual = document.getElementById("btnExtManual");
@@ -508,7 +518,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     return sign + h + "h " + m + "m";
   }
 
-  /** Formato para banco: horas con 2 decimales + h m + días (459 min = 1 día). */
+  /** Formato para banco: decimal, hm y días en filas separadas (459 min = 1 día). */
   function formatoHorasConDias(min, minPorDia) {
     const m = Math.abs(min);
     const sign = min < 0 ? "−" : "";
@@ -516,7 +526,7 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     const hm = minutosAHorasMinutos(min);
     const diasNum = m / (minPorDia || MINUTOS_POR_DIA_JORNADA);
     const dias = (min < 0 ? "−" : "") + diasNum.toFixed(2).replace(".", ",") + " días";
-    return { principal: decimal + "  " + hm, dias };
+    return { decimal, hm, dias };
   }
 
   function esModoMinutosSemanal() {
@@ -639,28 +649,34 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     const fmtTxT = formatoHorasConDias(saldoTxT);
     const fmtExceso = formatoHorasConDias(saldoExceso);
     if (bTotalDisponibleTxT) {
-      bTotalDisponibleTxT.innerText = fmtTxT.principal;
+      bTotalDisponibleTxT.innerText = fmtTxT.decimal;
       bTotalDisponibleTxT.style.color = saldoTxT >= 0 ? "var(--positive)" : "var(--negative)";
     }
+    if (bTotalDisponibleTxTHm) bTotalDisponibleTxTHm.textContent = fmtTxT.hm;
     if (bTotalDisponibleTxTDias) bTotalDisponibleTxTDias.textContent = fmtTxT.dias;
     if (bTotalDisponibleExceso) {
-      bTotalDisponibleExceso.innerText = fmtExceso.principal;
+      bTotalDisponibleExceso.innerText = fmtExceso.decimal;
       bTotalDisponibleExceso.style.color = saldoExceso >= 0 ? "var(--positive)" : "var(--negative)";
     }
+    if (bTotalDisponibleExcesoHm) bTotalDisponibleExcesoHm.textContent = fmtExceso.hm;
     if (bTotalDisponibleExcesoDias) bTotalDisponibleExcesoDias.textContent = fmtExceso.dias;
 
     const fmtGen = formatoHorasConDias(anual.generadas);
-    if (bGeneradas) bGeneradas.innerText = fmtGen.principal;
+    if (bGeneradas) bGeneradas.innerText = fmtGen.decimal;
+    if (bGeneradasHm) bGeneradasHm.textContent = fmtGen.hm;
     if (bGeneradasDias) bGeneradasDias.textContent = fmtGen.dias;
     const fmtExcAnual = formatoHorasConDias(anual.exceso || 0);
-    if (bExceso) bExceso.innerText = fmtExcAnual.principal;
+    if (bExceso) bExceso.innerText = fmtExcAnual.decimal;
+    if (bExcesoHm) bExcesoHm.textContent = fmtExcAnual.hm;
     if (bExcesoDias) bExcesoDias.textContent = fmtExcAnual.dias;
 
     const fmtGastTxT = formatoHorasConDias(gastadasTxTAnual);
-    if (bDisfrutadas) bDisfrutadas.innerText = fmtGastTxT.principal;
+    if (bDisfrutadas) bDisfrutadas.innerText = fmtGastTxT.decimal;
+    if (bDisfrutadasHm) bDisfrutadasHm.textContent = fmtGastTxT.hm;
     if (bDisfrutadasDias) bDisfrutadasDias.textContent = fmtGastTxT.dias;
     const fmtGastExc = formatoHorasConDias(gastadasExcesoAnual);
-    if (bDisfruteExceso) bDisfruteExceso.innerText = fmtGastExc.principal;
+    if (bDisfruteExceso) bDisfruteExceso.innerText = fmtGastExc.decimal;
+    if (bDisfruteExcesoHm) bDisfruteExcesoHm.textContent = fmtGastExc.hm;
     if (bDisfruteExcesoDias) bDisfruteExcesoDias.textContent = fmtGastExc.dias;
 
     const anioCurso = new Date().getFullYear();
@@ -684,16 +700,20 @@ if (btnAbrirGuia) btnAbrirGuia.addEventListener("click", function () {
     const gastadasExcesoMes = (mensualCurso.disfruteExcesoJornadaMin || 0) + (mensualCurso.negativasExceso || 0);
 
     const fmtGenMes = formatoHorasConDias(mensualCurso.generadas || 0);
-    if (bGeneradasMes) bGeneradasMes.innerText = fmtGenMes.principal;
+    if (bGeneradasMes) bGeneradasMes.innerText = fmtGenMes.decimal;
+    if (bGeneradasMesHm) bGeneradasMesHm.textContent = fmtGenMes.hm;
     if (bGeneradasMesDias) bGeneradasMesDias.textContent = fmtGenMes.dias;
     const fmtExcesoMes = formatoHorasConDias(mensualCurso.exceso || 0);
-    if (bExcesoMes) bExcesoMes.innerText = fmtExcesoMes.principal;
+    if (bExcesoMes) bExcesoMes.innerText = fmtExcesoMes.decimal;
+    if (bExcesoMesHm) bExcesoMesHm.textContent = fmtExcesoMes.hm;
     if (bExcesoMesDias) bExcesoMesDias.textContent = fmtExcesoMes.dias;
     const fmtGastTxTMes = formatoHorasConDias(gastadasTxTMes);
-    if (bDisfrutadasMes) bDisfrutadasMes.innerText = fmtGastTxTMes.principal;
+    if (bDisfrutadasMes) bDisfrutadasMes.innerText = fmtGastTxTMes.decimal;
+    if (bDisfrutadasMesHm) bDisfrutadasMesHm.textContent = fmtGastTxTMes.hm;
     if (bDisfrutadasMesDias) bDisfrutadasMesDias.textContent = fmtGastTxTMes.dias;
     const fmtGastExcesoMes = formatoHorasConDias(gastadasExcesoMes);
-    if (bDisfruteExcesoMes) bDisfruteExcesoMes.innerText = fmtGastExcesoMes.principal;
+    if (bDisfruteExcesoMes) bDisfruteExcesoMes.innerText = fmtGastExcesoMes.decimal;
+    if (bDisfruteExcesoMesHm) bDisfruteExcesoMesHm.textContent = fmtGastExcesoMes.hm;
     if (bDisfruteExcesoMesDias) bDisfruteExcesoMesDias.textContent = fmtGastExcesoMes.dias;
 
     actualizarBancoVacaciones();
