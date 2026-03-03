@@ -1856,19 +1856,29 @@ body.dark .progress-text-inside.light-text {
     overflow-x: hidden;
   }
 
-  /* Grupos (registro, calendario, métricas) mismo ancho y anchos */
+  /* Todos los bloques mismo ancho, sin salirse del viewport */
   #seccionRegistro,
   #mainGrid,
   #seccionMetrics {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .main-grid {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .main-grid .card {
     width: 100%;
     max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   header.header {
@@ -1977,6 +1987,9 @@ body.dark .progress-text-inside.light-text {
   .calendar-card {
     padding: 14px;
     min-height: 260px;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
   }
 
   .cal-nav {
@@ -1989,39 +2002,40 @@ body.dark .progress-text-inside.light-text {
     padding: 8px;
   }
 
-  /* Celdas de día tamaño fijo: no cambian con/sin contenido */
+  /* Cuadrícula que cabe en el ancho: 7 columnas iguales, sin montarse */
   .calendar-grid {
+    width: 100%;
+    min-width: 0;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 6px;
+    gap: 4px;
     margin-top: 10px;
+    box-sizing: border-box;
   }
 
   .cal-day,
   .cal-empty {
+    min-width: 0;
     width: 100%;
-    aspect-ratio: 1;
-    min-height: 44px;
-    max-height: 999px;
+    height: 52px;
+    min-height: 52px;
     overflow: hidden;
-    padding: 4px;
-    font-size: 12px;
+    padding: 3px;
+    font-size: 11px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     box-sizing: border-box;
   }
 
-  .cal-empty {
-    min-height: 44px;
-  }
-
-  .cal-day {
-    min-height: 44px;
-  }
-
   .cal-header {
-    font-size: 0.75rem;
-    padding: 6px 0;
+    font-size: 0.7rem;
+    padding: 4px 0;
+    min-width: 0;
+  }
+
+  .cal-empty {
+    height: 52px;
+    min-height: 52px;
   }
 
   .metrics {
@@ -2076,8 +2090,14 @@ body.dark .progress-text-inside.light-text {
 
   .cal-day,
   .cal-empty {
-    min-height: 40px;
-    font-size: 11px;
+    height: 48px;
+    min-height: 48px;
+    font-size: 10px;
+    padding: 2px;
+  }
+
+  .calendar-grid {
+    gap: 3px;
   }
 }
 
