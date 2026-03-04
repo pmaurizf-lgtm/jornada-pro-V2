@@ -20,7 +20,7 @@ Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y
 
 ## 2. Grupo profesional (GP1–GP4)
 
-Al usar la aplicación por primera vez (o si no tienes grupo asignado), se muestra un **modal para elegir tu grupo profesional**: GP1, GP2, GP3 o GP4. Esta elección determina qué pantallas y funciones verás:
+Al usar la aplicación por primera vez (o si no tienes grupo asignado), se muestra un **modal para elegir tu grupo profesional**: GP1, GP2, GP3 o GP4. Esta elección determina qué pantallas y funciones verás. Tras elegir el grupo, se abre automáticamente el **modal de días de Libre Disposición** del año en curso para que puedas indicar los días LD que tenías antes de usar la app (también puedes hacerlo más tarde en Configuración de jornada o al usar LD por primera vez en un año).
 
 | Grupo   | Modo                  | Banco principal              | Extender jornada | Gráfico | Disfr. TxT / Disfr. exceso |
 |--------|------------------------|------------------------------|------------------|---------|----------------------------|
@@ -36,13 +36,13 @@ Puedes **cambiar el grupo profesional** en cualquier momento en **Configuración
 - **Cabecera:** título de la app, logo y botón de menú (☰) para abrir **Configuración**.
 - **Registro diario:** formulario con fecha, entrada, salida y acciones: **Iniciar jornada**, **Finalizar**, **Guardar**, **Vacaciones**, **LD** (Libre Disposición), **Disfr. TxT**, **Disfr. exceso** (solo GP3/GP4), **Licencias Retribuidas**, **Eliminar**.
 - **Salidas teórica y ajustada:** se calculan en función de la jornada configurada.
-- **Barra de progreso:** indica el avance del día respecto a la jornada nominal (o horas extra en modo extensión para GP3/GP4).
+- **Barra de progreso:** indica el avance del día respecto a la jornada nominal (o horas extra en modo extensión para GP3/GP4). Muestra las horas trabajadas, el porcentaje y el **tiempo que queda** hasta el fin de la jornada («Quedan Xh XXm»). El texto está adaptado para leerse bien tanto cuando la barra está poco llena como cuando está casi completa.
 - **Resumen del día:**
   - **GP3/GP4:** horas trabajadas, extra, exceso jornada, negativa (en horas y minutos y en decimal).
   - **GP1/GP2:** trabajado, Bolsa de autorregulación (esta semana), hoy (delta). La bolsa se indica en fase de «implantación experimental».
 - **Calendario:** vista mensual con registros, saldos y días festivos. En modo minutos semanal se muestra el saldo de la semana; en modo TxT, el saldo del día (+X.Xh / −X.Xh).
 - **Banco (pestañas):**
-  - **Horas TxT** (o **Bolsa de autorregulación** en GP1/GP2): en GP3/GP4 muestra **Total disponible TxT (acumulado)** y **Total disponible exceso de jornada (acumulado)** (horas con 2 decimales, h+m y días; 1 día = 459 min), y dos desplegables cerrados por defecto: **Desglose anual** (selector de año; TxT generado, exceso, horas TxT gastadas, horas exceso gastadas) y **Desglose mes** (selector de mes del año en curso; mismas métricas por mes). En GP1/GP2 solo la Bolsa de autorregulación de la semana actual (implantación experimental).
+  - **Horas TxT** (o **Bolsa de autorregulación** en GP1/GP2): en GP3/GP4 muestra **Total disponible TxT (acumulado)** y **Total disponible exceso de jornada (acumulado)**. Cada contador de horas se muestra en **tres filas** para evitar confusiones: **horas en decimal** (ej. 12,50h), **horas y minutos** (ej. 12h 30m) y **días** (1 día = 459 min). Lo mismo aplica a los desplegables **Desglose anual** (selector de año; TxT generado, exceso, horas TxT gastadas, horas exceso gastadas) y **Desglose mes** (selector de mes del año en curso; mismas métricas por mes). En GP1/GP2 solo la Bolsa de autorregulación de la semana actual (implantación experimental).
   - **Vacaciones/LD:** días de vacaciones disponibles (año en curso y anterior) y días de Libre Disposición del año en curso.
 - **Gráfico:** evolución del banco de horas en el año seleccionado (**solo GP3/GP4**).
 
@@ -266,17 +266,17 @@ La sección de métricas tiene **dos pestañas**:
 
 - **Si tu grupo es GP3 o GP4:** se muestra el panel **Horas TxT** con:
   - **Siempre visibles:**  
-    **Total disponible TxT (Acumulado)** y **Total disponible exceso de jornada (Acumulado)**. Cada uno muestra las horas con dos decimales, horas y minutos, y **días disponibles** (1 día = 459 minutos de jornada).
-  - **Desplegable «Desglose anual»** (cerrado por defecto): selector de **Año** y, al abrirlo, **TxT generado (Anual)**, **Exceso de jornada (Anual)**, **Horas TxT gastadas (Anual)** y **Horas exceso jornada gastadas (Anual)**. Todas las métricas en horas (2 decimales), h+m y días.
-  - **Desplegable «Desglose mes»** (cerrado por defecto): selector de **Mes** (Enero a Diciembre) del **año en curso**. Al abrirlo: **TxT generado**, **Exceso de jornada**, **Horas TxT gastadas** y **Horas exceso jornada gastadas** correspondientes al mes elegido (mismo formato: horas, h+m, días).
+    **Total disponible TxT (Acumulado)** y **Total disponible exceso de jornada (Acumulado)**. Cada uno muestra en **tres filas**: horas con dos decimales, horas y minutos (h+m), y **días disponibles** (1 día = 459 minutos de jornada).
+  - **Desplegable «Desglose anual»** (cerrado por defecto): selector de **Año** y, al abrirlo, **TxT generado (Anual)**, **Exceso de jornada (Anual)**, **Horas TxT gastadas (Anual)** y **Horas exceso jornada gastadas (Anual)**. Todas las métricas en tres filas: decimal, h+m y días.
+  - **Desplegable «Desglose mes»** (cerrado por defecto): selector de **Mes** (Enero a Diciembre) del **año en curso**. Al abrirlo: **TxT generado**, **Exceso de jornada**, **Horas TxT gastadas** y **Horas exceso jornada gastadas** correspondientes al mes elegido (mismo formato en tres filas).
   - Los saldos TxT y exceso se calculan por separado: las negativas al salir antes o fin de jornada se asignan a TxT o a exceso según lo que elijas en el modal «¿De qué saldo se descuenta?».
 
-El saldo inicial (horas extra previas, exceso previo) se configura en **Configuración → Configuración de jornada** (solo aplicable en GP3/GP4). El botón **«Resetear saldo previo»** pone a cero esos valores.
+El saldo inicial (horas extra previas, exceso previo, días de vacaciones previos y días de Libre disposición previos) se configura en **Configuración → Configuración de jornada**. El botón **«Resetear saldo previo»** pone a cero las horas extra previas, el exceso previo y los días LD previos del año en curso (solo GP3/GP4 para horas/exceso; LD aplica a todos los grupos).
 
 ### 6.2 Pestaña «Vacaciones/LD»
 
 - **Vacaciones:** total días disponibles, año en curso, año anterior (si aplica) y leyenda de caducidad.
-- **Libre disposición:** días LD del año en curso. Los días LD se indican por año (la primera vez que usas LD en un año se abre el modal para introducir el número de días de ese año).
+- **Libre disposición:** días LD del año en curso. Los días LD se indican por año: la primera vez que usas LD en un año se abre el modal para introducir el número de días de ese año; también puedes indicar los **días LD previos** (antes de usar la app) en **Configuración de jornada → Saldo previo** o en el modal que aparece al elegir el grupo profesional la primera vez.
 
 ---
 
@@ -309,8 +309,11 @@ Se abre desde el **menú (☰)** de la cabecera. Está organizada en bloques des
 - **Jornada (min):** duración nominal de la jornada en minutos (p. ej. 459 para 7h 39min).
 - **Trabajo a turnos:** activar si trabajas por turnos.
 - **Turno:** elegir horario (06-14, 14-22, 22-06) cuando turnos está activo.
-- **Horas extra previas / Exceso de jornada previas:** (solo GP3/GP4) saldo que arrastras de antes de usar la app.
-- **Resetear saldo previo:** (solo GP3/GP4) pone a cero las horas extra previas y el exceso previo.
+- **Saldo previo (antes de usar la app):**
+  - **Horas extra previas / Exceso de jornada previas:** (solo GP3/GP4) saldo que arrastras de antes de usar la app.
+  - **Días de vacaciones previos:** corresponden al año anterior; se suman al total disponible de vacaciones.
+  - **Días de Libre disposición previos (año en curso):** días LD que tenías antes de usar la app para el año en curso. También puedes indicarlos en el modal que aparece al elegir el grupo profesional la primera vez, o al usar LD por primera vez en un año.
+- **Resetear saldo previo:** (solo GP3/GP4 para horas/exceso) pone a cero las horas extra previas, el exceso previo y los días de Libre disposición previos del año en curso.
 
 ### 8.4 Copia de datos y seguridad
 
@@ -363,7 +366,19 @@ Estas reglas se aplican **automáticamente** al guardar o finalizar la jornada e
 
 ---
 
-## 11. Resumen rápido
+## 11. Vista móvil
+
+En pantallas pequeñas (móvil) la aplicación adapta el diseño para un uso cómodo:
+
+- **Bloques y cabecera:** todos los bloques (registro, calendario, gráfico, banco) tienen el mismo ancho y no se cortan por los laterales; la barra superior y las tarjetas mantienen las **esquinas redondeadas** visibles.
+- **Botones de acciones:** los botones del registro (Guardar, Edición jornada, Vacaciones, LD, Disfr. TxT, Disfr. exceso, Licencias Retribuidas, Eliminar) se muestran **en filas de dos** para ahorrar espacio.
+- **Salidas y resumen del día:** las cajas «Salida teórica» y «Salida ajustada» aparecen una debajo de la otra; en el resumen del día, cada línea (Trabajado, Extra, etc.) muestra la etiqueta y el valor **en filas separadas** para mayor claridad.
+- **Calendario:** las celdas de los días tienen **tamaño fijo** (no cambian al rellenar contenido), con tipografía compacta para que el número del día y los saldos (decimal, h+m) se vean completos; los iconos (vacaciones, LD, completado, etc.) están escalados para no desbordar.
+- **Banco de horas:** los contadores (Total TxT, Total exceso, desgloses) muestran **decimal, minutos (h+m) y días en filas distintas** para evitar confusiones, tanto en el calendario como en la pestaña Horas TxT.
+
+---
+
+## 12. Resumen rápido
 
 | Acción | Dónde |
 |--------|--------|
@@ -373,7 +388,7 @@ Estas reglas se aplican **automáticamente** al guardar o finalizar la jornada e
 | Seguir después del fin teórico (GP3/GP4) | Extender jornada (Sí en el modal o botón) |
 | Guardar a mano un día | Rellenar fecha, entrada, salida → Guardar |
 | Marcar vacaciones | Vacaciones |
-| Marcar Libre Disposición | LD (indicar días LD del año si es la primera vez) |
+| Marcar Libre Disposición | LD (indicar días LD del año si es la primera vez, o en Configuración de jornada → Saldo previo) |
 | Disfrutar horas TxT (GP3/GP4) | Disfr. TxT |
 | Disfrutar exceso de jornada (GP3/GP4) | Disfr. exceso |
 | Marcar días de licencia retribuida | Licencias Retribuidas (modal con opciones) |

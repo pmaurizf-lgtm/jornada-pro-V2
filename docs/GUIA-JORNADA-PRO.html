@@ -78,7 +78,7 @@
   <p>Los datos se guardan en el propio dispositivo (navegador). Puedes hacer backup y restaurar desde el menú de configuración.</p>
 
   <h2>2. Grupo profesional (GP1–GP4)</h2>
-  <p>La primera vez (o si no tienes grupo asignado) se muestra un <strong>modal para elegir grupo profesional</strong>: GP1, GP2, GP3 o GP4. Puedes cambiarlo en <strong>Configuración → Datos personales → Grupo Profesional</strong>.</p>
+  <p>La primera vez (o si no tienes grupo asignado) se muestra un <strong>modal para elegir grupo profesional</strong>: GP1, GP2, GP3 o GP4. Tras elegir, se abre el <strong>modal de días de Libre Disposición</strong> del año en curso para indicar los días LD previos (también en Configuración de jornada o al usar LD por primera vez en un año). Puedes cambiar el grupo en <strong>Configuración → Datos personales → Grupo Profesional</strong>.</p>
   <ul>
     <li><strong>GP1/GP2:</strong> modo Bolsa de autorregulación (implantación experimental); no hay Extender jornada ni gráfico; no se muestran Disfr. TxT ni Disfr. exceso.</li>
     <li><strong>GP3/GP4:</strong> modo Horas TxT (banco anual), Extender jornada, gráfico, botones Disfr. TxT y Disfr. exceso, y reglas de TxT para fines de semana y festivos.</li>
@@ -88,7 +88,7 @@
   <ul>
     <li><strong>Cabecera:</strong> título, logo y menú (☰) para Configuración.</li>
     <li><strong>Registro diario:</strong> fecha, entrada, salida; acciones: Iniciar jornada, Finalizar, Guardar, Vacaciones, LD, Disfr. TxT, Disfr. exceso (solo GP3/GP4), Licencias Retribuidas, Eliminar.</li>
-    <li><strong>Salidas teórica y ajustada</strong> y <strong>barra de progreso</strong> (en GP3/GP4 en extensión muestra horas extra).</li>
+    <li><strong>Salidas teórica y ajustada</strong> y <strong>barra de progreso</strong>: avance, porcentaje y tiempo que queda hasta el fin de jornada («Quedan Xh XXm»); en GP3/GP4 en extensión muestra horas extra. Texto legible con la barra poco o muy llena.</li>
     <li><strong>Resumen del día:</strong> GP3/GP4 = trabajado, extra, exceso, negativa; GP1/GP2 = trabajado, Bolsa de autorregulación (semana), hoy (delta).</li>
     <li><strong>Calendario:</strong> vista mensual; indicadores según modo (saldos día o semana).</li>
     <li><strong>Banco:</strong> pestaña «Horas TxT» (o «Bolsa de autorregulación» en GP1/GP2) y pestaña «Vacaciones/LD».</li>
@@ -107,7 +107,7 @@
   <h3>4.6 Guardar</h3>
   <p>Fecha, entrada, salida (y «Salir antes» en GP3/GP4) → <strong>«Guardar»</strong>. En GP3/GP4, si el día es sábado, domingo o festivo, se aplican las reglas de TxT (ver sección 10).</p>
   <h3>4.7 Vacaciones / 4.8 Libre Disposición (LD) / 4.9 Disfr. TxT / 4.10 Disfr. exceso (solo GP3/GP4)</h3>
-  <p><strong>Vacaciones:</strong> marca el día (icono playa); se descuenta del banco de vacaciones. <strong>LD:</strong> marca día de Libre Disposición; la primera vez en un año pide el número de días LD. <strong>Disfr. TxT:</strong> descuenta una jornada completa del banco TxT. <strong>Disfr. exceso:</strong> descuenta una jornada completa del banco de exceso de jornada; en el calendario el día muestra el icono de pila gastada (🪫).</p>
+  <p><strong>Vacaciones:</strong> marca el día (icono playa); se descuenta del banco de vacaciones. <strong>LD:</strong> marca día de Libre Disposición; la primera vez en un año pide el número de días LD (también puedes indicar días LD previos en Configuración de jornada → Saldo previo o en el modal al elegir grupo la primera vez). <strong>Disfr. TxT:</strong> descuenta una jornada completa del banco TxT. <strong>Disfr. exceso:</strong> descuenta una jornada completa del banco de exceso de jornada; en el calendario el día muestra el icono de pila gastada (🪫).</p>
   <h3>4.11 Licencias Retribuidas</h3>
   <p>Pulsa <strong>«Licencias Retribuidas»</strong> (botón verde destacado) para abrir un modal con las opciones de licencia retribuida. Los días se aplican desde la fecha seleccionada (laborables o naturales según el tipo). En opciones con <strong>desplazamiento fuera de la provincia</strong> la app pregunta sí/no y asigna los días correspondientes. En opciones de <strong>tiempo necesario</strong> se indica el número de días. Cualquier día de licencia puede eliminarse con <strong>Eliminar</strong>. En el calendario los días de licencia se muestran con el icono <strong>🎫</strong> (ticket/permiso).</p>
   <p><strong>Esquema de licencias retribuidas (referencia):</strong></p>
@@ -138,7 +138,7 @@
   <p>Mes con celdas por día. Indicadores: ✓ = completada; +X.Xh / −X.Xh (TxT) o banco semana/delta (minutos); Disfr. X.Xh; 🪫 = disfrute exceso de jornada (centrado y destacado); 🎫 = licencia retribuida (centrado y destacado); 🏖️ = vacaciones; 🕶️ = Libre Disposición. Festivos resaltados; pulsar muestra el nombre.</p>
 
   <h2>6. Banco de horas / Bolsa de autorregulación</h2>
-  <p><strong>Pestaña Horas TxT (o Bolsa de autorregulación en GP1/GP2):</strong> GP1/GP2 = Bolsa de autorregulación (esta semana), en fase de <em>implantación experimental</em>. GP3/GP4 = <strong>Total disponible TxT (acumulado)</strong> y <strong>Total disponible exceso de jornada (acumulado)</strong> (horas con 2 decimales, h+m y días; 1 día = 459 min); dos desplegables cerrados por defecto: <strong>Desglose anual</strong> (selector de año; TxT generado, exceso, horas TxT gastadas, horas exceso gastadas) y <strong>Desglose mes</strong> (selector de mes del año en curso; mismas métricas por mes). Saldo previo y «Resetear saldo previo» en Configuración de jornada (GP3/GP4). <strong>Pestaña Vacaciones/LD:</strong> días de vacaciones (año curso y anterior) y días LD del año en curso.</p>
+  <p><strong>Pestaña Horas TxT (o Bolsa de autorregulación en GP1/GP2):</strong> GP1/GP2 = Bolsa de autorregulación (esta semana), en fase de <em>implantación experimental</em>. GP3/GP4 = <strong>Total disponible TxT (acumulado)</strong> y <strong>Total disponible exceso de jornada (acumulado)</strong>; cada contador en <strong>tres filas</strong> (decimal, h+m, días; 1 día = 459 min); desplegables <strong>Desglose anual</strong> y <strong>Desglose mes</strong> con el mismo formato. Saldo previo (horas extra, exceso, vacaciones, días LD previos) y «Resetear saldo previo» en Configuración de jornada. <strong>Pestaña Vacaciones/LD:</strong> días de vacaciones (año curso y anterior) y días LD del año en curso (también en Saldo previo o en el modal al elegir grupo la primera vez).</p>
   <p><strong>¿Qué significa Bolsa de autorregulación según el Convenio Intercentros 2022-2029?</strong></p>
   <ol>
     <li><strong>Es una prueba piloto.</strong> No es un sistema totalmente desarrollado en el texto del convenio, sino una implantación experimental a nivel corporativo.</li>
@@ -165,7 +165,7 @@
   <p>Evolución del banco de horas en el año. Solo visible en GP3/GP4.</p>
 
   <h2>8. Configuración</h2>
-  <p>Menú (☰). <strong>Datos personales:</strong> nombre, número SAP, centro de coste, <strong>Grupo Profesional</strong> (GP1–GP4). <strong>Configuración aplicación:</strong> tema, notificaciones, aviso antes de terminar. <strong>Configuración jornada:</strong> jornada (min), turnos, turno, horas extra previas, exceso previo, resetear saldo (GP3/GP4). <strong>Copia y seguridad:</strong> Exportar Excel, Backup, Restaurar, Restaurar valores de fábrica. Pulsa <strong>«Guardar configuración»</strong>.</p>
+  <p>Menú (☰). <strong>Datos personales:</strong> nombre, número SAP, centro de coste, <strong>Grupo Profesional</strong> (GP1–GP4). <strong>Configuración aplicación:</strong> tema, notificaciones, aviso antes de terminar. <strong>Configuración jornada:</strong> jornada (min), turnos, turno. <strong>Saldo previo:</strong> horas extra previas y exceso previo (GP3/GP4), días de vacaciones previos (año anterior), <strong>días de Libre disposición previos (año en curso)</strong>; botón «Resetear saldo previo» (pone a cero horas, exceso y LD previos del año). <strong>Copia y seguridad:</strong> Exportar Excel, Backup, Restaurar, Restaurar valores de fábrica. Pulsa <strong>«Guardar configuración»</strong>.</p>
 
   <h2>9. Notificaciones</h2>
   <p>Aviso antes del fin teórico y al llegar al fin teórico. Solo con la app abierta en primer plano.</p>
@@ -178,7 +178,10 @@
     <li><strong>Festivos:</strong> 1 h TxT por hora trabajada (1:1).</li>
   </ul>
 
-  <h2>11. Resumen rápido</h2>
+  <h2>11. Vista móvil</h2>
+  <p>En móvil: todos los bloques (registro, calendario, gráfico, banco) tienen el mismo ancho y esquinas redondeadas visibles; botones de acciones en filas de dos; salidas y resumen del día con etiqueta y valor en filas separadas; celdas del calendario de tamaño fijo con contenido legible; contadores del banco (decimal, h+m, días) en filas distintas.</p>
+
+  <h2>12. Resumen rápido</h2>
   <table>
     <thead>
       <tr><th>Acción</th><th>Dónde</th></tr>
@@ -190,7 +193,7 @@
       <tr><td>Seguir después del fin teórico (GP3/GP4)</td><td>Extender jornada</td></tr>
       <tr><td>Guardar a mano un día</td><td>Rellenar fecha, entrada, salida → Guardar</td></tr>
       <tr><td>Marcar vacaciones</td><td>Vacaciones</td></tr>
-      <tr><td>Marcar Libre Disposición</td><td>LD</td></tr>
+      <tr><td>Marcar Libre Disposición</td><td>LD (días: modal primera vez en el año o Configuración → Saldo previo)</td></tr>
       <tr><td>Disfrutar horas TxT (GP3/GP4)</td><td>Disfr. TxT</td></tr>
       <tr><td>Disfrutar exceso de jornada (GP3/GP4)</td><td>Disfr. exceso</td></tr>
       <tr><td>Marcar días de licencia retribuida</td><td>Licencias Retribuidas (modal con opciones)</td></tr>

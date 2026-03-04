@@ -165,6 +165,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const bVacacionesAnioAnterior = document.getElementById("bVacacionesAnioAnterior");
   const leyendaCaducidadVacaciones = document.getElementById("leyendaCaducidadVacaciones");
   const labelVacacionesDiasPrevio = document.getElementById("labelVacacionesDiasPrevio");
+  const labelLDDiasPrevio = document.getElementById("labelLDDiasPrevio");
+  const cfgLDDiasPrevio = document.getElementById("cfgLDDiasPrevio");
   const bLDAnioCursoLabel = document.getElementById("bLDAnioCursoLabel");
   const bLDAnioCurso = document.getElementById("bLDAnioCurso");
   const modalLDAnio = document.getElementById("modalLDAnio");
@@ -257,6 +259,9 @@ function aplicarEstadoConfigAUI() {
   if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = ((state.config.excesoJornadaInicialMin || 0) / 60).toFixed(2).replace(".", ",");
   if (cfgVacacionesDiasPrevio) cfgVacacionesDiasPrevio.value = String(state.config.vacacionesDiasPrevio ?? 0);
   if (labelVacacionesDiasPrevio) labelVacacionesDiasPrevio.textContent = "Días de vacaciones previos (" + (new Date().getFullYear() - 1) + ")";
+  const anioCurso = new Date().getFullYear();
+  if (cfgLDDiasPrevio) cfgLDDiasPrevio.value = String(state.ldDiasPorAnio?.[anioCurso] ?? 0);
+  if (labelLDDiasPrevio) labelLDDiasPrevio.textContent = "Días de Libre disposición previos (" + anioCurso + ")";
   if (configTurnoWrap) configTurnoWrap.hidden = !state.config.trabajoATurnos;
 }
 
@@ -384,6 +389,9 @@ if (guardarConfig) {
     } else {
       state.vacacionesDiasPorAnio = { "2025": state.config.vacacionesDiasPrevio };
     }
+    const anioCurso = new Date().getFullYear();
+    const ldPrev = Math.max(0, parseInt(cfgLDDiasPrevio?.value, 10) || 0);
+    state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anioCurso]: ldPrev } : { [anioCurso]: ldPrev };
 
     saveState(state);
 
@@ -405,9 +413,12 @@ if (guardarConfig) {
     btnResetSaldoPrevio.addEventListener("click", () => {
       state.config.horasExtraInicialMin = 0;
       state.config.excesoJornadaInicialMin = 0;
+      const anioCurso = new Date().getFullYear();
+      state.ldDiasPorAnio = state.ldDiasPorAnio && typeof state.ldDiasPorAnio === "object" ? { ...state.ldDiasPorAnio, [anioCurso]: 0 } : {};
       saveState(state);
       if (cfgHorasExtraPrevias) cfgHorasExtraPrevias.value = "0,00";
       if (cfgExcesoJornadaPrevias) cfgExcesoJornadaPrevias.value = "0,00";
+      if (cfgLDDiasPrevio) cfgLDDiasPrevio.value = "0";
       actualizarBanco();
     });
   }
@@ -2295,6 +2306,9 @@ function controlarNotificaciones() {
     renderCalendario();
     actualizarResumenDia();
     actualizarEstadoIniciarJornada();
+    // Tras elegir grupo la primera vez, ofrecer indicar días LD del año en curso
+    const anioCurso = new Date().getFullYear();
+    setTimeout(() => { abrirModalLDAnio(anioCurso); }, 100);
   }
 
   [modalElegirGP1, modalElegirGP2, modalElegirGP3, modalElegirGP4].forEach(function (btn) {
