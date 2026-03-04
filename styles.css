@@ -2037,15 +2037,65 @@ body.dark .progress-text-inside.light-text {
   .cal-empty {
     min-width: 0;
     width: 100%;
-    height: 52px;
-    min-height: 52px;
+    height: 60px;
+    min-height: 60px;
     overflow: hidden;
-    padding: 3px;
-    font-size: 11px;
+    padding: 4px 3px;
+    font-size: 10px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    align-items: center;
+    text-align: center;
     box-sizing: border-box;
+  }
+
+  .cal-day > div:first-child {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.1;
+    flex-shrink: 0;
+  }
+
+  .cal-day small {
+    font-size: 9px;
+    line-height: 1.2;
+    margin-top: 0;
+    max-width: 100%;
+  }
+
+  .cal-day small.cal-saldo {
+    font-size: 9px;
+  }
+
+  .cal-day small.cal-saldo-hm {
+    font-size: 8px;
+  }
+
+  .cal-day small.cal-disfrutadas {
+    font-size: 8px;
+  }
+
+  .cal-day-vacaciones,
+  .cal-day-disfrute-horas {
+    font-size: 1.25rem !important;
+    margin-top: 0;
+  }
+
+  .cal-day-disfrute-horas {
+    font-size: 1.35rem !important;
+  }
+
+  .cal-day-completed,
+  .cal-day-especial {
+    width: 18px;
+    height: 18px;
+    padding: 1px 2px 0 0;
+  }
+
+  .cal-day-completed-check,
+  .cal-day-especial-symbol {
+    font-size: 10px;
   }
 
   .cal-header {
@@ -2055,8 +2105,8 @@ body.dark .progress-text-inside.light-text {
   }
 
   .cal-empty {
-    height: 52px;
-    min-height: 52px;
+    height: 60px;
+    min-height: 60px;
   }
 
   .metrics {
@@ -2111,10 +2161,30 @@ body.dark .progress-text-inside.light-text {
 
   .cal-day,
   .cal-empty {
-    height: 48px;
-    min-height: 48px;
-    font-size: 10px;
-    padding: 2px;
+    height: 56px;
+    min-height: 56px;
+    padding: 3px 2px;
+  }
+
+  .cal-day > div:first-child {
+    font-size: 11px;
+  }
+
+  .cal-day small {
+    font-size: 8px;
+  }
+
+  .cal-day small.cal-saldo-hm {
+    font-size: 7px;
+  }
+
+  .cal-day-vacaciones,
+  .cal-day-disfrute-horas {
+    font-size: 1.1rem !important;
+  }
+
+  .cal-day-disfrute-horas {
+    font-size: 1.2rem !important;
   }
 
   .calendar-grid {
