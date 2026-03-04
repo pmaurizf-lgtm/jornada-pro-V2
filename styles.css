@@ -60,6 +60,7 @@ body.dark {
 
 html {
   -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
 }
 
 body {
@@ -1881,26 +1882,46 @@ body.dark .progress-text-inside.light-text {
     overflow-x: hidden;
   }
 
+  /* Barra superior: sin cortes, esquinas inferiores redondeadas */
   header.header {
-    padding: 12px 16px;
+    padding: 12px max(12px, var(--safe-right)) 12px max(12px, var(--safe-left));
     padding-top: max(12px, var(--safe-top));
     gap: 12px;
+    border-radius: 0 0 16px 16px;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .header-title {
     font-size: clamp(0.9rem, 4vw, 1.15rem);
     line-height: 1.2;
+    min-width: 0;
   }
 
   .header-logo {
     height: 36px;
     max-height: 40px;
+    flex-shrink: 0;
   }
 
+  /* Cards sin margen horizontal para que no se corten y se vean las esquinas */
   .card {
     padding: 16px;
+    margin-left: 0;
+    margin-right: 0;
     margin-bottom: 16px;
     border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* Pestañas banco de horas: alineadas al padding del card, sin salirse */
+  .metrics .bank-tabs {
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-top: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-radius: 16px 16px 0 0;
   }
 
   .main-grid {
